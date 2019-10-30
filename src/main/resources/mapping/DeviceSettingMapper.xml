@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hx.dao.DeviceDao" >
+  <resultMap id="Device_Setting" type="com.hx.modle.Device_Setting" >
+    <id property="id" column="id"/>
+    <result property="ch" column="ch"/>
+    <result property="prefix" column="prefix"/>
+    <result property="areaCode" column="areaCode"/>
+    <result property="seatNumber" column="seatNumber"/>
+    <result property="chType" column="chType"/>
+  </resultMap>
+  <!--发送页面下拉列表框,选择某个通道发送,座机号-->
+  <select id="selectSeatNumber" resultType="java.lang.String">
+    SELECT seatNumber FROM Device_Setting WHERE seatNumber IS NOT NULL AND chType!=1;
+  </select>
+  <!--初始化板卡时查询通道类型-->
+  <select id="selectChType" resultMap="Device_Setting">
+    SELECT ch,chType FROM Device_Setting WHERE chType!=0;
+  </select>
+  <!--根据通道编号查询支持发送的座机号-->
+  <select id="selectSeatNumberByCh" resultType="java.lang.String" parameterType="java.lang.Integer">
+    SELECT seatNumber FROM Device_Setting WHERE ch=#{i,jdbcType=Integer} AND chType!=1;
+  </select>
+  <!--根据座机号查看前缀-->
+  <select id="selectPrefix" resultMap="Device_Setting" parameterType="java.lang.String">
+    SELECT prefix,areaCode FROM Device_Setting WHERE seatNumber=#{sendNumber,jdbcType=String};
+  </select>
+
+</mapper>

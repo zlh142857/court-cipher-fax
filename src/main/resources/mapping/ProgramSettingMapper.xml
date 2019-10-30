@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hx.dao.ProgramSettingDao" >
+  <resultMap id="Program_Setting" type="com.hx.modle.Program_Setting" >
+    <id property="id" column="id"/>
+    <result property="courtName" column="courtName"/>
+    <result property="isPrint" column="isPrint"/>
+    <result property="printService" column="printService"/>
+  </resultMap>
+  <!--查询是否立即打印-->
+  <select id="selectProgramSetting" resultMap="Program_Setting">
+    SELECT isPrint,printService FROM Program_Setting ;
+  </select>
+</mapper>

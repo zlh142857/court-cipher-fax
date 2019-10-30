@@ -99,7 +99,7 @@
       <artifactId>mybatis-spring</artifactId>
       <version>1.1.1</version>
     </dependency>
-    <!--引入druid对应jar包 -->
+    <!--引入druid对应jar包-->
     <dependency>
       <groupId>com.alibaba</groupId>
       <artifactId>druid</artifactId>
@@ -142,7 +142,7 @@
       <artifactId>log4j</artifactId>
       <version>1.2.17</version>
     </dependency>
-<!--    <dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
       <version>1.7.6</version>
@@ -151,7 +151,7 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>1.7.6</version>
-    </dependency>-->
+    </dependency>
 
     <dependency>
       <groupId>mysql</groupId>
@@ -163,11 +163,6 @@
       <groupId>com.alibaba</groupId>
       <artifactId>fastjson</artifactId>
       <version>1.2.23</version>
-    </dependency>
-    <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>2.1</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -216,18 +211,6 @@
       <version>2.3</version>
     </dependency>
 
-    <!-- 加入POI核心依赖 -->
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi</artifactId>
-      <version>3.10-beta2</version>
-    </dependency>
-    <!-- 为POI支持Office Open XML -->
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi-ooxml</artifactId>
-      <version>3.10-beta2</version>
-    </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
@@ -238,13 +221,70 @@
       <artifactId>jackson-databind</artifactId>
       <version>2.4.4</version>
     </dependency>
+<!--张立恒 start-->
+    <!--Word转PDF  直接打印PDF    start-->
+    <dependency>
+      <groupId>com.jacob</groupId>
+      <artifactId>jacob</artifactId>
+      <version>1.19</version>
+    </dependency>
+    <!--Word转PDF  直接打印PDF    end-->
+    <!-- itext 多页tif合并为PDF文件 start -->
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>itextpdf</artifactId>
+      <version>5.5.13</version>
+    </dependency>
+    <!-- itext 多页tif合并为PDF文件 end -->
+    <!--twain scan 扫描 获取扫描文件-->
+    <dependency>
+      <groupId>twain</groupId>
+      <artifactId>scan_</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>twain</groupId>
+      <artifactId>uk.co.mmscomputing.device.twain</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <!--twain scan 扫描 获取扫描文件-->
+    <!-- JNA start -->
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>4.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>platform</artifactId>
+      <version>3.5.1</version>
+    </dependency>
+    <!-- JNA end -->
+    <dependency>
+      <groupId>com.sun.media</groupId>
+      <artifactId>jai_codec</artifactId>
+      <version>1.1-mr</version>
+    </dependency>
     <dependency>
       <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
-      <version>2.0.6</version>
+      <version>2.0.0-RC2</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.media</groupId>
+      <artifactId>jai_imageio</artifactId>
+      <version>1.1-alpha</version>
+    </dependency>
+    <dependency>
+      <groupId>org.icepdf.os</groupId>
+      <artifactId>icepdf-core</artifactId>
+      <version>6.1.2</version>
     </dependency>
 
+    <!--修改Tif Tag end-->
+    <!--张立恒 end-->
   </dependencies>
+
 
   <build>
     <finalName>court-cipher-fax</finalName>
