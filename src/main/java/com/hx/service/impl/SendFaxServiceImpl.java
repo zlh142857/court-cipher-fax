@@ -8,8 +8,10 @@ package com.hx.service.impl;/*
 import com.hx.common.Fax;
 import com.hx.dao.DeviceDao;
 import com.hx.dao.OutboxMapper;
+import com.hx.dao.SendReceiptMapper;
 import com.hx.modle.Device_Setting;
 import com.hx.modle.Outbox;
+import com.hx.modle.Send_Receipt;
 import com.hx.service.SendFaxService;
 import com.hx.util.GetTimeToFileName;
 import org.apache.log4j.Logger;
@@ -33,6 +35,8 @@ public class SendFaxServiceImpl implements SendFaxService {
     private DeviceDao deviceDao;
     @Autowired
     private OutboxMapper outboxMapper;
+    @Autowired
+    private SendReceiptMapper SendReceiptMapper;
     //查询座机号下拉列表框
     @Override
     public List<String> selectSeatNumber() {
@@ -89,14 +93,14 @@ public class SendFaxServiceImpl implements SendFaxService {
                 if(Msg.equals( "通话中" )){
                     message=faxSendStart(ch,tifPath,base64,isBack);
                     if(isBack==2){
-
+                        insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
                     }else{
                         insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
                     }
                 }else{
                     message=Msg;
                     if(isBack==2){
-
+                        insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
                     }else{
                         insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
                     }
@@ -115,14 +119,14 @@ public class SendFaxServiceImpl implements SendFaxService {
                         if(Msg.equals( "通话中" )){
                             message=faxSendStart(ch,tifPath,base64,isBack);
                             if(isBack==2){
-
+                                insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
                             }else{
                                 insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
                             }
                         }else{
                             message=Msg;
                             if(isBack==2){
-
+                                insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
                             }else{
                                 insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
                             }
@@ -368,25 +372,25 @@ public class SendFaxServiceImpl implements SendFaxService {
     }
     public void insertDataReceipt(String message,String receiveNumber,String filename,String sendNumber,String courtName){
         if(message.equals( "成功" )){
-            Outbox outbox=new Outbox();
-            outbox.setReceivenumber( receiveNumber );
-            outbox.setMessage( "成功" );
-            outbox.setSendline( filename );
-            outbox.setSendernumber( sendNumber );
+            Send_Receipt sendReceipt=new Send_Receipt();
+            sendReceipt.setReceivenumber( receiveNumber );
+            sendReceipt.setMessage( "成功" );
+            sendReceipt.setSendline( filename );
+            sendReceipt.setSendnumber( sendNumber );
             Date date=new Date();
-            outbox.setCreate_time(date);
-            outbox.setReceivingunit( courtName );
-            outboxMapper.insertNewMessage(outbox);
+            sendReceipt.setCreate_time(date);
+            sendReceipt.setReceivingunit( courtName );
+            SendReceiptMapper.insertNewMessage(sendReceipt);
         }else{
-            Outbox outbox=new Outbox();
-            outbox.setReceivenumber( receiveNumber );
-            outbox.setMessage( "失败("+message+")" );
-            outbox.setSendline( filename );
-            outbox.setSendernumber( sendNumber );
+            Send_Receipt sendReceipt=new Send_Receipt();
+            sendReceipt.setReceivenumber( receiveNumber );
+            sendReceipt.setMessage( "失败("+message+")" );
+            sendReceipt.setSendline( filename );
+            sendReceipt.setSendnumber( sendNumber );
             Date date=new Date();
-            outbox.setCreate_time(date);
-            outbox.setReceivingunit( courtName );
-            outboxMapper.insertNewMessage(outbox);
+            sendReceipt.setCreate_time(date);
+            sendReceipt.setReceivingunit( courtName );
+            SendReceiptMapper.insertNewMessage(sendReceipt);
         }
     }
     public static void deleteFiles(String tifPath,String base64){
