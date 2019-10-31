@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * @author 范聪敏
  * @date 2019/10/17 9:23
- * @desc
+ * @desc 收回执
  */
 public class Send_Receipt {
     private static final long serialVersionUID = 1670857753595889875L;
@@ -14,11 +14,8 @@ public class Send_Receipt {
     private String receivenumber;//接收方号码
     private Date create_time;//发送时间
     private String sendline;//标题
-    private String message;
-
-    public void setId(int id) {
-        this.id = id;
-    }
+    private String message;//是否已经成功
+    private String sendnumber;//发送方号码
 
     @Override
     public String toString() {
@@ -29,7 +26,12 @@ public class Send_Receipt {
                 ", create_time=" + create_time +
                 ", sendline='" + sendline + '\'' +
                 ", message='" + message + '\'' +
+                ", sendnumber='" + sendnumber + '\'' +
                 '}';
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setReceivingunit(String receivingunit) {
@@ -50,6 +52,10 @@ public class Send_Receipt {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public void setSendnumber(String sendnumber) {
+        this.sendnumber = sendnumber;
     }
 
     public static long getSerialVersionUID() {
@@ -79,5 +85,9 @@ public class Send_Receipt {
 
     public String getMessage() {
         return message;
+    }
+
+    public String getSendnumber() {
+        return sendnumber;
     }
 }

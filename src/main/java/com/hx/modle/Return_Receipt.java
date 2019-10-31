@@ -5,7 +5,7 @@ import java.util.Date;
 /**
  * @author 范聪敏
  * @date 2019/10/17 9:42
- * @desc
+ * @desc 收回执
  */
 public class Return_Receipt {
     private static final long serialVersionUID = 1670857753595889875L;
@@ -13,21 +13,8 @@ public class Return_Receipt {
     private String senderunit;//发送方单位名称
     private String sendnumber;//接收号码
     private Date create_time;;//接收时间
+    private String filsavepath;//文件保存路径
 
-
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
-    }
-
-    @Override
-    public String toString() {
-        return "Return_Receipt{" +
-                "id=" + id +
-                ", senderunit='" + senderunit + '\'' +
-                ", sendnumber='" + sendnumber + '\'' +
-                ", create_time=" + create_time +
-                '}';
-    }
 
     public void setId(int id) {
         this.id = id;
@@ -41,8 +28,28 @@ public class Return_Receipt {
         this.sendnumber = sendnumber;
     }
 
+    @Override
+    public String toString() {
+        return "Return_Receipt{" +
+                "id=" + id +
+                ", senderunit='" + senderunit + '\'' +
+                ", sendnumber='" + sendnumber + '\'' +
+                ", create_time=" + create_time +
+                ", filsavepath='" + filsavepath + '\'' +
+                '}';
+    }
+
     public void setCreate_time(Date create_time) {
         this.create_time = create_time;
+    }
+
+    public void setFilsavepath(String filsavepath) {
+        this.filsavepath = filsavepath;
+    }
+
+    public static long getSerialVersionUID() {
+
+        return serialVersionUID;
     }
 
     public int getId() {
@@ -59,5 +66,9 @@ public class Return_Receipt {
 
     public Date getCreate_time() {
         return create_time;
+    }
+
+    public String getFilsavepath() {
+        return filsavepath;
     }
 }
