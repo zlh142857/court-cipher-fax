@@ -37,8 +37,6 @@ public interface Fax extends Library {
 
     //设置本端的电话号码
     int SsmFaxSetID(int ch,String szID);
-    //获取发送方的电话号码。
-    int SsmFaxGetID(int ch,String myid);
     //发送传真文件
     int SsmFaxStartSend(int ch,String filename);
 

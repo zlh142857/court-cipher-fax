@@ -14,4 +14,6 @@ public interface DeviceDao {
     String selectSeatNumberByCh(@Param(value="i")int i);
 
     Device_Setting selectPrefix(@Param(value="sendNumber")String sendNumber);
+
+    String selectNumberByCh(@Param(value="ch")int ch);
 }

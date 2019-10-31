@@ -1,6 +1,7 @@
 package com.hx.dao;
 
         import com.hx.modle.Return_Receipt;
+        import org.apache.ibatis.annotations.Param;
 
         import java.util.List;
 
@@ -11,4 +12,6 @@ package com.hx.dao;
  */
 public interface ReceiptMapper {
     List<Return_Receipt> queryReturn();
+
+    void insertReceipt(@Param( "returnReceipt" ) Return_Receipt returnReceipt);
 }

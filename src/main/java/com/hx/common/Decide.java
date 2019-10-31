@@ -5,8 +5,13 @@ package com.hx.common;/*
  *@功能:
  */
 
+import com.hx.dao.DeviceDao;
+import com.hx.dao.InboxMapper;
 import com.hx.dao.ProgramSettingDao;
+import com.hx.dao.ReceiptMapper;
+import com.hx.modle.Inbox;
 import com.hx.modle.Program_Setting;
+import com.hx.modle.Return_Receipt;
 import com.hx.modle.TempModel;
 import com.hx.util.GetTimeToFileName;
 import com.hx.util.PrintImage;
@@ -16,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 
 import java.io.File;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +33,12 @@ import static com.hx.util.ColorReverse.writeJpg;
 public class Decide {
     @Autowired
     private static ProgramSettingDao programSettingDao;
+    @Autowired
+    private static DeviceDao DeviceDao;
+    @Autowired
+    private static InboxMapper inboxMapper;
+    @Autowired
+    private static ReceiptMapper receiptMapper;
     private static Logger logger=Logger.getLogger(Decide.class);
     public static void decideCh(int flag, int ch){
         if(flag==2){
@@ -102,6 +114,7 @@ public class Decide {
                             int flag=stopAndHungUp(ch,i);
                             if(flag==0){
                                 //仅正文,存入数据库
+                                insertMsg(ch,callerId,tifPath);
                                 logger.info( "接收成功" );
                             }
                         }else if(codeMode==1){
@@ -115,20 +128,21 @@ public class Decide {
                                     Fax.INSTANCE.SsmFaxStartReceive( i,tifPathBack);
                                     TempModel tempModel2=new TempModel();
                                     tempModel2= sendEnd( ch, i,tempModel2 );
-                                    if (tempModel.getEndFlag() == 0) {
-                                        int codeMode2=tempModel.getCodeMode();
+                                    if (tempModel2.getEndFlag() == 0) {
+                                        int codeMode2=tempModel2.getCodeMode();
                                         if(codeMode2==0){
                                             int flag=stopAndHungUp(ch,i);
                                             if(flag==0){
                                                 //将回执文件存入数据库
-                                                logger.info( "接收成功" );
+                                                insertMsgReceipt(ch,callerId,tifPathBack);
+                                                logger.info( "接收回执文件成功" );
                                             }
                                         }
                                     }
                                 }else{
                                     int flag=stopAndHungUp(ch,i);
                                     if(flag==0){
-                                        //仅正文,存入数据库
+                                        insertMsg(ch,callerId,tifPath);
                                         logger.info( "接收成功" );
                                     }
                                 }
@@ -196,6 +210,25 @@ public class Decide {
             }
         }
     }
-
+    public static void insertMsg(int ch, String callerId, String tifPath){
+        String receiveNumber=DeviceDao.selectNumberByCh(ch);
+        Inbox inbox=new Inbox();
+        inbox.setSendernumber(callerId);
+        inbox.setReceivenumber(receiveNumber);
+        Date date=new Date();
+        inbox.setCreate_time( date );
+        inbox.setFilsavepath(tifPath);
+        inboxMapper.insertInbox(inbox);
+    }
+    public static void insertMsgReceipt(int ch, String callerId, String tifPathBack){
+        String receiveNumber=DeviceDao.selectNumberByCh(ch);
+        Return_Receipt returnReceipt=new Return_Receipt();
+        returnReceipt.setSendnumber(callerId);
+        returnReceipt.setReceivenumber(receiveNumber);
+        Date date=new Date();
+        returnReceipt.setCreate_time( date );
+        returnReceipt.setFilsavepath(tifPathBack);
+        receiptMapper.insertReceipt(returnReceipt);
+    }
 
 }

@@ -63,4 +63,54 @@
           #{inbox.isreceipt}
         )
     </insert>
+    <!--张立恒start-->
+    <!--新增收件箱-->
+    <insert id="insertInbox" parameterType="com.hx.modle.Inbox">
+        INSERT INTO inbox
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sendernumber != null and sendernumber != ''">
+                sendernumber,
+            </if>
+            <if test="receivenumber != null and receivenumber != ''">
+                receivenumber,
+            </if>
+            <if test="filsavepath != null and filsavepath != ''">
+                filsavepath,
+            </if>
+            <if test="create_time != null and create_time != ''">
+                create_time,
+            </if>
+            <if test="receiptpath != null and receiptpath != ''">
+                receiptpath,
+            </if>
+            <if test="senderunit != null and senderunit != ''">
+                senderunit,
+            </if>
+        </trim>
+        <trim prefix=" values (" suffix=")" suffixOverrides=",">
+            <if test="sendernumber != null and sendernumber != ''">
+                #{sendernumber,jdbcType=VARCHAR},
+            </if>
+            <if test="receivenumber != null and receivenumber != ''">
+                #{receivenumber,jdbcType=VARCHAR},
+            </if>
+            <if test="filsavepath != null and filsavepath != ''">
+                #{filsavepath,jdbcType=VARCHAR},
+            </if>
+            <if test="create_time != null and create_time != ''">
+                #{create_time,jdbcType=TIMESTAMP},
+            </if>
+            <if test="receiptpath != null and receiptpath != ''">
+                #{receiptpath,jdbcType=VARCHAR},
+            </if>
+            <if test="senderunit != null and senderunit != ''">
+                #{senderunit,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <!--修改是否已回执,改成已回执:1-->
+    <update id="updateIsReceiptById" parameterType="java.lang.Integer">
+      UPDATE inbox SET Isreceipt=1 WHERE id={id,jdbcType=INTEGER}
+    </update>
+    <!--张立恒end-->
 </mapper>

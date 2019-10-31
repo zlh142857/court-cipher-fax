@@ -7,6 +7,7 @@ package com.hx.service.impl;/*
 
 import com.hx.common.Fax;
 import com.hx.dao.DeviceDao;
+import com.hx.dao.InboxMapper;
 import com.hx.dao.OutboxMapper;
 import com.hx.dao.SendReceiptMapper;
 import com.hx.modle.Device_Setting;
@@ -37,6 +38,8 @@ public class SendFaxServiceImpl implements SendFaxService {
     private OutboxMapper outboxMapper;
     @Autowired
     private SendReceiptMapper SendReceiptMapper;
+    @Autowired
+    private InboxMapper inboxMapper;
     //查询座机号下拉列表框
     @Override
     public List<String> selectSeatNumber() {
@@ -78,7 +81,8 @@ public class SendFaxServiceImpl implements SendFaxService {
     }
 
     @Override
-    public String sendFax(String tifPath, String base64, String courtName, String receiveNumber, String sendNumber, int isBack,int ch,String filename) {
+    public String sendFax(String tifPath, String base64, String courtName, String receiveNumber,
+                          String sendNumber, int isBack,int ch,String filename,int id) {
         //查询数据库是否有前缀0,
         //获取本地号码前缀和前缀长度,查看接收方号码是否是同区号码,同区号码,去除接收方区号
         receiveNumber=getReceiveNumber(sendNumber,receiveNumber);
@@ -93,7 +97,10 @@ public class SendFaxServiceImpl implements SendFaxService {
                 if(Msg.equals( "通话中" )){
                     message=faxSendStart(ch,tifPath,base64,isBack);
                     if(isBack==2){
+                        //在发件箱或者发回执箱增加记录
+                        //发回执更改收件箱是否已回执,改成1,已回执
                         insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
+                        inboxMapper.updateIsReceiptById(id);
                     }else{
                         insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
                     }
@@ -101,6 +108,7 @@ public class SendFaxServiceImpl implements SendFaxService {
                     message=Msg;
                     if(isBack==2){
                         insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
+                        inboxMapper.updateIsReceiptById(id);
                     }else{
                         insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
                     }

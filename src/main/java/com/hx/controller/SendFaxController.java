@@ -59,8 +59,8 @@ public class SendFaxController {
     public String sendFax(@RequestParam("tifPath") String tifPath,@RequestParam("base64") String base64,
                           @RequestParam("courtName") String courtName,@RequestParam("receiveNumber") String receiveNumber,
                           @RequestParam("sendNumber") String sendNumber,@RequestParam("isBack") int isBack,@RequestParam("ch") int ch,
-                          @RequestParam("filename") String filename){
-        String mes=sendFaxService.sendFax(tifPath,base64,courtName,receiveNumber,sendNumber,isBack,ch,filename);
+                          @RequestParam("filename") String filename,@RequestParam("id") int id){
+        String mes=sendFaxService.sendFax(tifPath,base64,courtName,receiveNumber,sendNumber,isBack,ch,filename,id);
         return mes;
     }
     /**

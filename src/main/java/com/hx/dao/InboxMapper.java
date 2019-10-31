@@ -32,4 +32,7 @@ public interface InboxMapper {
 
     int insert(@Param("inbox") Inbox inbox);
 
+    void insertInbox(@Param("inbox")Inbox inbox);
+
+    void updateIsReceiptById(@Param( "id" ) int id);
 }
