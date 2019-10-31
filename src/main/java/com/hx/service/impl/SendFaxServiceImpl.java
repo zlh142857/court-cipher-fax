@@ -7,7 +7,9 @@ package com.hx.service.impl;/*
 
 import com.hx.common.Fax;
 import com.hx.dao.DeviceDao;
+import com.hx.dao.OutboxMapper;
 import com.hx.modle.Device_Setting;
+import com.hx.modle.Outbox;
 import com.hx.service.SendFaxService;
 import com.hx.util.GetTimeToFileName;
 import org.apache.log4j.Logger;
@@ -15,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import static com.hx.change.ChangeFile.baseToPdf;
@@ -27,6 +31,8 @@ public class SendFaxServiceImpl implements SendFaxService {
     private static Logger logger=Logger.getLogger( SendFaxServiceImpl.class);
     @Autowired
     private DeviceDao deviceDao;
+    @Autowired
+    private OutboxMapper outboxMapper;
     //查询座机号下拉列表框
     @Override
     public List<String> selectSeatNumber() {
@@ -68,7 +74,7 @@ public class SendFaxServiceImpl implements SendFaxService {
     }
 
     @Override
-    public String sendFax(String tifPath, String base64, String courtName, String receiveNumber, String sendNumber, int isBack,int ch) {
+    public String sendFax(String tifPath, String base64, String courtName, String receiveNumber, String sendNumber, int isBack,int ch,String filename) {
         //查询数据库是否有前缀0,
         //获取本地号码前缀和前缀长度,查看接收方号码是否是同区号码,同区号码,去除接收方区号
         receiveNumber=getReceiveNumber(sendNumber,receiveNumber);
@@ -82,8 +88,18 @@ public class SendFaxServiceImpl implements SendFaxService {
                 String Msg=sendFreeCh(receiveNumber,ch);
                 if(Msg.equals( "通话中" )){
                     message=faxSendStart(ch,tifPath,base64,isBack);
+                    if(isBack==2){
+
+                    }else{
+                        insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
+                    }
                 }else{
                     message=Msg;
+                    if(isBack==2){
+
+                    }else{
+                        insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
+                    }
                 }
             }
         }else{
@@ -98,14 +114,25 @@ public class SendFaxServiceImpl implements SendFaxService {
                         String Msg=sendFreeCh(receiveNumber,i);
                         if(Msg.equals( "通话中" )){
                             message=faxSendStart(ch,tifPath,base64,isBack);
+                            if(isBack==2){
+
+                            }else{
+                                insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
+                            }
                         }else{
                             message=Msg;
+                            if(isBack==2){
+
+                            }else{
+                                insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
+                            }
                         }
                         break;
                     }
                 }
             }
         }
+        deleteFiles(tifPath,base64);
         return message;
     }
     //对接收方的号码进行更改
@@ -254,7 +281,6 @@ public class SendFaxServiceImpl implements SendFaxService {
                 //仅正文
                 int isStop=stopAndHungUp(ch,j);
                 if(isStop==0){
-                    //将文件存入发件箱
                     logger.info( "发送成功" );
                 }else{
                     errMsg="发送失败(断开连接失败)";
@@ -263,8 +289,6 @@ public class SendFaxServiceImpl implements SendFaxService {
                 //仅回执页
                 int isStop=stopAndHungUp(ch,j);
                 if(isStop==0){
-
-                    //将文件存入发回执箱
                     logger.info( "发送成功" );
                 }else{
                     errMsg="发送失败(断开连接失败)";
@@ -286,7 +310,6 @@ public class SendFaxServiceImpl implements SendFaxService {
         if(jState==0){
             int isStop=stopAndHungUp(ch,j);
             if(isStop==0){
-                //将文件存入发回执箱以及发件箱
                 logger.info( "发送成功" );
             }else{
                 msg="失败(断开连接失败)";
@@ -319,5 +342,61 @@ public class SendFaxServiceImpl implements SendFaxService {
             logger.error("断开连接失败:"+errMsg);
         }
         return flag;
+    }
+    public void insertDataOutBox(String message,String receiveNumber,String filename,String sendNumber,String courtName){
+        if(message.equals( "成功" )){
+            Outbox outbox=new Outbox();
+            outbox.setReceivenumber( receiveNumber );
+            outbox.setMessage( "成功" );
+            outbox.setSendline( filename );
+            outbox.setSendernumber( sendNumber );
+            Date date=new Date();
+            outbox.setCreate_time(date);
+            outbox.setReceivingunit( courtName );
+            outboxMapper.insertNewMessage(outbox);
+        }else{
+            Outbox outbox=new Outbox();
+            outbox.setReceivenumber( receiveNumber );
+            outbox.setMessage( "失败("+message+")" );
+            outbox.setSendline( filename );
+            outbox.setSendernumber( sendNumber );
+            Date date=new Date();
+            outbox.setCreate_time(date);
+            outbox.setReceivingunit( courtName );
+            outboxMapper.insertNewMessage(outbox);
+        }
+    }
+    public void insertDataReceipt(String message,String receiveNumber,String filename,String sendNumber,String courtName){
+        if(message.equals( "成功" )){
+            Outbox outbox=new Outbox();
+            outbox.setReceivenumber( receiveNumber );
+            outbox.setMessage( "成功" );
+            outbox.setSendline( filename );
+            outbox.setSendernumber( sendNumber );
+            Date date=new Date();
+            outbox.setCreate_time(date);
+            outbox.setReceivingunit( courtName );
+            outboxMapper.insertNewMessage(outbox);
+        }else{
+            Outbox outbox=new Outbox();
+            outbox.setReceivenumber( receiveNumber );
+            outbox.setMessage( "失败("+message+")" );
+            outbox.setSendline( filename );
+            outbox.setSendernumber( sendNumber );
+            Date date=new Date();
+            outbox.setCreate_time(date);
+            outbox.setReceivingunit( courtName );
+            outboxMapper.insertNewMessage(outbox);
+        }
+    }
+    public static void deleteFiles(String tifPath,String base64){
+        File file=new File(tifPath);
+        if(file.isFile()){
+            file.delete();
+        }
+        File file2=new File(base64);
+        if(file2.isFile()){
+            file2.delete();
+        }
     }
 }
