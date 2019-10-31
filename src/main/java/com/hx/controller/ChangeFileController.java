@@ -52,7 +52,7 @@ public class ChangeFileController {
      */
     @RequestMapping("deleteTiff")
     @ResponseBody
-    public void deleteTiff(@RequestParam("tifPath") String tifPath,@RequestParam("tifPathBack") String tifPathBack){
-        deleteFiles(tifPath,tifPathBack);
+    public void deleteTiff(@RequestParam("tifPath") String tifPath,@RequestParam("receiptPath") String receiptPath){
+        deleteFiles(tifPath,receiptPath);
     }
 }

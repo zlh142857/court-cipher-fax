@@ -56,11 +56,11 @@ public class SendFaxController {
      */
     @RequestMapping("sendFax")
     @ResponseBody
-    public String sendFax(@RequestParam("tifPath") String tifPath,@RequestParam("base64") String base64,
+    public String sendFax(@RequestParam("tifPath") String tifPath,@RequestParam("receiptPath") String receiptPath,
                           @RequestParam("courtName") String courtName,@RequestParam("receiveNumber") String receiveNumber,
                           @RequestParam("sendNumber") String sendNumber,@RequestParam("isBack") int isBack,@RequestParam("ch") int ch,
                           @RequestParam("filename") String filename,@RequestParam("id") int id){
-        String mes=sendFaxService.sendFax(tifPath,base64,courtName,receiveNumber,sendNumber,isBack,ch,filename,id);
+        String mes=sendFaxService.sendFax(tifPath,receiptPath,courtName,receiveNumber,sendNumber,isBack,ch,filename,id);
         return mes;
     }
     /**
@@ -79,22 +79,6 @@ public class SendFaxController {
     public String baseToTif(@RequestParam("base64") String base64){
         String receiptPath=sendFaxService.baseToTif(base64);
         return JSONObject.toJSONString( receiptPath );
-    }
-    /**
-     *
-     * 功能描述: 删除发送方的两个文件
-     *
-     * 业务逻辑:
-     *
-     * @param:
-     * @return:
-     * @auther: 张立恒
-     * @date: 2019/10/30 15:00
-     */
-    @RequestMapping("deleteFileByPath")
-    @ResponseBody
-    public void deleteFileByPath(@RequestParam("receiptPath") String receiptPath,@RequestParam("tifPath") String tifPath){
-        deleteFiles(tifPath,receiptPath);
     }
 
 
