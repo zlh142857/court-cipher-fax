@@ -111,7 +111,7 @@ public class RecycleBinServiceImpl implements RecycleBinService {
 
 
     @Override
-    public int insertRecycleBin(String relateType, Date recoverytime, int sendernumber, String senderunit, String receivingunit, int receivenumber, String filsavepath,
+    public int insertRecycleBin(String relateType, Date recoverytime, String sendernumber, String senderunit, String receivingunit, String receivenumber, String filsavepath,
                                 Date create_time, String receiptpath, int isreceipt, String sendline,String message) {
         RecycleBin recycleBin = new RecycleBin();
         recycleBin.setRecoverytime(recoverytime);

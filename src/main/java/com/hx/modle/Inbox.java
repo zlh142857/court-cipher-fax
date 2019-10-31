@@ -11,9 +11,9 @@ import java.util.Date;
 public class Inbox implements Serializable {
     private static final long serialVersionUID = 1670857753595889875L;
     private int id;//id
-    private int sendernumber;//发送方号码
+    private String sendernumber;//发送方号码
     private String senderunit;//发送方单位
-    private int receivenumber;//接收号码
+    private String receivenumber;//接收号码
     private String filsavepath;//文件保存路径
     private Date create_time;//接收时间
     private String receiptpath;//回执文件保存路径
@@ -23,7 +23,7 @@ public class Inbox implements Serializable {
     public String toString() {
         return "Inbox{" +
                 "id=" + id +
-                ", sendernumber=" + sendernumber +
+                ", sendernumber='" + sendernumber + '\'' +
                 ", senderunit='" + senderunit + '\'' +
                 ", receivenumber=" + receivenumber +
                 ", filsavepath='" + filsavepath + '\'' +
@@ -37,7 +37,7 @@ public class Inbox implements Serializable {
         this.id = id;
     }
 
-    public void setSendernumber(int sendernumber) {
+    public void setSendernumber(String sendernumber) {
         this.sendernumber = sendernumber;
     }
 
@@ -45,7 +45,7 @@ public class Inbox implements Serializable {
         this.senderunit = senderunit;
     }
 
-    public void setReceivenumber(int receivenumber) {
+    public void setReceivenumber(String receivenumber) {
         this.receivenumber = receivenumber;
     }
 
@@ -66,6 +66,7 @@ public class Inbox implements Serializable {
     }
 
     public static long getSerialVersionUID() {
+
         return serialVersionUID;
     }
 
@@ -73,7 +74,7 @@ public class Inbox implements Serializable {
         return id;
     }
 
-    public int getSendernumber() {
+    public String getSendernumber() {
         return sendernumber;
     }
 
@@ -81,7 +82,7 @@ public class Inbox implements Serializable {
         return senderunit;
     }
 
-    public int getReceivenumber() {
+    public String getReceivenumber() {
         return receivenumber;
     }
 

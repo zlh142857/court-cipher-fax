@@ -20,23 +20,11 @@ public class RecycleBin implements Serializable {
 
     private String receivingunit;
 
-    private int receivenumber;
+    private String receivenumber;
 
-    private int sendernumber;
+    private String sendernumber;
 
     private String sendline;
-
-    private String filsavepath;
-
-    private String receiptpath;
-
-    private int Isreceipt;
-
-    private Date create_time;
-
-    private String relate_type;
-
-    private String message;
 
     @Override
     public String toString() {
@@ -45,8 +33,8 @@ public class RecycleBin implements Serializable {
                 ", recoverytime=" + recoverytime +
                 ", senderunit='" + senderunit + '\'' +
                 ", receivingunit='" + receivingunit + '\'' +
-                ", receivenumber=" + receivenumber +
-                ", sendernumber=" + sendernumber +
+                ", receivenumber='" + receivenumber + '\'' +
+                ", sendernumber='" + sendernumber + '\'' +
                 ", sendline='" + sendline + '\'' +
                 ", filsavepath='" + filsavepath + '\'' +
                 ", receiptpath='" + receiptpath + '\'' +
@@ -73,11 +61,11 @@ public class RecycleBin implements Serializable {
         this.receivingunit = receivingunit;
     }
 
-    public void setReceivenumber(int receivenumber) {
+    public void setReceivenumber(String receivenumber) {
         this.receivenumber = receivenumber;
     }
 
-    public void setSendernumber(int sendernumber) {
+    public void setSendernumber(String sendernumber) {
         this.sendernumber = sendernumber;
     }
 
@@ -126,11 +114,11 @@ public class RecycleBin implements Serializable {
         return receivingunit;
     }
 
-    public int getReceivenumber() {
+    public String getReceivenumber() {
         return receivenumber;
     }
 
-    public int getSendernumber() {
+    public String getSendernumber() {
         return sendernumber;
     }
 
@@ -161,4 +149,18 @@ public class RecycleBin implements Serializable {
     public String getMessage() {
         return message;
     }
+
+    private String filsavepath;
+
+    private String receiptpath;
+
+    private int Isreceipt;
+
+    private Date create_time;
+
+    private String relate_type;
+
+    private String message;
+
+
 }

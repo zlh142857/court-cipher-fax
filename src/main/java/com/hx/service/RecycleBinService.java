@@ -32,7 +32,7 @@ public interface RecycleBinService {
      *  @param isreceipt 删除时间
      * @return 是否成功
      */
-    int insertRecycleBin(String relateType, Date recoverytime, int sendernumber, String senderunit, String receivingunit, int receivenumber,
+    int insertRecycleBin(String relateType, Date recoverytime, String sendernumber, String senderunit, String receivingunit, String receivenumber,
                          String filsavepath, Date create_time, String receiptpath, int isreceipt, String sendline, String message);
 
 

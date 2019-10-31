@@ -12,8 +12,8 @@ import java.util.Date;
 public class Outbox implements Serializable {
     private static final long serialVersionUID = -293973874820213180L;
     private int id;//id
-    private int sendernumber;//发送号码
-    private int receivenumber;//接收号码
+    private String sendernumber;//发送号码
+    private String receivenumber;//接收号码
     private String receivingunit;//接收单位
     private Date create_time;//发送时间
     private String sendline;//文件标题
@@ -23,8 +23,8 @@ public class Outbox implements Serializable {
     public String toString() {
         return "Outbox{" +
                 "id=" + id +
-                ", sendernumber=" + sendernumber +
-                ", receivenumber=" + receivenumber +
+                ", sendernumber='" + sendernumber + '\'' +
+                ", receivenumber='" + receivenumber + '\'' +
                 ", receivingunit='" + receivingunit + '\'' +
                 ", create_time=" + create_time +
                 ", sendline='" + sendline + '\'' +
@@ -36,11 +36,11 @@ public class Outbox implements Serializable {
         this.id = id;
     }
 
-    public void setSendernumber(int sendernumber) {
+    public void setSendernumber(String sendernumber) {
         this.sendernumber = sendernumber;
     }
 
-    public void setReceivenumber(int receivenumber) {
+    public void setReceivenumber(String receivenumber) {
         this.receivenumber = receivenumber;
     }
 
@@ -69,11 +69,11 @@ public class Outbox implements Serializable {
         return id;
     }
 
-    public int getSendernumber() {
+    public String getSendernumber() {
         return sendernumber;
     }
 
-    public int getReceivenumber() {
+    public String getReceivenumber() {
         return receivenumber;
     }
 
