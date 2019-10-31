@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 
+import static com.hx.service.impl.SendFaxServiceImpl.deleteFiles;
+
 @Controller
 public class ChangeFileController {
     @Autowired
@@ -44,19 +46,13 @@ public class ChangeFileController {
      * 业务逻辑:
      * 
      * @param: 
-     * @return: boolean flag,true代表删除成功
+     * @return:
      * @auther: 张立恒
      * @date: 2019/10/24 14:50
      */
     @RequestMapping("deleteTiff")
     @ResponseBody
-    public boolean deleteTiff(@RequestParam("tifPath") String tifPath){
-        boolean flag=false;
-        File file=new File( tifPath );
-        if(file.isFile()){
-            file.delete();
-            flag=true;
-        }
-        return flag;
+    public void deleteTiff(@RequestParam("tifPath") String tifPath,@RequestParam("tifPathBack") String tifPathBack){
+        deleteFiles(tifPath,tifPathBack);
     }
 }
