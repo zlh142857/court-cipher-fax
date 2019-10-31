@@ -10,11 +10,20 @@ import java.util.Date;
 public class Return_Receipt {
     private static final long serialVersionUID = 1670857753595889875L;
     private int id;//id
+    private String receivenumber;//发送方号码
     private String senderunit;//发送方单位名称
     private String sendnumber;//接收号码
     private Date create_time;;//接收时间
     private String filsavepath;//文件保存路径
 
+    public void setReceivenumber(String receivenumber) {
+        this.receivenumber = receivenumber;
+    }
+
+    public String getReceivenumber() {
+
+        return receivenumber;
+    }
 
     public void setId(int id) {
         this.id = id;
@@ -32,12 +41,15 @@ public class Return_Receipt {
     public String toString() {
         return "Return_Receipt{" +
                 "id=" + id +
+                ", receivenumber='" + receivenumber + '\'' +
                 ", senderunit='" + senderunit + '\'' +
                 ", sendnumber='" + sendnumber + '\'' +
                 ", create_time=" + create_time +
                 ", filsavepath='" + filsavepath + '\'' +
                 '}';
     }
+
+
 
     public void setCreate_time(Date create_time) {
         this.create_time = create_time;
