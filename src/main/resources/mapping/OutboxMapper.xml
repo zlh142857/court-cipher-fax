@@ -41,4 +41,50 @@
           #{outbox.message}
         )
     </insert>
+
+    <!--张立恒start-->
+    <insert id="insertNewMessage" parameterType="com.hx.modle.Outbox">
+        INSERT INTO outbox
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sendernumber != null and sendernumber != ''">
+                sendernumber,
+            </if>
+            <if test="receivenumber != null and receivenumber != ''">
+                receivenumber,
+            </if>
+            <if test="receivingunit != null and receivingunit != ''">
+                receivingunit,
+            </if>
+            <if test="create_time != null and create_time != ''">
+                create_time,
+            </if>
+            <if test="sendline != null and sendline != ''">
+                sendline,
+            </if>
+            <if test="message != null and message != ''">
+                message,
+            </if>
+        </trim>
+        <trim prefix=" values (" suffix=")" suffixOverrides=",">
+            <if test="sendernumber != null and sendernumber != ''">
+                #{sendernumber,jdbcType=VARCHAR},
+            </if>
+            <if test="receivenumber != null and receivenumber != ''">
+                #{receivenumber,jdbcType=VARCHAR},
+            </if>
+            <if test="receivingunit != null and receivingunit != ''">
+                #{receivingunit,jdbcType=VARCHAR},
+            </if>
+            <if test="create_time != null and create_time != ''">
+                #{create_time,jdbcType=TIMESTAMP},
+            </if>
+            <if test="sendline != null and sendline != ''">
+                #{sendline,jdbcType=VARCHAR},
+            </if>
+            <if test="message != null and message != ''">
+                #{message,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <!--张立恒end-->
 </mapper>

@@ -7,6 +7,7 @@ package com.hx.controller;/*
 
 import com.alibaba.fastjson.JSONObject;
 import com.hx.service.SendFaxService;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.File;
+import java.util.Date;
 import java.util.List;
 
+import static com.hx.service.impl.SendFaxServiceImpl.deleteFiles;
 
 
 @Controller
@@ -46,7 +49,7 @@ public class SendFaxController {
      *
      * 业务逻辑:先呼叫对方号码,然后才能调用传真函数
      * 
-     * @param: 正文文件路径,回执页base64,收文单位,收文号码,指定发送号码,是否包含回执页 isBack 0包含回执页,1不包含回执页,2只有回执页
+     * @param: 正文文件路径,回执页base64,收文单位,收文号码,指定发送号码,是否包含回执页 isBack 0包含回执页,1不包含回执页,2只有回执页,文件名称
      * @return: 
      * @auther: 张立恒
      * @date: 2019/10/8 17:13
@@ -55,8 +58,9 @@ public class SendFaxController {
     @ResponseBody
     public String sendFax(@RequestParam("tifPath") String tifPath,@RequestParam("base64") String base64,
                           @RequestParam("courtName") String courtName,@RequestParam("receiveNumber") String receiveNumber,
-                          @RequestParam("sendNumber") String sendNumber,@RequestParam("isBack") int isBack,@RequestParam("ch") int ch){
-        String mes=sendFaxService.sendFax(tifPath,base64,courtName,receiveNumber,sendNumber,isBack,ch);
+                          @RequestParam("sendNumber") String sendNumber,@RequestParam("isBack") int isBack,@RequestParam("ch") int ch,
+                          @RequestParam("filename") String filename){
+        String mes=sendFaxService.sendFax(tifPath,base64,courtName,receiveNumber,sendNumber,isBack,ch,filename);
         return mes;
     }
     /**
@@ -90,15 +94,9 @@ public class SendFaxController {
     @RequestMapping("deleteFileByPath")
     @ResponseBody
     public void deleteFileByPath(@RequestParam("receiptPath") String receiptPath,@RequestParam("tifPath") String tifPath){
-        File file=new File(receiptPath);
-        if(file.isFile()){
-            file.delete();
-        }
-        File file2=new File(tifPath);
-        if(file2.isFile()){
-            file2.delete();
-        }
+        deleteFiles(tifPath,receiptPath);
     }
+
 
 
 

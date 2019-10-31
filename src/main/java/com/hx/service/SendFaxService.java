@@ -8,7 +8,7 @@ import java.util.List;
 public interface SendFaxService {
 
 
-    String sendFax(String tifPath, String base64, String courtName, String receiveNumber, String sendNumber, int isBack,int ch);
+    String sendFax(String tifPath, String base64, String courtName, String receiveNumber, String sendNumber, int isBack,int ch,String filename);
 
     List<String> selectSeatNumber();
 
