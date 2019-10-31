@@ -29,8 +29,9 @@
     function clickBtn3() {
         $.ajax({
             type: "GET",
-            url: "http://localhost:8080/selectSeatNumber.do",
+            url: "http://localhost:8080/selectPrintService.do",
             success: function (str) {
+                alert(str);
             },
             error: function(str){
             }

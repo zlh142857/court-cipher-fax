@@ -6,6 +6,7 @@ package com.hx.controller;/*
  */
 
 import com.alibaba.fastjson.JSONObject;
+import com.hx.dao.ProgramSettingDao;
 import com.hx.service.PrintFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,8 +16,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import uk.co.mmscomputing.device.scanner.ScannerIOException;
 
+import javax.print.DocFlavor;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import java.util.Map;
+
 @Controller
 public class PrintFileController{
+
     @Autowired
     private PrintFileService printFileService;
     //打开扫描
@@ -39,6 +48,13 @@ public class PrintFileController{
     public String print(@RequestParam("files") MultipartFile[] files){
         String str=printFileService.printFile(files);
         return JSONObject.toJSONString( str );
+    }
+
+    @RequestMapping("selectPrintService")
+    @ResponseBody
+    public String selectPrintService(){
+        Map<String,Object> map=printFileService.selectPrintService();
+        return JSONObject.toJSONString( map );
     }
 
 }
