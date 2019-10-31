@@ -11,12 +11,12 @@ public class Return_Receipt {
     private static final long serialVersionUID = 1670857753595889875L;
     private int id;//id
     private String senderunit;//发送方单位名称
-    private int sendnumber;//接收号码
+    private String sendnumber;//接收号码
     private Date create_time;;//接收时间
 
 
-    public void setId(int id) {
-        this.id = id;
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
     }
 
     @Override
@@ -24,26 +24,25 @@ public class Return_Receipt {
         return "Return_Receipt{" +
                 "id=" + id +
                 ", senderunit='" + senderunit + '\'' +
-                ", sendnumber=" + sendnumber +
+                ", sendnumber='" + sendnumber + '\'' +
                 ", create_time=" + create_time +
                 '}';
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setSenderunit(String senderunit) {
         this.senderunit = senderunit;
     }
 
-    public void setSendnumber(int sendnumber) {
+    public void setSendnumber(String sendnumber) {
         this.sendnumber = sendnumber;
     }
 
     public void setCreate_time(Date create_time) {
         this.create_time = create_time;
-    }
-
-    public static long getSerialVersionUID() {
-
-        return serialVersionUID;
     }
 
     public int getId() {
@@ -54,7 +53,7 @@ public class Return_Receipt {
         return senderunit;
     }
 
-    public int getSendnumber() {
+    public String getSendnumber() {
         return sendnumber;
     }
 
