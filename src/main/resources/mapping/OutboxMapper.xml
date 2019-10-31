@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hx.dao.OutboxMapper" >
+    <resultMap id="BaseResultMap" type="com.hx.modle.Outbox" >
+    </resultMap>
+    <select id="getAll" resultType="com.hx.modle.Outbox">
+      SELECT
+      t.id,t.sendernumber,t.receivenumber,t.receivingunit,t.create_time,t.sendline,t.message
+      FROM outbox  t
+    </select>
+
+    <select id="queryTotalCount" resultType="int">
+        select  COUNT(*) from outbox WHERE 1 = 1
+
+    </select>
+
+    <select id="queryALLMailList" resultType="com.hx.modle.Outbox">
+      select  * from outbox WHERE 1 = 1
+      LIMIT ${params.start}, ${params.offset}
+     </select>
+
+    <delete id="deloutbox">
+        DELETE FROM outbox WHERE id = #{id}
+
+    </delete>
+
+  <select id="getById" resultType="com.hx.modle.Outbox">
+      SELECT
+      t.id,t.sendernumber,t.receivenumber,t.receivingunit,t.create_time,t.sendline,t.message
+      FROM outbox  t where id = #{id}
+  </select>
+
+    <insert id="insert" parameterType="com.hx.modle.Outbox">
+        INSERT INTO outbox(id,sendernumber,receivenumber,receivingunit,create_time,sendline,message) VALUES (
+          #{outbox.id},
+          #{outbox.sendernumber},
+          #{outbox.receivenumber},
+          #{outbox.receivingunit},
+          #{outbox.create_time},
+          #{outbox.sendline},
+          #{outbox.message}
+        )
+    </insert>
+</mapper>

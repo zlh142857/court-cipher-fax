@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hx.dao.InboxMapper" >
+<resultMap id="BaseResultMap" type="com.hx.modle.Inbox" >
+</resultMap>
+    <select id="getAll" resultType="com.hx.modle.Inbox">
+        select
+        id, sendname, receiptd, fileaddress, state
+        from inbox
+    </select>
+    <select id="queryALLMail22" parameterType="java.util.Map" resultType="com.hx.modle.Inbox">
+        SELECT * FROM inbox WHERE
+        accepttime BETWEEN date_format(#{beginDate},'%Y-%m-%d') AND date_format(#{endDate},'%Y-%m-%d')
+        <if test="mailListId!=null">
+        AND sendname LIKE '%${mailListId}%'
+        </if>
+    </select>
+
+    <select id="queryTotalCount" resultType="int">
+        SELECT COUNT(*) FROM inbox where 1=1
+        and accepttime BETWEEN  #{beginDate}  AND #{endDate}
+        <if test="mailListId!=null">
+            and  sendname  LIKE '%${mailListId}%'
+        </if>
+    </select>
+
+    <select id="queryALLMail" parameterType="java.util.Map" resultType="com.hx.modle.Inbox">
+        SELECT * FROM inbox where 1=1
+        and accepttime BETWEEN  #{params.beginDate}  AND #{params.endDate}
+        <if test="params.mailListId!=null">
+            and  sendname  LIKE '%${params.mailListId}%'
+        </if>
+        LIMIT ${params.start}, ${params.offset}
+    </select>
+
+    <select id="queryALLMailList" resultType="com.hx.modle.Inbox">
+        select  * from inbox where state = 1
+    </select>
+
+    <delete id="deinbox">
+       delete from inbox  where  id  = #{id}
+    </delete>
+
+  <select id="getById" resultType="com.hx.modle.Inbox">
+      select
+        id, sendernumber, senderunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt
+        from inbox where id = #{id}
+        </select>
+
+    <select id="queryList" resultType="com.hx.modle.Inbox">
+      select * from table limit (start-1)*limit
+    </select>
+
+    <insert id="insert" parameterType="com.hx.modle.Inbox">
+        INSERT INTO inbox(id, sendernumber, senderunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt) VALUES (
+          #{inbox.id},
+          #{inbox.sendernumber},
+          #{inbox.senderunit},
+          #{inbox.receivenumber},
+          #{inbox.filsavepath},
+          #{inbox.create_time},
+          #{inbox.receiptpath},
+          #{inbox.isreceipt}
+        )
+    </insert>
+</mapper>

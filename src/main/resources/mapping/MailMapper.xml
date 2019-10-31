@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hx.dao.MailMapper" >
+    <resultMap id="BaseResultMap" type="com.hx.modle.Mail_List" >
+    </resultMap>
+
+  <select id="queryALLMailList" resultType="com.hx.modle.Mail_List">
+      select *
+      from mail_list
+  </select>
+
+  <select id="queryALLMail" resultType="com.hx.modle.Mail" parameterType="java.util.Map">
+      select * from mail where 1 = 1
+      <if test="params.typeid != null">
+          and  typeid  = #{params.typeid}
+      </if>
+      <if test="params.linkname != null">
+          and  linkname LIKE CONCAT('%', #{params.linkname}, '%')
+      </if>
+      <if test="params.linknumber != null">
+          and  linknumber LIKE CONCAT('%', #{params.linknumber}, '%')
+      </if>
+      LIMIT ${params.start}, ${params.offset}
+  </select>
+
+    <delete id="deleteUserById" parameterType="java.lang.Integer">
+    delete
+    from mail
+    where id = #{id}
+    </delete>
+
+    <insert id="addMail" parameterType="com.hx.modle.Mail_List" useGeneratedKeys="true" keyProperty="id">
+		insert
+		into	mail (linkname,linknumber,typeid)
+		values(#{linkname},#{linknumber},#{typeid})
+    </insert>
+
+    <select id="getMailByLinknumber" resultType="com.hx.modle.Mail_List">
+		select *
+		from mail
+		where linknumber=#{linknumber}
+	</select>
+
+    <insert id="AddMailList" parameterType="com.hx.modle.Mail_List" useGeneratedKeys="true" keyProperty="id">
+		insert
+		into
+		mail_list (typename)
+		values(#{typename})
+    </insert>
+
+    <select id="getMailBytypename" resultType="com.hx.modle.Mail_List">
+		select *
+		from mail_list
+		where typename=#{typename}
+	</select>
+
+    <delete id="delmaillist" parameterType="java.lang.Integer">
+    delete
+    from mail_ist
+    where id = #{id}
+    </delete>
+</mapper>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hx.dao.RecycleBinMapper" >
+
+    <select id="queryList" resultType="com.hx.modle.RecycleBin">
+        SELECT
+            t.id,
+            t.create_time,
+            t.recoverytime,
+            t.senderunit,
+            t.receivingunit,
+            t.receivenumber,
+            t.sendernumber,
+            t.sendline,
+            t.filsavepath,
+            t.receiptpath,
+            t.Isreceipt,
+            t.create_time,
+            t.relate_type
+            t.message
+        FROM recycle_bin t
+        WHERE 1 = 1
+        <if test="title != null and title != ''">
+            AND t.title LIEK CONCAT('%', #{title}, '%')
+        </if>
+        LIMIT ${start}, ${offset}
+    </select>
+
+    <select id="getTotal" resultType="int">
+        SELECT
+            COUNT(*)
+        FROM recycle_bin t
+        WHERE 1 = 1
+        <if test="title != null and title != ''">
+            AND t.title LIEK CONCAT('%', #{title}, '%')
+        </if>
+    </select>
+
+    <select id="getById" resultType="com.hx.modle.RecycleBin">
+        SELECT
+            t.id,
+            t.create_time,
+            t.recoverytime,
+            t.senderunit,
+            t.receivingunit,
+            t.receivenumber,
+            t.sendernumber,
+            t.sendline,
+            t.filsavepath,
+            t.receiptpath,
+            t.Isreceipt,
+            t.create_time,
+            t.relate_type,
+            t.message
+        FROM recycle_bin t
+        WHERE t.id = #{id}
+    </select>
+
+    <update id="updateRestore">
+        UPDATE ${relateType}
+        SET state = '1'
+        WHERE id = #{relateId}
+    </update>
+
+    <delete id="deleteById">
+        DELETE FROM recycle_bin WHERE id = #{id}
+    </delete>
+
+    <insert id="insert" parameterType="com.hx.modle.RecycleBin">
+        INSERT INTO recycle_bin(recoverytime,sendernumber, senderunit,receivingunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt,
+         relate_type, sendline, message) VALUES (
+          #{ recycleBin.recoverytime},#{ recycleBin.sendernumber}, #{recycleBin.senderunit}, #{recycleBin.receivingunit}, #{recycleBin.receivenumber}, #{recycleBin.filsavepath},
+          #{recycleBin.create_time},#{recycleBin.receiptpath},#{recycleBin.Isreceipt},#{recycleBin.relate_type},#{recycleBin.sendline},#{recycleBin.message}
+        )
+    </insert>
+</mapper>

@@ -6,18 +6,13 @@ package com.hx.util;/*
  */
 
 
-import com.itextpdf.text.pdf.codec.TiffWriter;
 import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.hx.common.StaticFinal.TEMPDIR;
 

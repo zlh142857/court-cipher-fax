@@ -221,6 +221,33 @@
       <artifactId>jackson-databind</artifactId>
       <version>2.4.4</version>
     </dependency>
+    <!--范聪敏start-->
+    <!--Excel导入导出相关jar包 -->
+
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml-schemas</artifactId>
+      <version>3.10-FINAL</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+      <version>3.10-FINAL</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>3.10-FINAL</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+      <version>3.11</version>
+    </dependency>
+    <!--Excel导入导出相关jar包 -->
+
+    <!--范聪敏end-->
 <!--张立恒 start-->
     <!--Word转PDF  直接打印PDF    start-->
     <dependency>

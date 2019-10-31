@@ -5,7 +5,6 @@ package com.hx.common;/*
  *@功能:
  */
 
-import com.hx.modle.Device_Setting;
 import com.hx.schedule.ScheduleTask;
 import com.hx.service.SendFaxService;
 import org.apache.log4j.Logger;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.util.List;
 
 //项目启动自动初始化板卡一次
 //在初始化板卡成功后,调用定时器任务,开始监听接收传真
