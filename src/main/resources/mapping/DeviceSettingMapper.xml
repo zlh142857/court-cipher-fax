@@ -29,5 +29,27 @@
   <select id="selectNumberByCh" resultType="java.lang.String" parameterType="java.lang.Integer">
     SELECT seatNumber FROM Device_Setting WHERE ch=#{ch,jdbcType=Integer};
   </select>
-
+  <!--查询所有的设备设置-->
+  <select id="selectDevice" resultMap="Device_Setting">
+    SELECT ch,prefix,areaCode,seatNumber,chType FROM Device_Setting WHERE seatNumber IS NOT NULL;
+  </select>
+  <!--修改设备信息-->
+  <update id="updateDevice" parameterType="com.hx.modle.Device_Setting">
+    UPDATE device_setting
+    <set>
+      <if test="prefix != null and prefix != ''">
+        prefix=#{prefix,jdbcType=VARCHAR},
+      </if>
+      <if test="areaCode != null and areaCode != ''">
+        areaCode=#{areaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="seatNumber != null and seatNumber != ''">
+        seatNumber=#{seatNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="chType != null and chType != ''">
+        chType=#{chType,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    WHERE ch=#{ch,jdbcType=INTEGER}
+  </update>
 </mapper>

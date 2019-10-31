@@ -29,7 +29,7 @@
     function clickBtn3() {
         $.ajax({
             type: "GET",
-            url: "http://localhost:8080/selectPrintService.do",
+            url: "http://localhost:8080/updateDevice.do",
             success: function (str) {
                 alert(str);
             },

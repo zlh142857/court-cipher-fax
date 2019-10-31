@@ -16,4 +16,8 @@ public interface DeviceDao {
     Device_Setting selectPrefix(@Param(value="sendNumber")String sendNumber);
 
     String selectNumberByCh(@Param(value="ch")int ch);
+
+    List<Device_Setting> selectDevice();
+
+    void updateDevice(Device_Setting deviceSetting);
 }

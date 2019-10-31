@@ -9,6 +9,6 @@
   </resultMap>
   <!--查询是否立即打印-->
   <select id="selectProgramSetting" resultMap="Program_Setting">
-    SELECT isPrint,printService FROM Program_Setting ;
+    SELECT courtName,isPrint,printService FROM Program_Setting ;
   </select>
 </mapper>
