@@ -40,7 +40,6 @@ public class SendFaxController {
     @ResponseBody
     public String selectSeatNumber(){
         List<String> numbers=sendFaxService.selectSeatNumber();
-        System.out.println(numbers);
         return JSONObject.toJSONString( numbers );
     }
     /**
@@ -61,7 +60,7 @@ public class SendFaxController {
                           @RequestParam("sendNumber") String sendNumber,@RequestParam("isBack") int isBack,@RequestParam("ch") int ch,
                           @RequestParam("filename") String filename,@RequestParam("id") int id){
         String mes=sendFaxService.sendFax(tifPath,receiptPath,courtName,receiveNumber,sendNumber,isBack,ch,filename,id);
-        return mes;
+        return JSONObject.toJSONString( mes );
     }
     /**
      *

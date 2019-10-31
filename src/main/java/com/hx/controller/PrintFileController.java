@@ -49,7 +49,17 @@ public class PrintFileController{
         String str=printFileService.printFile(files);
         return JSONObject.toJSONString( str );
     }
-
+    /**
+     *
+     * 功能描述: 程序设置页面查询打印机服务名称
+     *
+     * 业务逻辑:
+     * 
+     * @param: 
+     * @return: 
+     * @auther: 张立恒
+     * @date: 2019/10/31 16:45
+     */
     @RequestMapping("selectPrintService")
     @ResponseBody
     public String selectPrintService(){
