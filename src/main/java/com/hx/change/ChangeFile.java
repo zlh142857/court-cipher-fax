@@ -26,10 +26,10 @@ import javax.media.jai.PlanarImage;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import com.sun.media.jai.codec.TIFFField;
-import sun.misc.BASE64Decoder;
 
 import static com.hx.common.StaticFinal.TEMPDIR;
 
@@ -225,13 +225,13 @@ public class ChangeFile {
     }
     public static String baseToPdf(String base64){
         String pdfPath=TEMPDIR+"\\"+GetTimeToFileName.GetTimeToFileName()+".pdf";
-        BASE64Decoder decoder = new sun.misc.BASE64Decoder();
         BufferedInputStream bin = null;
         FileOutputStream fout = null;
         BufferedOutputStream bout = null;
         try {
             // 将base64编码的字符串解码成字节数组
-            byte[] bytes = decoder.decodeBuffer(base64);
+            Base64.Decoder decoder = Base64.getDecoder();
+            byte[] bytes = decoder.decode(base64);
             // 创建一个将bytes作为其缓冲区的ByteArrayInputStream对象
             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
             // 创建从底层输入流中读取数据的缓冲输入流对象

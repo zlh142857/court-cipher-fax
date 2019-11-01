@@ -28,7 +28,7 @@ public class ExcelHelper {
 	 * @param fromStyle
 	 * @param toStyle
 	 */
-	public static void copyCellStyle(CellStyle fromStyle,
+	/*public static void copyCellStyle(CellStyle fromStyle,
 									 CellStyle toStyle) {
 		//边框和边框颜色
 		toStyle.setTopBorderColor(fromStyle.getTopBorderColor());
@@ -47,7 +47,7 @@ public class ExcelHelper {
 		toStyle.setRotation(fromStyle.getRotation());//旋转
 		toStyle.setWrapText(fromStyle.getWrapText());
 
-	}
+	}*/
 
 	/**
 	 * 复制单元格
@@ -57,7 +57,7 @@ public class ExcelHelper {
 	 * @param copyValueFlag
 	 *            true则连同cell的内容一起复制
 	 */
-	public static void copyCell(Workbook wb,Cell srcCell, Cell distCell,
+	/*public static void copyCell(Workbook wb,Cell srcCell, Cell distCell,
 								boolean copyValueFlag) {
 		//样式
 		distCell.setCellStyle(srcCell.getCellStyle());
@@ -88,14 +88,14 @@ public class ExcelHelper {
 			} else { // nothing29
 			}
 		}
-	}
+	}*/
 
 	/**
 	 * 行复制功能
 	 * @param fromRow
 	 * @param toRow
 	 */
-	public static void copyRow(Workbook wb,Row fromRow,Row toRow,boolean copyValueFlag){
+	/*public static void copyRow(Workbook wb,Row fromRow,Row toRow,boolean copyValueFlag){
 
 		toRow.setHeight(fromRow.getHeight());
 		for (Iterator<Cell> cellIt = fromRow.cellIterator(); cellIt.hasNext();) {
@@ -103,7 +103,7 @@ public class ExcelHelper {
 			Cell newCell = toRow.createCell(tmpCell.getColumnIndex());
 			copyCell(wb,tmpCell, newCell, copyValueFlag);
 		}
-	}
+	}*/
 
 	/**
 	 * 导出excel
@@ -254,7 +254,7 @@ public class ExcelHelper {
 	 * 读取excel文件
 	 * @return 单元格字符数组
 	 */
-	public static ArrayList<ArrayList<String>> readExcel(InputStream is, String fileType, int sheetNum) {
+	/*public static ArrayList<ArrayList<String>> readExcel(InputStream is, String fileType, int sheetNum) {
 		ArrayList<ArrayList<String>> rowData = new ArrayList<ArrayList<String>>();
 		try {
 			Workbook workBook;
@@ -292,15 +292,15 @@ public class ExcelHelper {
 		}
 		return rowData;
 	}
-
+*/
 	/**
 	 * 读取excel文件
 	 *
-	 * @param path
-	 *            文件路径
+	 * @param
+	 *
 	 * @return
 	 */
-	public static ArrayList<ArrayList<String>> readExcel(String path) {
+	/*public static ArrayList<ArrayList<String>> readExcel(String path) {
 		ArrayList<ArrayList<String>> Row = new ArrayList<ArrayList<String>>();
 		try {
 			Workbook workBook = null;
@@ -339,7 +339,7 @@ public class ExcelHelper {
 			return null;
 		}
 		return Row;
-	}
+	}*/
 
 	// 读取excel文件辅助
 	private static String getValue(Cell cell) {

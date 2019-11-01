@@ -240,11 +240,6 @@
       <artifactId>poi</artifactId>
       <version>3.10-FINAL</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.poi</groupId>
-      <artifactId>poi</artifactId>
-      <version>3.11</version>
-    </dependency>
     <!--Excel导入导出相关jar包 -->
 
     <!--范聪敏end-->
@@ -307,22 +302,6 @@
       <artifactId>icepdf-core</artifactId>
       <version>6.1.2</version>
     </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <version>4.0.2.RELEASE</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <version>4.0.2.RELEASE</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-context</artifactId>
-      <version>4.0.2.RELEASE</version>
-    </dependency>
-
     <!--修改Tif Tag end-->
     <!--张立恒 end-->
   </dependencies>
