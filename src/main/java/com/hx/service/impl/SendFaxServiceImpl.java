@@ -55,10 +55,10 @@ public class SendFaxServiceImpl implements SendFaxService {
 
     @Override
     public String baseToTif(String base64) {
-        String pdfPath=baseToPdf(base64);
-        File file=new File( pdfPath );
         String tifPath=TEMPDIR+"\\"+GetTimeToFileName.GetTimeToFileName()+".tif";
         try {
+            String pdfPath=baseToPdf(base64);
+            File file=new File( pdfPath );
             OutputStream os=new FileOutputStream( new File( tifPath ) );
             boolean flag=pdfToTiffBase64(file,os);
             if(!flag){
@@ -72,12 +72,18 @@ public class SendFaxServiceImpl implements SendFaxService {
                     file.delete();
                 }
             }
+            return tifPath;
         } catch (FileNotFoundException e) {
             logger.error( e.toString() );
+            return null;
         } catch (IOException e) {
             logger.error( e.toString() );
+            return null;
+        } catch (Exception e){
+            logger.error( e.toString() );
+            return null;
         }
-        return tifPath;
+
     }
 
     @Override

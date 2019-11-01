@@ -25,33 +25,34 @@ public class ChangeFileServiceImpl implements ChangeFileService {
     @Override
     public String changeFileSend(MultipartFile file) {
         String message="文件转换失败";//默认为0,0为不支持文件格式,1为文件转换成功,-1为转换失败,-2为上传文件为空
-        //判断文件是否为空
-        boolean IsEmpty=file.isEmpty();
-        int fileType=0;//用来判断文件是Word还是PDF,默认为word 0,1为pdf
-        if(!IsEmpty){
-            //先判断文件后缀名
-            String fileName=file.getOriginalFilename();
-            int begin = fileName.indexOf(".");
-            int last = fileName.length();
-            String suffix = fileName.substring(begin, last);
-            boolean back=false;
-            String tifPath=TEMPDIR+"\\"+GetTimeToFileName.GetTimeToFileName()+".tif";
-            if(suffix.equals( ".doc" )||suffix.equals( ".docx" )){
-                back=mkdirDir(file,fileType,tifPath);
-            }else if(suffix.equals( ".pdf" )){
-                fileType=1;
-                back=mkdirDir(file,fileType,tifPath);
-            }else{
-                message="不支持该文件格式";
-                return message;
+        try{
+            //判断文件是否为空
+            boolean IsEmpty=file.isEmpty();
+            int fileType=0;//用来判断文件是Word还是PDF,默认为word 0,1为pdf
+            if(!IsEmpty){
+                //先判断文件后缀名
+                String fileName=file.getOriginalFilename();
+                int begin = fileName.indexOf(".");
+                int last = fileName.length();
+                String suffix = fileName.substring(begin, last);
+                boolean back=false;
+                String tifPath=TEMPDIR+"\\"+GetTimeToFileName.GetTimeToFileName()+".tif";
+                if(suffix.equals( ".doc" )||suffix.equals( ".docx" )){
+                    back=mkdirDir(file,fileType,tifPath);
+                }else if(suffix.equals( ".pdf" )){
+                    fileType=1;
+                    back=mkdirDir(file,fileType,tifPath);
+                }else{
+                    message="不支持该文件格式";
+                    return message;
+                }
+                if(back){
+                    message=tifPath;
+                    return message;
+                }
             }
-            if(back){
-                message=tifPath;
-                return message;
-            }
-        }else{
-            message="上传文件为空";
-            return message;
+        }catch (Exception e){
+            logger.error( e.toString() );
         }
         return message;
     }

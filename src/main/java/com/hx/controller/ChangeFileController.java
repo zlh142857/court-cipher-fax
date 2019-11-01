@@ -35,7 +35,7 @@ public class ChangeFileController {
      */
     @RequestMapping("changeFileSend")
     @ResponseBody
-    public String changeFileSend(@RequestParam("file") MultipartFile file){
+    public String changeFileSend(MultipartFile file){
         String message=changeFileService.changeFileSend(file);
         return JSONObject.toJSONString( message );
     }
