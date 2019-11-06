@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hx.dao.LogMapper" >
+    <resultMap id="LogMapper" type="com.hx.modle.Log_Tables" >
+        <id property="id" column="id"/>
+        <result property="classname" column="classname"/>
+        <result property="methodname" column="methodname"/>
+        <result property="message" column="message"/>
+        <result property="createtime" column="createtime"/>
+        <result property="level" column="level"/>
+    </resultMap>
+
+    <!--张立恒start-->
+    <select id="selectLog" resultType="com.hx.modle.Log_Tables">
+      SELECT id,classname,methodname,message,createtime,level FROM log_tables
+        <if test="level != null and level != ''">
+            WHERE level=#{level,jdbcType=VARCHAR}
+        </if>
+        ORDER BY createtime DESC LIMIT #{page,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+    </select>
+
+    <!--张立恒end-->
+</mapper>

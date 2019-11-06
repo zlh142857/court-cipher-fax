@@ -9,16 +9,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hx.dao.InboxMapper;
-import com.hx.dao.ReceiptMapper;
 import com.hx.dao.SendReceiptMapper;
 import com.hx.modle.Device_Setting;
-import com.hx.modle.Return_Receipt;
-import com.hx.modle.Send_Receipt;
 import com.hx.modle.TempModel;
-import com.hx.service.ReceiptService;
 import com.hx.service.SendFaxService;
-import com.spire.barcode.BarCodeType;
-import com.spire.barcode.BarcodeScanner;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,19 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-
-import static com.hx.common.StaticFinal.TEMPDIR;
-
 
 @Controller
 public class SendFaxController {

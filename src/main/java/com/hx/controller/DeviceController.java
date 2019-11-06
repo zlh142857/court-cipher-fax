@@ -54,7 +54,8 @@ public class DeviceController {
      */
     @RequestMapping("updateDevice")
     @ResponseBody
-    public void updateDevice(@RequestParam("DeviceSetting")Device_Setting deviceSetting){
+    public void updateDevice(Device_Setting deviceSetting){
+        System.out.println(deviceSetting.toString());
         deviceService.updateDevice(deviceSetting);
     }
 }

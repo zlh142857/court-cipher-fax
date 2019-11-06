@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hx.dao.UserMapper" >
+    <resultMap id="UserMapper" type="com.hx.modle.Login" >
+        <id property="id" column="id"/>
+        <result property="user" column="user"/>
+        <result property="logintime" column="logintime"/>
+        <result property="password" column="password"/>
+    </resultMap>
+
+    <!--张立恒start-->
+    <select id="selectUserList" resultType="com.hx.modle.Login">
+      SELECT * FROM login;
+    </select>
+    <delete id="deleteUser" parameterType="java.lang.Integer">
+      DELETE FROM login WHERE id=#{id,jdbcType=INTEGER};
+    </delete>
+    <update id="updateUser">
+    UPDATE login SET password=#{password,jdbcType=VARCHAR} WHERE id=#{id,jdbcType=INTEGER}
+  </update>
+    <!--张立恒end-->
+</mapper>

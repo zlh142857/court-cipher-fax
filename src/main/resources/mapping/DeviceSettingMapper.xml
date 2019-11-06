@@ -31,11 +31,11 @@
   </select>
   <!--查询所有的设备设置-->
   <select id="selectDevice" resultMap="Device_Setting">
-    SELECT id,ch,prefix,areaCode,seatNumber,chType FROM Device_Setting WHERE seatNumber IS NOT NULL;
+    SELECT id,ch,prefix,areaCode,seatNumber,chType FROM Device_Setting;
   </select>
   <!--修改设备信息-->
   <update id="updateDevice" parameterType="com.hx.modle.Device_Setting">
     UPDATE device_setting SET prefix=#{prefix,jdbcType=VARCHAR},areaCode=#{areaCode,jdbcType=VARCHAR},seatNumber=#{seatNumber,jdbcType=VARCHAR},
-    chType=#{chType,jdbcType=TIMESTAMP} WHERE id=#{id,jdbcType=INTEGER}
+    chType=#{chType,jdbcType=TIMESTAMP} WHERE ch=#{ch,jdbcType=INTEGER}
   </update>
 </mapper>

@@ -121,10 +121,10 @@ public class SendFaxServiceImpl implements SendFaxService {
     @Override
     public String sendFax(String tifPath, String base64, String courtName, String receiveNumber,
                           String sendNumber, String isBack,String filename,String id,String ch) {
-        receiveNumber=getReceiveNumber(sendNumber,receiveNumber);
         int isNumber=sendNumber.length();
         String message="成功";
         if(isNumber>0){
+            receiveNumber=getReceiveNumber(sendNumber,receiveNumber);
             //通过指定号码发送,然后查询通道是否空闲
             int isFree=Fax.INSTANCE.SsmGetChState( Integer.parseInt( ch ) );
             System.out.println("isFree:"+isFree);
