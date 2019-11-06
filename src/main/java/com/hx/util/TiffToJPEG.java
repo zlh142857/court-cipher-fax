@@ -28,7 +28,7 @@ public class TiffToJPEG {
         Map<String,Object> map=new HashMap<>(  );
         List<File> list = new ArrayList<File>();
         List<String> pathList = new ArrayList<>();
-        String filePre = TEMPDIR+"\\"+GetTimeToFileName.GetTimeToFileName();
+        String filePre = TEMPDIR+"/"+GetTimeToFileName.GetTimeToFileName();
         FileSeekableStream fss = null;
         RenderedOp op = null;
         String filePath="";

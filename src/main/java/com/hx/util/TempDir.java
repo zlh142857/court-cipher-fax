@@ -16,7 +16,7 @@ import static com.hx.common.StaticFinal.*;
 public class TempDir {
     //发送前要保存的临时文件夹文件路径
     public static String makeTempDir(MultipartFile file) throws IOException {
-        String FilePath=TEMPDIR+"\\"+file.getOriginalFilename();
+        String FilePath=TEMPDIR+"/"+file.getOriginalFilename();
         File fileDir=new File( TEMPDIR );
         if (!fileDir.exists()) {
             fileDir.mkdir();
@@ -26,12 +26,12 @@ public class TempDir {
         return FilePath;
     }
     //待发送的文件夹路径
-    public static String ToBeSend() throws IOException {
-        File fileDir=new File( PdfToFileDir );
+    public static String fileTemp() throws IOException {
+        File fileDir=new File( TEMPDIR );
         if (!fileDir.exists()) {
             fileDir.mkdir();
         }
-        String tifFilePath=PdfToFileDir+"\\"+GetTimeToFileName.GetTimeToFileName()+".tif";
+        String tifFilePath=TEMPDIR+"/"+GetTimeToFileName.GetTimeToFileName();
         return tifFilePath;
     }
     //返回要保存的接收的传真的路径
@@ -40,7 +40,7 @@ public class TempDir {
         if (!fileDir.exists()) {
             fileDir.mkdir();
         }
-        String tifFilePath=TiffDir+"\\"+GetTimeToFileName.GetTimeToFileName()+".tif";
+        String tifFilePath=TiffDir+"/"+GetTimeToFileName.GetTimeToFileName()+".tif";
         return tifFilePath;
     }
 }

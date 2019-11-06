@@ -55,8 +55,13 @@ public interface Fax extends Library {
     int SsmGetVocFxFlag(int ch, int nSelFx, boolean bClear);
     //获取接收到的文件编码的格式
     int SsmFaxGetCodeMode(int ch, int dwReserver);
-    //获取传真文件的页数
-    int fBmp_GetFileAllPage(String filename);
+
+    int SsmRecToFile(int ch, String pszFileName, int nFormat, int dwStartPos, int dwBytes, int dwTime, int nMask);
+    int SsmFaxCheckEnd(int ch);
+    //发送多份文件
+    int SsmFaxSendMultiFile(int ch, String szPath, String szFile);
+
+
 
 
 

@@ -8,15 +8,17 @@ package com.hx.controller;/*
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hx.common.Decide;
-import com.hx.dao.ProgramSettingDao;
+import com.hx.dao.InboxMapper;
+import com.hx.dao.ReceiptMapper;
+import com.hx.dao.SendReceiptMapper;
 import com.hx.modle.Device_Setting;
-import com.hx.modle.Program_Setting;
+import com.hx.modle.Return_Receipt;
+import com.hx.modle.Send_Receipt;
 import com.hx.modle.TempModel;
+import com.hx.service.ReceiptService;
 import com.hx.service.SendFaxService;
 import com.spire.barcode.BarCodeType;
 import com.spire.barcode.BarcodeScanner;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,7 +30,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
-import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -36,7 +37,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.hx.common.Decide.insertMsg;
+import static com.hx.common.StaticFinal.TEMPDIR;
 
 
 @Controller
@@ -44,6 +45,10 @@ public class SendFaxController {
     private static Logger logger=Logger.getLogger(SendFaxController.class);
     @Autowired
     private SendFaxService sendFaxService;
+    @Autowired
+    private InboxMapper inboxMapper;
+    @Autowired
+    private SendReceiptMapper sendReceiptMapper;
     /**
      *
      * 功能描述: 发送前,自动选择线路发送还是指定号码发送,下拉列表框查询,从device_setting表中查询
@@ -119,34 +124,8 @@ public class SendFaxController {
     }
     @RequestMapping("main")
     @ResponseBody
-    public void main(){
-        /*String ss=(0);
-        System.out.println(ss);*/
-        int ch=1;
-        String callerId="555";
-        String tifPath="222";
-        String tifPathBack="55";
-        insertMsg(ch,callerId,tifPath,tifPathBack);
-    }
-    public static void cutJPG(InputStream input, OutputStream out, int x,
-                              int y, int width, int height) throws IOException {
-        ImageInputStream imageStream = null;
-        try {
-            Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("jpg");
-            ImageReader reader = readers.next();
-            imageStream = ImageIO.createImageInputStream(input);
-            reader.setInput(imageStream, true);
-            ImageReadParam param = reader.getDefaultReadParam();
+    public void main(String []args){
+        inboxMapper.updateIsReceiptById( 1 );
 
-            System.out.println(reader.getWidth(0));
-            System.out.println(reader.getHeight(0));
-            Rectangle rect = new Rectangle(x, y, width, height);
-            param.setSourceRegion(rect);
-            BufferedImage bi = reader.read(0, param);
-            ImageIO.write(bi, "jpg", out);
-        } finally {
-            imageStream.close();
-        }
     }
-
 }

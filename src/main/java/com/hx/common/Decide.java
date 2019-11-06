@@ -13,7 +13,6 @@ import com.hx.modle.Inbox;
 import com.hx.modle.Program_Setting;
 import com.hx.modle.Return_Receipt;
 import com.hx.util.PrintImage;
-import com.hx.util.TiffToJPEG;
 import com.spire.barcode.BarCodeType;
 import com.spire.barcode.BarcodeScanner;
 import com.sun.media.jai.codec.FileSeekableStream;
@@ -21,7 +20,6 @@ import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageDecoder;
 import com.sun.media.jai.codec.SeekableStream;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
@@ -33,6 +31,7 @@ import java.util.*;
 import static com.hx.util.ColorReverse.writeJpg;
 import static com.hx.util.ColorReverse.writeJpgOne;
 import static com.hx.util.TempDir.tifDir;
+import static com.hx.util.TiffToJPEG.readerTiff;
 
 //根据switch case判断当前状态码
 @Component
@@ -67,35 +66,43 @@ public class Decide {
         if(flag==2){
             Map<String,String> map=chState_2(ch);
             if(map.get( "message" ).equals( "成功" )){
-                Program_Setting programSetting=decide.programSettingDao.selectProgramSetting();
-                String printService=programSetting.getPrintService();
-                if(programSetting.getIsPrint()==0){
-                    int tifLength=map.get( "tifPath" ).length();
-                    int tifLengthBack=map.get( "tifPathBack" ).length();
-                    if(tifLength>0){
-                        Map<String,Object> fileMap=TiffToJPEG.readerTiff(map.get( "tifPath" ));
-                        try {
-                            List<String> pathList=(List<String>)fileMap.get("pathList");
-                            List<File> newList=writeJpg(pathList);
-                            PrintImage.printImageWhenReceive(newList,printService);
-                            deleteFileList((List<File>)fileMap.get("fileList"),newList);
-                        } catch (Exception e) {
-                            logger.error( e.toString() );
+                //先存入数据库再打印,先获取tiff文件页数,==1,并扫描有条形码,说明是回执页
+                int tifLength=map.get( "tifPath" ).length();
+                String tifPath=map.get( "tifPath" );
+                int pages=0;
+                if(tifLength>0){
+                    pages=getTiffPages(tifPath);
+                    Map<String,Object> fileMap=readerTiff(tifPath);
+                    List<String> pathList=(List<String>)fileMap.get("pathList");
+                    if(pages==1){
+                        //扫描
+                        boolean scanResult=getFileType(pathList);
+                        System.out.println("scanResult"+scanResult);
+                        if(scanResult){
+                            //只有回执页
+                            insertMsgReceipt(ch,map.get( "callerId" ), tifPath);
+                        }else{
+                            //只有正文
+                            insertMsg(ch,map.get( "callerId" ), tifPath);
                         }
+                    }else{
+                        insertMsg(ch,map.get( "callerId" ), tifPath);
                     }
-                    if(tifLengthBack>0){
-                        Map<String,Object> fileMap=TiffToJPEG.readerTiff(map.get( "tifPathBack" ));
+                    //查询打印服务名称
+                    Program_Setting programSetting=decide.programSettingDao.selectProgramSetting();
+                    String printService=programSetting.getPrintService();
+                    if(programSetting.getIsPrint()==0){
                         try {
-                            //将文件先转换颜色放进list集合再打印
-                            List<String> pathList=(List<String>)fileMap.get("pathList");
                             List<File> newList=writeJpg(pathList);
                             PrintImage.printImageWhenReceive(newList,printService);
-                            deleteFileList((List<File>)fileMap.get("fileList"),newList);
+                            //deleteFileList((List<File>)fileMap.get("fileList"),newList);
                         } catch (Exception e) {
                             logger.error( e.toString() );
                         }
+
                     }
                 }
+
             }
 
         }
@@ -103,7 +110,6 @@ public class Decide {
     public static Map<String,String> chState_2(int ch) throws Exception {
         Map<String,String> map=new HashMap<>(  );
         String message="成功";
-        String tifPathBack="";
         String tifPath="";
         //摘机
         int pickup=Fax.INSTANCE.SsmPickup(ch);
@@ -137,72 +143,14 @@ public class Decide {
                             //说明已经在接收中
                             int end=sendEndFor0(i);
                             if(end==0){
-                                //目前接收到了一份文件,tifPath不为空
+                                //目前接收到了一份文件,tifPath不为空,已经接收结束,断开连接
                                 map.put( "tifPath",tifPath );
-                                //说明当前通道已经为空闲状态,查看是否有F1信号
-                                int findVoc=0;
-                                Thread.sleep( 3000 );
-                                System.out.println("开始查找findVOC");
-                                for(int k=0;k<3;k++){
-                                    Thread.sleep( 1000 );
-                                    findVoc=Fax.INSTANCE.SsmGetVocFxFlag( ch,1,true);
-                                    if(findVoc==1){
-                                        break;
-                                    }else if(findVoc==-1){
-                                        message=Fax.INSTANCE.SsmGetLastErrMsgA();
-                                        logger.error( message );
-                                    }
-                                }
-                                System.out.println("findVOC:"+findVoc);
-                                if(findVoc==1){
-                                    //说明有F1信号
-                                    tifPathBack=tifDir();
-                                    isOk=Fax.INSTANCE.SsmFaxStartReceive( i,tifPathBack);
-                                    if(isOk==0){
-                                        //等待空闲状态
-                                        int flag=getCodeFlag(i);
-                                        if(flag==55){
-                                            //说明已经在接收中了
-                                            end=sendEndFor0(i);
-                                            if(end==0){
-                                                map.put( "tifPathBack",tifPathBack );
-                                                logger.info("接收成功");
-                                                insertMsg(ch,callerId,tifPath,tifPathBack);
-                                            }
-                                        }else{
-                                            logger.error( "接收失败" );
-                                        }
-                                    }else{
-                                        message=Fax.INSTANCE.SsmGetLastErrMsgA();
-                                        logger.error( message );
-                                    }
-                                }else{
-                                    //如果接收到两份文件,tifPath和tifPathBack都不为空
-                                    //只接收到一份文件,可能是正文,可能是回执,但是tifPath不为空
-                                    //判断文件是否只有一页,然后判断文件是否有条形码
-                                    System.out.println("获取pages");
-                                    System.out.println("tifPath:"+tifPath);
-                                    int pages=getTiffPages( tifPath );
-                                    System.out.println("pages:"+pages);
-                                    if(pages==-1){
-                                        message=Fax.INSTANCE.SsmGetLastErrMsgA();
-                                        logger.error( message );
-                                    }else if(pages==1){
-                                        boolean scan=scanJpg(tifPath);
-                                        System.out.println("scan:"+scan);
-                                        if(scan){
-                                            //回执
-                                            insertMsgReceipt(ch,callerId,tifPathBack);
-                                        }else{
-                                            insertMsg(ch,callerId,tifPath,tifPathBack);
-                                        }
-                                    }else{
-                                        //页数大于1说明是正文
-                                        insertMsg(ch,callerId,tifPath,tifPathBack);
-                                    }
-                                    logger.info("接收成功");
-                                }
+                                map.put( "callerId",callerId );
+                                logger.info("接收成功");
                             }
+                        }else{
+                            message="接收失败";
+                            logger.info("接收失败");
                         }
                     }else{
                         message = Fax.INSTANCE.SsmGetLastErrMsgA();
@@ -274,8 +222,7 @@ public class Decide {
             }
         }
     }
-    public static void insertMsg(int ch, String callerId, String tifPath, String tifPathBack){
-        System.out.println("开始新增inbox");
+    public static void insertMsg(int ch, String callerId, String tifPath){
         String receiveNumber=decide.deviceDao.selectNumberByCh( ch );
         Inbox inbox=new Inbox();
         inbox.setSendernumber(callerId);
@@ -283,11 +230,6 @@ public class Decide {
         Date date=new Date();
         inbox.setCreate_time( date );
         inbox.setFilsavepath(tifPath);
-        System.out.println("inbox是啊比1");
-        if(tifPathBack.length()>0){
-            inbox.setReceiptpath( tifPathBack );
-        }
-        System.out.println("inbox是啊比2");
         decide.inboxMapper.insertInbox( inbox );
     }
     public static void insertMsgReceipt(int ch, String callerId, String tifPathBack){
@@ -304,9 +246,10 @@ public class Decide {
         //先转换成jpg,然后扫描jpg,返回值不为null,就是回执文件
         String filePath=writeJpgOne(tifPath);
         String[] datas = BarcodeScanner.scan( filePath, BarCodeType.Code_128);
-        if(datas.equals( null )){
+        String str=datas[0];
+        if(str.contains( "N" )){
             return false;
-        }else{
+        } else{
             return true;
         }
 
@@ -330,5 +273,17 @@ public class Decide {
             }
         }
         return numPages;
+    }
+    public static boolean getFileType(List<String> pathList)throws Exception{
+        String jpgPath=pathList.get(pathList.size()-1);
+        System.out.println(jpgPath);
+        boolean scanOk=scanJpg(jpgPath);
+        if(scanOk){
+            //有条形码,回执页加正文
+            return true;
+        }else{
+            //说明没有条形码,就是正文
+            return false;
+        }
     }
 }

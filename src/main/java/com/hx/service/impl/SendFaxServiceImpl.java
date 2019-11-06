@@ -31,8 +31,8 @@ import java.util.Date;
 import java.util.List;
 
 import static com.hx.change.ChangeFile.baseToPdf;
-import static com.hx.change.ChangeFile.pdfToTiffBase64;
-import static com.hx.common.StaticFinal.TEMPDIR;
+import static com.hx.change.ChangeFile.pdfToTiffByWord;
+import static com.hx.util.TempDir.fileTemp;
 
 
 @Service("sendFaxService")
@@ -61,12 +61,14 @@ public class SendFaxServiceImpl implements SendFaxService {
 
     @Override
     public String baseToTif(String base64) {
-        String tifPath=TEMPDIR+"\\"+GetTimeToFileName.GetTimeToFileName()+".tif";
+        String tifPath="";
+        OutputStream os=null;
         try {
+            tifPath=fileTemp()+".tif";
             String pdfPath=baseToPdf(base64);
             File file=new File( pdfPath );
-            OutputStream os=new FileOutputStream( new File( tifPath ) );
-            boolean flag=pdfToTiffBase64(file,os);
+            os=new FileOutputStream( new File( tifPath ) );
+            boolean flag=pdfToTiffByWord(file,os);
             if(!flag){
                 tifPath=null;
             }
@@ -80,6 +82,14 @@ public class SendFaxServiceImpl implements SendFaxService {
         } catch (Exception e){
             logger.error( e.toString() );
             return null;
+        }finally {
+            try {
+                if(os!=null){
+                    os.close();
+                }
+            } catch (IOException e) {
+                logger.error( e.toString() );
+            }
         }
 
     }
@@ -95,10 +105,10 @@ public class SendFaxServiceImpl implements SendFaxService {
         settings.setX(0.8f);//设置黑白条宽度
         settings.setImageHeight(50);//设置生成的条码图片高度
         settings.setImageWidth(70);//设置生成的条码图片宽度
-        settings.setBackColor(new Color(240,255,255));//设置条码背景色
+        settings.setBackColor(new Color(250,255,255));//设置条码背景色
         BarCodeGenerator barCodeGenerator = new BarCodeGenerator(settings);//创建BarCodeGenerator实例
         BufferedImage bufferedImage = barCodeGenerator.generateImage();//根据settings生成图像数据，保存至BufferedImage实例
-        String barPath=TEMPDIR+"\\"+GetTimeToFileName.GetTimeToFileName()+".png";
+        String barPath=fileTemp()+".png";
         File file=new File(barPath);
         ImageIO.write(bufferedImage, "png",file);//保存条码为PNG图片
         FileInputStream inputFile = new FileInputStream(file);
@@ -111,14 +121,13 @@ public class SendFaxServiceImpl implements SendFaxService {
     @Override
     public String sendFax(String tifPath, String base64, String courtName, String receiveNumber,
                           String sendNumber, String isBack,String filename,String id,String ch) {
-        //查询数据库是否有前缀0,
-        //获取本地号码前缀和前缀长度,查看接收方号码是否是同区号码,同区号码,去除接收方区号
         receiveNumber=getReceiveNumber(sendNumber,receiveNumber);
         int isNumber=sendNumber.length();
-        String message="未找到空闲通道";
+        String message="成功";
         if(isNumber>0){
             //通过指定号码发送,然后查询通道是否空闲
             int isFree=Fax.INSTANCE.SsmGetChState( Integer.parseInt( ch ) );
+            System.out.println("isFree:"+isFree);
             if(isFree==0){
                 //进行发送
                 String Msg=sendFreeCh(receiveNumber,Integer.parseInt( ch ));
@@ -130,29 +139,35 @@ public class SendFaxServiceImpl implements SendFaxService {
                         //在发回执箱增加记录
                         //发回执更改收件箱是否已回执,改成1,已回执
                         insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
-                        inboxMapper.updateIsReceiptById(Integer.parseInt( id ));
-                        deleteFiles(tifPath,base64);
+                        if(id.length()>0){
+                            inboxMapper.updateIsReceiptById(Integer.parseInt( id ));
+                        }else{
+                            logger.error( "id为空,无法修改是否已回执" );
+                        }
                     }else{
                         //isBack==1/0,说明只有正文或者两个文件,所以存入数据到发件箱
                         insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
-                        deleteFiles(tifPath,base64);
                     }
                 }else{
+
                     message=Msg;
                     if(Integer.parseInt( isBack )==2){
                         //发送失败,不更改已发送回执状态
                         insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
-                        deleteFiles(tifPath,base64);
                     }else{
                         insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
-                        deleteFiles(tifPath,base64);
                     }
                 }
+            }else if(isFree==7){
+                Fax.INSTANCE.SsmHangup( Integer.parseInt( ch ) );
+            }else{
+                message="模拟中继线通道不为空闲状态";
             }
         }else{
             //随机选择一个号码发送,查询空闲通道,然后查询该通道是否支持发送
             for(int i=0;i<4;i++){
                 int isFree=Fax.INSTANCE.SsmGetChState(i);
+                System.out.println("isFree:"+isFree);
                 if(isFree==0){
                     sendNumber=deviceDao.selectSeatNumberByCh(i);
                     isNumber=sendNumber.length();
@@ -164,23 +179,23 @@ public class SendFaxServiceImpl implements SendFaxService {
                             if(Integer.parseInt( isBack )==2){
                                 insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
                                 inboxMapper.updateIsReceiptById(Integer.parseInt( id ));
-                                deleteFiles(tifPath,base64);
                             }else{
                                 insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
-                                deleteFiles(tifPath,base64);
                             }
                         }else{
                             message=Msg;
                             if(Integer.parseInt( isBack )==2){
                                 insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
-                                deleteFiles(tifPath,base64);
                             }else{
                                 insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
-                                deleteFiles(tifPath,base64);
                             }
                         }
                         break;
                     }
+                }else if(isFree==7){
+                    Fax.INSTANCE.SsmHangup( Integer.parseInt( ch ) );
+                }else{
+                    message="模拟中继线通道不为空闲状态";
                 }
             }
         }
@@ -291,47 +306,43 @@ public class SendFaxServiceImpl implements SendFaxService {
             //建立模拟中继线和传真资源通道连接
             int linkOk=Fax.INSTANCE.SsmTalkWith(ch,j);
             if(linkOk==0){
-                int sendOk=Fax.INSTANCE.SsmFaxStartSend(j,tifPath);
-                if(sendOk==0){
-                    int flag=sendEndFor0(j);
-                    //flag==0说明当前通道状态为空闲,已经发送结束
-                    if(flag==0){
-                        System.out.println("isBack:"+isBack);
-                        //包含回执页,就发送第二次
-                        if(isBack==0){
-                            if(base64!=null){
-                                sendOk=Fax.INSTANCE.SsmFaxStartSend(j,base64);
-                                if(sendOk==0){
-                                    flag=sendEndFor0(j);
-                                    if(flag==0){
-                                        logger.info("发送成功");
-                                        return errMsg;
-                                    }
-                                }else{
-                                    errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
-                                    logger.error( "发送失败:"+errMsg );
-                                }
-                            }else{
-                                errMsg="回执文件为空";
-                            }
-                            stopAndHungUp(ch,j);
-                        }else{
-                            stopAndHungUp(ch,j);
-                            logger.info("发送成功");
-                        }
-                    }
+                int sendFlag=-1;
+                if(isBack==0){
+                    //两份文件
+                    String szFile=getfileList(tifPath,base64);
+                    sendFlag=Fax.INSTANCE.SsmFaxSendMultiFile(j,"D:\\\\tempDir\\\\",szFile);
+                }else if(isBack==1){
+                    //仅正文
+                    sendFlag=Fax.INSTANCE.SsmFaxStartSend(j,tifPath);
                 }else{
-                    errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
-                    logger.error( "发送失败:"+errMsg );
+                    //回执页
+                    int baseLength=base64.length();
+                    System.out.println(base64);
+                    if(baseLength>0){
+                        sendFlag=Fax.INSTANCE.SsmFaxStartSend(j,base64);
+                    }else{
+                        errMsg="获取回执文件失败";
+                    }
                 }
+                if(sendFlag==0){
+                    //等待通道为空闲状态
+                    sendEndFor0(j);
+                    logger.info("发送成功");
+                }else{
+                    String e=Fax.INSTANCE.SsmGetLastErrMsgA();
+                    logger.error( "发送失败:"+e );
+                    errMsg="发送失败";
+                }
+                //空闲后挂起
+                stopAndHungUp(ch,j);
             }else{
-                errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
-                logger.error( "建立连接失败:"+errMsg );
+                String e=Fax.INSTANCE.SsmGetLastErrMsgA();
+                logger.error( "建立连接失败:"+e );
+                errMsg="建立连接失败";
             }
         }else{
             errMsg="没有空闲通道";
         }
-
         return errMsg;
     }
     public static int sendEndFor0(int i){
@@ -351,6 +362,7 @@ public class SendFaxServiceImpl implements SendFaxService {
         int isStop=Fax.INSTANCE.SsmStopTalkWith(ch,j);
         if(isStop==0){
             int hangup=Fax.INSTANCE.SsmHangup(ch);
+            int isFree=Fax.INSTANCE.SsmGetChState( ch);
             if(hangup!=0){
                 errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
                 logger.error("挂机失败:"+errMsg);
@@ -361,27 +373,19 @@ public class SendFaxServiceImpl implements SendFaxService {
         }
     }
     public void insertDataOutBox(String message,String receiveNumber,String filename,String sendNumber,String courtName){
+        Outbox outbox=new Outbox();
+        outbox.setReceivenumber( receiveNumber );
         if(message.equals( "成功" )){
-            Outbox outbox=new Outbox();
-            outbox.setReceivenumber( receiveNumber );
             outbox.setMessage( "成功" );
-            outbox.setSendline( filename );
-            outbox.setSendernumber( sendNumber );
-            Date date=new Date();
-            outbox.setCreate_time(date);
-            outbox.setReceivingunit( courtName );
-            outboxMapper.insertNewMessage(outbox);
         }else{
-            Outbox outbox=new Outbox();
-            outbox.setReceivenumber( receiveNumber );
             outbox.setMessage( "失败("+message+")" );
-            outbox.setSendline( filename );
-            outbox.setSendernumber( sendNumber );
-            Date date=new Date();
-            outbox.setCreate_time(date);
-            outbox.setReceivingunit( courtName );
-            outboxMapper.insertNewMessage(outbox);
         }
+        outbox.setSendline( filename );
+        outbox.setSendernumber( sendNumber );
+        Date date=new Date();
+        outbox.setCreate_time(date);
+        outbox.setReceivingunit( courtName );
+        outboxMapper.insertNewMessage(outbox);
     }
     public void insertDataReceipt(String message,String receiveNumber,String filename,String sendNumber,String courtName){
         Send_Receipt sendReceipt=new Send_Receipt();
@@ -407,5 +411,13 @@ public class SendFaxServiceImpl implements SendFaxService {
         if(file2.isFile()){
             file2.delete();
         }
+    }
+    public static String getfileList(String tifPath,String base64){
+        String [] main=tifPath.split("/");
+        String mainText=main[main.length-1];
+        String [] receipt=base64.split("/");
+        String receiptText=receipt[receipt.length-1];
+        String fileList=mainText+";"+receiptText;
+        return fileList;
     }
 }

@@ -2,7 +2,6 @@ package com.hx.dao;/*
  */
 
 import com.hx.modle.Send_Receipt;
-import org.apache.ibatis.annotations.Param;
 
 /**
  *

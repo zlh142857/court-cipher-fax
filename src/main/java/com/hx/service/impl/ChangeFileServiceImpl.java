@@ -36,7 +36,7 @@ public class ChangeFileServiceImpl implements ChangeFileService {
                 int last = fileName.length();
                 String suffix = fileName.substring(begin, last);
                 boolean back=false;
-                String tifPath=TEMPDIR+"\\"+GetTimeToFileName.GetTimeToFileName()+".tif";
+                String tifPath=TEMPDIR+"/"+GetTimeToFileName.GetTimeToFileName()+".tif";
                 if(suffix.equals( ".doc" )||suffix.equals( ".docx" )){
                     back=mkdirDir(file,fileType,tifPath);
                 }else if(suffix.equals( ".pdf" )){

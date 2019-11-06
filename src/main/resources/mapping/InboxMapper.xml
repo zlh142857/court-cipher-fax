@@ -118,7 +118,7 @@
     </insert>
     <!--修改是否已回执,改成已回执:1-->
     <update id="updateIsReceiptById" parameterType="java.lang.Integer">
-      UPDATE inbox SET Isreceipt=1 WHERE id={id,jdbcType=INTEGER}
+      UPDATE inbox SET Isreceipt=1 WHERE id=#{id,jdbcType=INTEGER}
     </update>
     <!--张立恒end-->
 </mapper>
