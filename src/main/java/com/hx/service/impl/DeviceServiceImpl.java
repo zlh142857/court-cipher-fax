@@ -20,6 +20,9 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public List<Device_Setting> selectDevice() {
         List<Device_Setting> list=deviceDao.selectDevice();
+        for(Device_Setting device_setting:list){
+            device_setting.setEditFlag( false );
+        }
         return list;
     }
 

@@ -26,10 +26,10 @@ import javax.media.jai.PlanarImage;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 import com.sun.media.jai.codec.TIFFField;
+import sun.misc.BASE64Decoder;
 
 import static com.hx.common.StaticFinal.TEMPDIR;
 
@@ -41,6 +41,7 @@ public class ChangeFile {
         Dispatch doc = null;
         String pdfFileName=GetTimeToFileName.GetTimeToFileName()+".pdf";
         String docFilePath="";
+        String pdfPath=TEMPDIR+"\\"+pdfFileName;
         try {
             //将文件先保存再将路径传给doc
             docFilePath=TempDir.makeTempDir(file);
@@ -50,14 +51,15 @@ public class ChangeFile {
             //获取文件路径
             doc = Dispatch.call(docs, "Open", docFilePath).toDispatch();
             //转换为PDF文件,保存文件到tempDir文件夹
-            Dispatch.call(doc, "SaveAs", TEMPDIR+"\\"+pdfFileName, // FileName
+            Dispatch.call(doc, "SaveAs", pdfPath, // FileName
                     17);//17是pdf格式
         } catch (IOException e) {
             throw new IOException("word转换PDF IO异常：" + e);
         } finally {
-            Dispatch.call(doc, "Close", false);
-            if (app != null)
+            Dispatch.call(doc, "Close", new Variant(false));
+            if (app != null){
                 app.invoke("Quit", new Variant[]{});
+            }
         }
         // 如果没有这句话,winword.exe进程将不会关闭
         ComThread.Release();
@@ -66,7 +68,6 @@ public class ChangeFile {
         if(delFile.isFile()){
             delFile.delete();
         }
-        String pdfPath=TEMPDIR+"\\"+pdfFileName;
         return pdfPath;
     }
 
@@ -78,7 +79,7 @@ public class ChangeFile {
     public static final String IMG_FORMAT = "TIFF";
 
     /** 打印精度设置 */
-    public static final float DPI = 208.8f; //图片的像素
+    public static final float DPI = 209f; //图片的像素
     public static boolean pdfToTiff(MultipartFile file,OutputStream os) throws IOException {
         boolean back=false;
         InputStream is=file.getInputStream();
@@ -167,6 +168,9 @@ public class ChangeFile {
             try {
                 if (doc != null)
                     doc.close();
+                if (os != null){
+                    os.close();
+                }
             } catch (IOException e) {
                 throw new IOException( e );
             }
@@ -225,13 +229,13 @@ public class ChangeFile {
     }
     public static String baseToPdf(String base64){
         String pdfPath=TEMPDIR+"\\"+GetTimeToFileName.GetTimeToFileName()+".pdf";
+        BASE64Decoder decoder = new sun.misc.BASE64Decoder();
         BufferedInputStream bin = null;
         FileOutputStream fout = null;
         BufferedOutputStream bout = null;
         try {
             // 将base64编码的字符串解码成字节数组
-            Base64.Decoder decoder = Base64.getDecoder();
-            byte[] bytes = decoder.decode(base64);
+            byte[] bytes = decoder.decodeBuffer(base64);
             // 创建一个将bytes作为其缓冲区的ByteArrayInputStream对象
             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
             // 创建从底层输入流中读取数据的缓冲输入流对象

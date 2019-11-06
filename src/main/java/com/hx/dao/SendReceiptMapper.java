@@ -16,5 +16,5 @@ import org.apache.ibatis.annotations.Param;
  * @date: 2019/10/31 14:34
  */
 public interface SendReceiptMapper {
-    void insertNewMessage(@Param( "sendReceipt" ) Send_Receipt sendReceipt);
+    void insertNewMessage(Send_Receipt sendReceipt);
 }

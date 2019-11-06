@@ -10,8 +10,8 @@
     <result property="chType" column="chType"/>
   </resultMap>
   <!--发送页面下拉列表框,选择某个通道发送,座机号-->
-  <select id="selectSeatNumber" resultType="java.lang.String">
-    SELECT seatNumber FROM Device_Setting WHERE seatNumber IS NOT NULL AND chType!=1;
+  <select id="selectSeatNumber" resultMap="Device_Setting">
+    SELECT seatNumber,ch FROM Device_Setting WHERE seatNumber IS NOT NULL AND chType!=1;
   </select>
   <!--初始化板卡时查询通道类型-->
   <select id="selectChType" resultMap="Device_Setting">
@@ -19,37 +19,23 @@
   </select>
   <!--根据通道编号查询支持发送的座机号-->
   <select id="selectSeatNumberByCh" resultType="java.lang.String" parameterType="java.lang.Integer">
-    SELECT seatNumber FROM Device_Setting WHERE ch=#{i,jdbcType=Integer} AND chType!=1;
+    SELECT seatNumber FROM Device_Setting WHERE ch=#{i,jdbcType=INTEGER} AND chType!=1;
   </select>
   <!--根据座机号查看前缀-->
   <select id="selectPrefix" resultMap="Device_Setting" parameterType="java.lang.String">
-    SELECT prefix,areaCode FROM Device_Setting WHERE seatNumber=#{sendNumber,jdbcType=String};
+    SELECT prefix,areaCode FROM Device_Setting WHERE seatNumber=#{seatNumber,jdbcType=VARCHAR};
   </select>
   <!--根据通道编号查看座机号-->
   <select id="selectNumberByCh" resultType="java.lang.String" parameterType="java.lang.Integer">
-    SELECT seatNumber FROM Device_Setting WHERE ch=#{ch,jdbcType=Integer};
+    SELECT seatNumber FROM Device_Setting WHERE ch=#{ch,jdbcType=INTEGER};
   </select>
   <!--查询所有的设备设置-->
   <select id="selectDevice" resultMap="Device_Setting">
-    SELECT ch,prefix,areaCode,seatNumber,chType FROM Device_Setting WHERE seatNumber IS NOT NULL;
+    SELECT id,ch,prefix,areaCode,seatNumber,chType FROM Device_Setting WHERE seatNumber IS NOT NULL;
   </select>
   <!--修改设备信息-->
   <update id="updateDevice" parameterType="com.hx.modle.Device_Setting">
-    UPDATE device_setting
-    <set>
-      <if test="prefix != null and prefix != ''">
-        prefix=#{prefix,jdbcType=VARCHAR},
-      </if>
-      <if test="areaCode != null and areaCode != ''">
-        areaCode=#{areaCode,jdbcType=VARCHAR},
-      </if>
-      <if test="seatNumber != null and seatNumber != ''">
-        seatNumber=#{seatNumber,jdbcType=VARCHAR},
-      </if>
-      <if test="chType != null and chType != ''">
-        chType=#{chType,jdbcType=TIMESTAMP},
-      </if>
-    </set>
-    WHERE ch=#{ch,jdbcType=INTEGER}
+    UPDATE device_setting SET prefix=#{prefix,jdbcType=VARCHAR},areaCode=#{areaCode,jdbcType=VARCHAR},seatNumber=#{seatNumber,jdbcType=VARCHAR},
+    chType=#{chType,jdbcType=TIMESTAMP} WHERE id=#{id,jdbcType=INTEGER}
   </update>
 </mapper>

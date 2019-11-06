@@ -15,12 +15,18 @@ import com.hx.modle.Outbox;
 import com.hx.modle.Send_Receipt;
 import com.hx.service.SendFaxService;
 import com.hx.util.GetTimeToFileName;
+import com.spire.barcode.BarCodeGenerator;
+import com.spire.barcode.BarCodeType;
+import com.spire.barcode.BarcodeSettings;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import sun.misc.BASE64Encoder;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -42,8 +48,8 @@ public class SendFaxServiceImpl implements SendFaxService {
     private InboxMapper inboxMapper;
     //查询座机号下拉列表框
     @Override
-    public List<String> selectSeatNumber() {
-        List<String> numbers=deviceDao.selectSeatNumber();
+    public List<Device_Setting> selectSeatNumber() {
+        List<Device_Setting> numbers=deviceDao.selectSeatNumber();
         return numbers;
     }
     //初始化板卡时查询通道类型
@@ -62,15 +68,7 @@ public class SendFaxServiceImpl implements SendFaxService {
             OutputStream os=new FileOutputStream( new File( tifPath ) );
             boolean flag=pdfToTiffBase64(file,os);
             if(!flag){
-                tifPath="文件转换错误";
-                if(file.isFile()){
-                    file.delete();
-                }
-            }else{
-                //删除临时的PDF文件
-                if(file.isFile()){
-                    file.delete();
-                }
+                tifPath=null;
             }
             return tifPath;
         } catch (FileNotFoundException e) {
@@ -87,8 +85,32 @@ public class SendFaxServiceImpl implements SendFaxService {
     }
 
     @Override
+    public String createBarCode() throws IOException {
+        String uuid=GetTimeToFileName.GetTimeToFileName();
+        BarcodeSettings settings = new BarcodeSettings();//创建BarcodeSettings实例
+        settings.setType(BarCodeType.Code_128);//指定条码类型
+        settings.setData(uuid);//设置条码数据
+        settings.setData2D(uuid);//设置条码显示数据
+        settings.setShowTextOnBottom(true);//设置数据文本显示在条码底部
+        settings.setX(0.8f);//设置黑白条宽度
+        settings.setImageHeight(50);//设置生成的条码图片高度
+        settings.setImageWidth(70);//设置生成的条码图片宽度
+        settings.setBackColor(new Color(240,255,255));//设置条码背景色
+        BarCodeGenerator barCodeGenerator = new BarCodeGenerator(settings);//创建BarCodeGenerator实例
+        BufferedImage bufferedImage = barCodeGenerator.generateImage();//根据settings生成图像数据，保存至BufferedImage实例
+        String barPath=TEMPDIR+"\\"+GetTimeToFileName.GetTimeToFileName()+".png";
+        File file=new File(barPath);
+        ImageIO.write(bufferedImage, "png",file);//保存条码为PNG图片
+        FileInputStream inputFile = new FileInputStream(file);
+        byte[] buffer = new byte[(int)file.length()];
+        inputFile.read(buffer);
+        inputFile.close();
+        return new BASE64Encoder().encode(buffer);
+    }
+
+    @Override
     public String sendFax(String tifPath, String base64, String courtName, String receiveNumber,
-                          String sendNumber, int isBack,int ch,String filename,int id) {
+                          String sendNumber, String isBack,String filename,String id,String ch) {
         //查询数据库是否有前缀0,
         //获取本地号码前缀和前缀长度,查看接收方号码是否是同区号码,同区号码,去除接收方区号
         receiveNumber=getReceiveNumber(sendNumber,receiveNumber);
@@ -96,27 +118,34 @@ public class SendFaxServiceImpl implements SendFaxService {
         String message="未找到空闲通道";
         if(isNumber>0){
             //通过指定号码发送,然后查询通道是否空闲
-            int isFree=Fax.INSTANCE.SsmGetChState(ch);
+            int isFree=Fax.INSTANCE.SsmGetChState( Integer.parseInt( ch ) );
             if(isFree==0){
                 //进行发送
-                String Msg=sendFreeCh(receiveNumber,ch);
+                String Msg=sendFreeCh(receiveNumber,Integer.parseInt( ch ));
                 if(Msg.equals( "通话中" )){
-                    message=faxSendStart(ch,tifPath,base64,isBack);
-                    if(isBack==2){
-                        //在发件箱或者发回执箱增加记录
+                    message=faxSendStart(Integer.parseInt( ch ),tifPath,base64,Integer.parseInt( isBack ));
+                    //已经断开连接,根据isBack判断发送的文件,然后存入数据库
+                    if(Integer.parseInt( isBack )==2){
+                        //isBack==2,说明只有回执页,所以存入数据到发回执箱
+                        //在发回执箱增加记录
                         //发回执更改收件箱是否已回执,改成1,已回执
                         insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
-                        inboxMapper.updateIsReceiptById(id);
+                        inboxMapper.updateIsReceiptById(Integer.parseInt( id ));
+                        deleteFiles(tifPath,base64);
                     }else{
+                        //isBack==1/0,说明只有正文或者两个文件,所以存入数据到发件箱
                         insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
+                        deleteFiles(tifPath,base64);
                     }
                 }else{
                     message=Msg;
-                    if(isBack==2){
+                    if(Integer.parseInt( isBack )==2){
+                        //发送失败,不更改已发送回执状态
                         insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
-                        inboxMapper.updateIsReceiptById(id);
+                        deleteFiles(tifPath,base64);
                     }else{
                         insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
+                        deleteFiles(tifPath,base64);
                     }
                 }
             }
@@ -131,18 +160,23 @@ public class SendFaxServiceImpl implements SendFaxService {
                         //进行发送
                         String Msg=sendFreeCh(receiveNumber,i);
                         if(Msg.equals( "通话中" )){
-                            message=faxSendStart(ch,tifPath,base64,isBack);
-                            if(isBack==2){
+                            message=faxSendStart(Integer.parseInt( ch ),tifPath,base64,Integer.parseInt( isBack ));
+                            if(Integer.parseInt( isBack )==2){
                                 insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
+                                inboxMapper.updateIsReceiptById(Integer.parseInt( id ));
+                                deleteFiles(tifPath,base64);
                             }else{
                                 insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
+                                deleteFiles(tifPath,base64);
                             }
                         }else{
                             message=Msg;
-                            if(isBack==2){
+                            if(Integer.parseInt( isBack )==2){
                                 insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
+                                deleteFiles(tifPath,base64);
                             }else{
                                 insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
+                                deleteFiles(tifPath,base64);
                             }
                         }
                         break;
@@ -150,7 +184,6 @@ public class SendFaxServiceImpl implements SendFaxService {
                 }
             }
         }
-        deleteFiles(tifPath,base64);
         return message;
     }
     //对接收方的号码进行更改
@@ -182,7 +215,7 @@ public class SendFaxServiceImpl implements SendFaxService {
             int isDial=Fax.INSTANCE.SsmAutoDial(ch,receiveNumber);
             if(isDial==0){
                 try {
-                    errMsg=checkState(ch);
+                    errMsg=checkState(ch,errMsg);
                 } catch (Exception e) {
                     logger.error("去话呼叫失败原因:"+errMsg);
                 }
@@ -199,9 +232,8 @@ public class SendFaxServiceImpl implements SendFaxService {
     }
 
 
-    public String checkState(int ch){
+    public String checkState(int ch,String Msg){
         int state=Fax.INSTANCE.SsmGetChState(ch);
-        String Msg="成功";
         if(state==3){
             Msg="通话中";
             return Msg;
@@ -234,7 +266,7 @@ public class SendFaxServiceImpl implements SendFaxService {
         }else{
             try {
                 Thread.sleep( 1000 );
-                checkState(ch);
+                Msg=checkState(ch,Msg);
             } catch (InterruptedException e) {
                 logger.error("Thread.sleep异常:"+e.toString());
             }
@@ -261,8 +293,33 @@ public class SendFaxServiceImpl implements SendFaxService {
             if(linkOk==0){
                 int sendOk=Fax.INSTANCE.SsmFaxStartSend(j,tifPath);
                 if(sendOk==0){
-                    errMsg=sendIng(base64,j,ch,isBack);
-                    return errMsg;
+                    int flag=sendEndFor0(j);
+                    //flag==0说明当前通道状态为空闲,已经发送结束
+                    if(flag==0){
+                        System.out.println("isBack:"+isBack);
+                        //包含回执页,就发送第二次
+                        if(isBack==0){
+                            if(base64!=null){
+                                sendOk=Fax.INSTANCE.SsmFaxStartSend(j,base64);
+                                if(sendOk==0){
+                                    flag=sendEndFor0(j);
+                                    if(flag==0){
+                                        logger.info("发送成功");
+                                        return errMsg;
+                                    }
+                                }else{
+                                    errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
+                                    logger.error( "发送失败:"+errMsg );
+                                }
+                            }else{
+                                errMsg="回执文件为空";
+                            }
+                            stopAndHungUp(ch,j);
+                        }else{
+                            stopAndHungUp(ch,j);
+                            logger.info("发送成功");
+                        }
+                    }
                 }else{
                     errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
                     logger.error( "发送失败:"+errMsg );
@@ -271,87 +328,30 @@ public class SendFaxServiceImpl implements SendFaxService {
                 errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
                 logger.error( "建立连接失败:"+errMsg );
             }
+        }else{
+            errMsg="没有空闲通道";
         }
+
         return errMsg;
     }
-    public String sendIng(String base64,int j,int ch,int isBack){
-        int jState=Fax.INSTANCE.SsmGetChState(j);
-        String errMsg="成功";
-        //发送完成状态
-        if(jState==0){
-            //正文以及回执页
-            if(isBack==0){
-                if(base64!=null){
-                    //第二次发送
-                    System.out.println("开始发送第二份");
-                    int sendOk=Fax.INSTANCE.SsmFaxStartSend(j,base64);
-                    if(sendOk==0){
-                        errMsg=sendCheckEndAgain(j,ch);
-                        return errMsg;
-                    }else{
-                        errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
-                        logger.error( "发送失败:"+errMsg );
-                    }
-                }else{
-                    errMsg="发送失败(回执文件为空)";
-                }
-            }else if(isBack==1){
-                //仅正文
-                int isStop=stopAndHungUp(ch,j);
-                if(isStop==0){
-                    logger.info( "发送成功" );
-                }else{
-                    errMsg="发送失败(断开连接失败)";
-                }
-            }else{
-                //仅回执页
-                int isStop=stopAndHungUp(ch,j);
-                if(isStop==0){
-                    logger.info( "发送成功" );
-                }else{
-                    errMsg="发送失败(断开连接失败)";
-                }
-            }
-        }else{
+    public static int sendEndFor0(int i){
+        int end=Fax.INSTANCE.SsmGetChState(i);
+        if(end!=0){
             try {
                 Thread.sleep( 1000 );
-                errMsg=sendIng(base64,j,ch,isBack);
+                end=sendEndFor0(i);
             } catch (InterruptedException e) {
-                logger.error( "Thread.sleep线程异常:"+e.toString() );
+                logger.error( "Thread.sleep异常:"+e.toString() );
             }
         }
-        return errMsg;
+        return end;
     }
-    public String sendCheckEndAgain(int j,int ch){
-        String msg="成功";
-        int jState=Fax.INSTANCE.SsmGetChState(j);
-        if(jState==0){
-            int isStop=stopAndHungUp(ch,j);
-            if(isStop==0){
-                logger.info( "发送成功" );
-            }else{
-                msg="失败(断开连接失败)";
-                logger.error( "断开连接失败" );
-            }
-        }else{
-            try {
-                Thread.sleep( 1000 );
-                msg=sendCheckEndAgain(j,ch);
-            } catch (InterruptedException e) {
-                logger.error( "Thread.sleep线程异常:"+e.toString() );
-            }
-        }
-        return msg;
-    }
-    public int stopAndHungUp(int ch,int j){
-        int flag=-1;
+    public void stopAndHungUp(int ch,int j){
         String errMsg="";
         int isStop=Fax.INSTANCE.SsmStopTalkWith(ch,j);
         if(isStop==0){
             int hangup=Fax.INSTANCE.SsmHangup(ch);
-            if(hangup==0){
-                flag=0;
-            }else{
+            if(hangup!=0){
                 errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
                 logger.error("挂机失败:"+errMsg);
             }
@@ -359,7 +359,6 @@ public class SendFaxServiceImpl implements SendFaxService {
             errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
             logger.error("断开连接失败:"+errMsg);
         }
-        return flag;
     }
     public void insertDataOutBox(String message,String receiveNumber,String filename,String sendNumber,String courtName){
         if(message.equals( "成功" )){
@@ -385,27 +384,19 @@ public class SendFaxServiceImpl implements SendFaxService {
         }
     }
     public void insertDataReceipt(String message,String receiveNumber,String filename,String sendNumber,String courtName){
+        Send_Receipt sendReceipt=new Send_Receipt();
+        sendReceipt.setReceivenumber( receiveNumber );
         if(message.equals( "成功" )){
-            Send_Receipt sendReceipt=new Send_Receipt();
-            sendReceipt.setReceivenumber( receiveNumber );
             sendReceipt.setMessage( "成功" );
-            sendReceipt.setSendline( filename );
-            sendReceipt.setSendnumber( sendNumber );
-            Date date=new Date();
-            sendReceipt.setCreate_time(date);
-            sendReceipt.setReceivingunit( courtName );
-            SendReceiptMapper.insertNewMessage(sendReceipt);
         }else{
-            Send_Receipt sendReceipt=new Send_Receipt();
-            sendReceipt.setReceivenumber( receiveNumber );
             sendReceipt.setMessage( "失败("+message+")" );
-            sendReceipt.setSendline( filename );
-            sendReceipt.setSendnumber( sendNumber );
-            Date date=new Date();
-            sendReceipt.setCreate_time(date);
-            sendReceipt.setReceivingunit( courtName );
-            SendReceiptMapper.insertNewMessage(sendReceipt);
         }
+        sendReceipt.setSendline( filename );
+        sendReceipt.setSendnumber( sendNumber );
+        Date date=new Date();
+        sendReceipt.setCreate_time(date);
+        sendReceipt.setReceivingunit( courtName );
+        SendReceiptMapper.insertNewMessage(sendReceipt);
     }
     public static void deleteFiles(String tifPath,String base64){
         File file=new File(tifPath);

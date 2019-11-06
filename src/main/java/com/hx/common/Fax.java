@@ -54,7 +54,9 @@ public interface Fax extends Library {
     //获取传真进程音检测器的检测结果。
     int SsmGetVocFxFlag(int ch, int nSelFx, boolean bClear);
     //获取接收到的文件编码的格式
-    int SsmFaxGetCodecMode(int ch, int dwReserver);
+    int SsmFaxGetCodeMode(int ch, int dwReserver);
+    //获取传真文件的页数
+    int fBmp_GetFileAllPage(String filename);
 
 
 

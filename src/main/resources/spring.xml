@@ -11,5 +11,19 @@ http://www.springframework.org/schema/context/spring-context-3.0.xsd
 
 	<!-- 自动扫描(自动注入) -->
 	<context:component-scan base-package="com.hx.service"/>
+	<bean id="Decide" class="com.hx.common.Decide">
+		<property name="programSettingDao">
+			<ref bean="programSettingDao"/>
+		</property>
+		<property name="deviceDao">
+			<ref bean="deviceDao"/>
+		</property>
+		<property name="inboxMapper">
+			<ref bean="inboxMapper"/>
+		</property>
+		<property name="receiptMapper">
+			<ref bean="receiptMapper"/>
+		</property>
+	</bean>
 
 </beans>

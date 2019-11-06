@@ -114,4 +114,9 @@ public class PrintFileServiceImpl implements PrintFileService {
         map.put("serviceList",list);
         return map;
     }
+
+    @Override
+    public void updatePrintService(Program_Setting programSetting) {
+        programSettingDao.updatePrintService(programSetting);
+    }
 }

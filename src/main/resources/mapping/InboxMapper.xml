@@ -2,6 +2,14 @@
         <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.hx.dao.InboxMapper" >
 <resultMap id="BaseResultMap" type="com.hx.modle.Inbox" >
+    <id property="id" column="id"/>
+    <result property="senderunit" column="senderunit"/>
+    <result property="receivenumber" column="receivenumber"/>
+    <result property="create_time" column="create_time"/>
+    <result property="senderunit" column="senderunit"/>
+    <result property="isreceipt" column="isreceipt"/>
+    <result property="sendernumber" column="sendernumber"/>
+    <result property="filsavepath" column="filsavepath"/>
 </resultMap>
     <select id="getAll" resultType="com.hx.modle.Inbox">
         select

@@ -11,6 +11,8 @@ public class TempModel implements Serializable {
     private static final long serialVersionUID = -922290095790271279L;
     private int codeMode;
     private int endFlag;
+    private String courtName;
+    private String receiveNumber;
 
     public int getCodeMode() {
         return codeMode;
@@ -28,11 +30,29 @@ public class TempModel implements Serializable {
         this.endFlag = endFlag;
     }
 
+    public String getCourtName() {
+        return courtName;
+    }
+
+    public void setCourtName(String courtName) {
+        this.courtName = courtName;
+    }
+
+    public String getReceiveNumber() {
+        return receiveNumber;
+    }
+
+    public void setReceiveNumber(String receiveNumber) {
+        this.receiveNumber = receiveNumber;
+    }
+
     @Override
     public String toString() {
         return "TempModel{" +
                 "codeMode=" + codeMode +
                 ", endFlag=" + endFlag +
+                ", courtName='" + courtName + '\'' +
+                ", receiveNumber='" + receiveNumber + '\'' +
                 '}';
     }
 }

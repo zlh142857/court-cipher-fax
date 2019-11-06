@@ -9,6 +9,11 @@
   </resultMap>
   <!--查询是否立即打印-->
   <select id="selectProgramSetting" resultMap="Program_Setting">
-    SELECT courtName,isPrint,printService FROM Program_Setting ;
+    SELECT id,courtName,isPrint,printService FROM Program_Setting;
   </select>
+  <!--修改程序信息-->
+  <update id="updatePrintService" parameterType="com.hx.modle.Program_Setting">
+    UPDATE program_setting SET courtName=#{courtName,jdbcType=VARCHAR},isPrint=#{isPrint,jdbcType=INTEGER},printService=#{printService,jdbcType=VARCHAR}
+    WHERE id=#{id,jdbcType=INTEGER}
+  </update>
 </mapper>

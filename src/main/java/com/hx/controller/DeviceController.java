@@ -38,7 +38,6 @@ public class DeviceController {
     public String selectDevice(){
         Map<String,Object> map=new HashMap<>(  );
         List<Device_Setting> list=deviceService.selectDevice();
-        map.put( "boolean",false );
         map.put( "list",list );
         return JSONObject.toJSONString(map);
     }

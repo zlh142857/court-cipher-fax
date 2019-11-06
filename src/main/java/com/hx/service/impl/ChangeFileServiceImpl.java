@@ -61,6 +61,7 @@ public class ChangeFileServiceImpl implements ChangeFileService {
         boolean resultBack=false;
         InputStream inputStream=null;
         OutputStream outputStream=null;
+        String pdfPath="";
         try {
             inputStream=file.getInputStream();
             //先判断目录名是否存在
@@ -71,7 +72,7 @@ public class ChangeFileServiceImpl implements ChangeFileService {
             outputStream= new FileOutputStream(tifPath);
             if(fileType==0){
                 //进行Word文档转换
-                String pdfPath=wordToPDF(file);
+                pdfPath=wordToPDF(file);
                 //再进行PDF文档转换为tiff文件
                 File pdfFile=new File(pdfPath);
                 resultBack=pdfToTiffByWord(pdfFile,outputStream);
@@ -92,6 +93,10 @@ public class ChangeFileServiceImpl implements ChangeFileService {
             } catch (IOException e) {
                 logger.error("IO关闭异常:"+e);
             }
+        }
+        File pdfFile=new File(pdfPath);
+        if(pdfFile.isFile()){
+            pdfFile.delete();
         }
         return resultBack;
     }

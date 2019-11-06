@@ -6,23 +6,42 @@ package com.hx.controller;/*
  */
 
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hx.common.Decide;
+import com.hx.dao.ProgramSettingDao;
+import com.hx.modle.Device_Setting;
+import com.hx.modle.Program_Setting;
+import com.hx.modle.TempModel;
 import com.hx.service.SendFaxService;
-import org.junit.Test;
+import com.spire.barcode.BarCodeType;
+import com.spire.barcode.BarcodeScanner;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.io.File;
-import java.util.Date;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import static com.hx.service.impl.SendFaxServiceImpl.deleteFiles;
+import static com.hx.common.Decide.insertMsg;
 
 
 @Controller
 public class SendFaxController {
+    private static Logger logger=Logger.getLogger(SendFaxController.class);
     @Autowired
     private SendFaxService sendFaxService;
     /**
@@ -39,7 +58,7 @@ public class SendFaxController {
     @RequestMapping("selectSeatNumber")
     @ResponseBody
     public String selectSeatNumber(){
-        List<String> numbers=sendFaxService.selectSeatNumber();
+        List<Device_Setting> numbers=sendFaxService.selectSeatNumber();
         return JSONObject.toJSONString( numbers );
     }
     /**
@@ -55,11 +74,19 @@ public class SendFaxController {
      */
     @RequestMapping("sendFax")
     @ResponseBody
-    public String sendFax(@RequestParam("tifPath") String tifPath,@RequestParam("receiptPath") String receiptPath,
-                          @RequestParam("courtName") String courtName,@RequestParam("receiveNumber") String receiveNumber,
-                          @RequestParam("sendNumber") String sendNumber,@RequestParam("isBack") int isBack,@RequestParam("ch") int ch,
-                          @RequestParam("filename") String filename,@RequestParam("id") int id){
-        String mes=sendFaxService.sendFax(tifPath,receiptPath,courtName,receiveNumber,sendNumber,isBack,ch,filename,id);
+    public String sendFax(String tifPath,String receiptPath,String tempModels,String sendNumber,
+                          String isBack,String ch,String filename,String id){
+        String mes="";
+        ObjectMapper mapper = new ObjectMapper();
+        JavaType jt = mapper.getTypeFactory().constructParametricType(ArrayList.class, TempModel.class);
+        try {
+            List<TempModel> tempList =  (List<TempModel>)mapper.readValue(tempModels, jt);
+            for(int i=0;i<tempList.size();i++){
+                mes=sendFaxService.sendFax(tifPath,receiptPath,tempList.get( i ).getCourtName(),tempList.get(i).getReceiveNumber(),sendNumber,isBack,filename,id,ch);
+            }
+        } catch (Exception e) {
+            logger.error( e.toString() );
+        }
         return JSONObject.toJSONString( mes );
     }
     /**
@@ -79,8 +106,47 @@ public class SendFaxController {
         String receiptPath=sendFaxService.baseToTif(base64);
         return JSONObject.toJSONString( receiptPath );
     }
+    @RequestMapping("createBarCode")
+    @ResponseBody
+    public String createBarCode(){
+        String file=null;
+        try {
+            file=sendFaxService.createBarCode();
+        } catch (IOException e) {
+            logger.error( e );
+        }
+        return JSONObject.toJSONString( file );
+    }
+    @RequestMapping("main")
+    @ResponseBody
+    public void main(){
+        /*String ss=(0);
+        System.out.println(ss);*/
+        int ch=1;
+        String callerId="555";
+        String tifPath="222";
+        String tifPathBack="55";
+        insertMsg(ch,callerId,tifPath,tifPathBack);
+    }
+    public static void cutJPG(InputStream input, OutputStream out, int x,
+                              int y, int width, int height) throws IOException {
+        ImageInputStream imageStream = null;
+        try {
+            Iterator<ImageReader> readers = ImageIO.getImageReadersByFormatName("jpg");
+            ImageReader reader = readers.next();
+            imageStream = ImageIO.createImageInputStream(input);
+            reader.setInput(imageStream, true);
+            ImageReadParam param = reader.getDefaultReadParam();
 
-
-
+            System.out.println(reader.getWidth(0));
+            System.out.println(reader.getHeight(0));
+            Rectangle rect = new Rectangle(x, y, width, height);
+            param.setSourceRegion(rect);
+            BufferedImage bi = reader.read(0, param);
+            ImageIO.write(bi, "jpg", out);
+        } finally {
+            imageStream.close();
+        }
+    }
 
 }

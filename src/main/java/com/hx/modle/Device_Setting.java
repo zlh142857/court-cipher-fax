@@ -15,6 +15,7 @@ public class Device_Setting implements Serializable {
     private String areaCode;  //区号
     private String seatNumber; //座机号
     private Integer chType;  //通道类型,仅接受1,仅发送2,或者是接收发送都有0,默认为0
+    private boolean editFlag;
 
     public Integer getId() {
         return id;
@@ -64,15 +65,24 @@ public class Device_Setting implements Serializable {
         this.chType = chType;
     }
 
+    public boolean isEditFlag() {
+        return editFlag;
+    }
+
+    public void setEditFlag(boolean editFlag) {
+        this.editFlag = editFlag;
+    }
+
     @Override
     public String toString() {
         return "Device_Setting{" +
                 "id=" + id +
                 ", ch=" + ch +
-                ", prefix=" + prefix +
+                ", prefix='" + prefix + '\'' +
                 ", areaCode='" + areaCode + '\'' +
                 ", seatNumber='" + seatNumber + '\'' +
                 ", chType=" + chType +
+                ", editFlag=" + editFlag +
                 '}';
     }
 }

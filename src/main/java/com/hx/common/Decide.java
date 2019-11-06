@@ -12,39 +12,62 @@ import com.hx.dao.ReceiptMapper;
 import com.hx.modle.Inbox;
 import com.hx.modle.Program_Setting;
 import com.hx.modle.Return_Receipt;
-import com.hx.modle.TempModel;
-import com.hx.util.GetTimeToFileName;
 import com.hx.util.PrintImage;
 import com.hx.util.TiffToJPEG;
+import com.spire.barcode.BarCodeType;
+import com.spire.barcode.BarcodeScanner;
+import com.sun.media.jai.codec.FileSeekableStream;
+import com.sun.media.jai.codec.ImageCodec;
+import com.sun.media.jai.codec.ImageDecoder;
+import com.sun.media.jai.codec.SeekableStream;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 
+import javax.annotation.PostConstruct;
 import java.io.File;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
-import static com.hx.common.StaticFinal.TEMPDIR;
 import static com.hx.util.ColorReverse.writeJpg;
+import static com.hx.util.ColorReverse.writeJpgOne;
+import static com.hx.util.TempDir.tifDir;
 
 //根据switch case判断当前状态码
+@Component
 public class Decide {
-    @Autowired
-    private static ProgramSettingDao programSettingDao;
-    @Autowired
-    private static DeviceDao DeviceDao;
-    @Autowired
-    private static InboxMapper inboxMapper;
-    @Autowired
-    private static ReceiptMapper receiptMapper;
     private static Logger logger=Logger.getLogger(Decide.class);
-    public static void decideCh(int flag, int ch){
+    private static ProgramSettingDao programSettingDao;
+    private static DeviceDao deviceDao;
+    private static InboxMapper inboxMapper;
+    private static ReceiptMapper receiptMapper;
+    private static Decide decide;
+    public  void setProgramSettingDao(ProgramSettingDao programSettingDao) {
+        this.programSettingDao = programSettingDao;
+    }
+    public  void setDeviceDao(DeviceDao deviceDao) {
+        this.deviceDao = deviceDao;
+    }
+    public  void setInboxMapper(InboxMapper inboxMapper) {
+        this.inboxMapper = inboxMapper;
+    }
+    public  void setReceiptMapper(ReceiptMapper receiptMapper) {
+        this.receiptMapper = receiptMapper;
+    }
+    @PostConstruct
+    public void init() {
+        decide=this;
+        decide.programSettingDao=this.programSettingDao;
+        decide.inboxMapper=this.inboxMapper;
+        decide.deviceDao=this.deviceDao;
+        decide.receiptMapper=this.receiptMapper;
+    }
+    public static void decideCh(int flag, int ch) throws Exception {
         if(flag==2){
             Map<String,String> map=chState_2(ch);
             if(map.get( "message" ).equals( "成功" )){
-                Program_Setting programSetting=programSettingDao.selectProgramSetting();
+                Program_Setting programSetting=decide.programSettingDao.selectProgramSetting();
                 String printService=programSetting.getPrintService();
                 if(programSetting.getIsPrint()==0){
                     int tifLength=map.get( "tifPath" ).length();
@@ -77,17 +100,17 @@ public class Decide {
 
         }
     }
-    public static Map<String,String> chState_2(int ch) {
+    public static Map<String,String> chState_2(int ch) throws Exception {
         Map<String,String> map=new HashMap<>(  );
         String message="成功";
         String tifPathBack="";
         String tifPath="";
         //摘机
         int pickup=Fax.INSTANCE.SsmPickup(ch);
+        int i = 8;
         if(pickup==0){
             //获取发送方号码
             String callerId = Fax.INSTANCE.SsmGetCallerIdA( ch );
-            int i = 8;
             //查找空闲软通道
             if (ch == 0) {
                 i = 8;
@@ -104,53 +127,86 @@ public class Decide {
                 //空闲状态,建立连接
                 int linkOk = Fax.INSTANCE.SsmTalkWith( ch, i );
                 if (linkOk == 0) {
-                    tifPath=TEMPDIR+"\\"+GetTimeToFileName.GetTimeToFileName()+".tif";
-                    Fax.INSTANCE.SsmFaxStartReceive( i,tifPath);
-                    TempModel tempModel=new TempModel();
-                    tempModel= sendEnd( ch, i,tempModel );
-                    if (tempModel.getEndFlag() == 0) {
-                        int codeMode=tempModel.getCodeMode();
-                        if(codeMode==0){
-                            int flag=stopAndHungUp(ch,i);
-                            if(flag==0){
-                                //仅正文,存入数据库
-                                insertMsg(ch,callerId,tifPath);
-                                logger.info( "接收成功" );
-                            }
-                        }else if(codeMode==1){
-                            try {
-                                Thread.sleep( 2000 );
-                                //正文,查看是否有F1信号
-                                int findVoc=Fax.INSTANCE.SsmGetVocFxFlag( i,1,true);
-                                if(findVoc==0){
-                                    //对方发送了一次
-                                    tifPathBack=TEMPDIR+"\\"+GetTimeToFileName.GetTimeToFileName()+".tif";
-                                    Fax.INSTANCE.SsmFaxStartReceive( i,tifPathBack);
-                                    TempModel tempModel2=new TempModel();
-                                    tempModel2= sendEnd( ch, i,tempModel2 );
-                                    if (tempModel2.getEndFlag() == 0) {
-                                        int codeMode2=tempModel2.getCodeMode();
-                                        if(codeMode2==0){
-                                            int flag=stopAndHungUp(ch,i);
-                                            if(flag==0){
-                                                //将回执文件存入数据库
-                                                insertMsgReceipt(ch,callerId,tifPathBack);
-                                                logger.info( "接收回执文件成功" );
-                                            }
-                                        }
-                                    }
-                                }else{
-                                    int flag=stopAndHungUp(ch,i);
-                                    if(flag==0){
-                                        insertMsg(ch,callerId,tifPath);
-                                        logger.info( "接收成功" );
+                    tifPath=tifDir();
+                    int isOk=Fax.INSTANCE.SsmFaxStartReceive( i,tifPath);
+                    if(isOk==0){
+                        //开始接收,当通道状态为55的时候可以获取文件编码
+                        //当通道状态为0的时候可以挂起或者接收第二次
+                        int state= getCodeFlag(i);
+                        if (state==55) {
+                            //说明已经在接收中
+                            int end=sendEndFor0(i);
+                            if(end==0){
+                                //目前接收到了一份文件,tifPath不为空
+                                map.put( "tifPath",tifPath );
+                                //说明当前通道已经为空闲状态,查看是否有F1信号
+                                int findVoc=0;
+                                Thread.sleep( 3000 );
+                                System.out.println("开始查找findVOC");
+                                for(int k=0;k<3;k++){
+                                    Thread.sleep( 1000 );
+                                    findVoc=Fax.INSTANCE.SsmGetVocFxFlag( ch,1,true);
+                                    if(findVoc==1){
+                                        break;
+                                    }else if(findVoc==-1){
+                                        message=Fax.INSTANCE.SsmGetLastErrMsgA();
+                                        logger.error( message );
                                     }
                                 }
-                            } catch (InterruptedException e) {
-                                message=e.toString();
-                                logger.error( "Thread.sleep异常:"+e.toString() );
+                                System.out.println("findVOC:"+findVoc);
+                                if(findVoc==1){
+                                    //说明有F1信号
+                                    tifPathBack=tifDir();
+                                    isOk=Fax.INSTANCE.SsmFaxStartReceive( i,tifPathBack);
+                                    if(isOk==0){
+                                        //等待空闲状态
+                                        int flag=getCodeFlag(i);
+                                        if(flag==55){
+                                            //说明已经在接收中了
+                                            end=sendEndFor0(i);
+                                            if(end==0){
+                                                map.put( "tifPathBack",tifPathBack );
+                                                logger.info("接收成功");
+                                                insertMsg(ch,callerId,tifPath,tifPathBack);
+                                            }
+                                        }else{
+                                            logger.error( "接收失败" );
+                                        }
+                                    }else{
+                                        message=Fax.INSTANCE.SsmGetLastErrMsgA();
+                                        logger.error( message );
+                                    }
+                                }else{
+                                    //如果接收到两份文件,tifPath和tifPathBack都不为空
+                                    //只接收到一份文件,可能是正文,可能是回执,但是tifPath不为空
+                                    //判断文件是否只有一页,然后判断文件是否有条形码
+                                    System.out.println("获取pages");
+                                    System.out.println("tifPath:"+tifPath);
+                                    int pages=getTiffPages( tifPath );
+                                    System.out.println("pages:"+pages);
+                                    if(pages==-1){
+                                        message=Fax.INSTANCE.SsmGetLastErrMsgA();
+                                        logger.error( message );
+                                    }else if(pages==1){
+                                        boolean scan=scanJpg(tifPath);
+                                        System.out.println("scan:"+scan);
+                                        if(scan){
+                                            //回执
+                                            insertMsgReceipt(ch,callerId,tifPathBack);
+                                        }else{
+                                            insertMsg(ch,callerId,tifPath,tifPathBack);
+                                        }
+                                    }else{
+                                        //页数大于1说明是正文
+                                        insertMsg(ch,callerId,tifPath,tifPathBack);
+                                    }
+                                    logger.info("接收成功");
+                                }
                             }
                         }
+                    }else{
+                        message = Fax.INSTANCE.SsmGetLastErrMsgA();
+                        logger.error( "建立接收失败:"+message );
                     }
                 } else {
                     message = Fax.INSTANCE.SsmGetLastErrMsgA();
@@ -159,36 +215,45 @@ public class Decide {
             }
         }
         map.put( "message",message );
-        map.put( "tifPath",tifPath );
-        map.put( "tifPathBack",tifPathBack );
+        stopAndHungUp(ch,i);
         return map;
     }
-    public static TempModel sendEnd(int ch, int i,TempModel tempModel){
+    public static int getCodeFlag(int i){
         int end=Fax.INSTANCE.SsmGetChState(i);
         if(end==55){
-            int codeMode=Fax.INSTANCE.SsmFaxGetCodecMode(ch,0);
-            tempModel.setCodeMode( codeMode );
-        }else if(end==0){
-            tempModel.setEndFlag( end );
+            return end;
+        }else if(end ==0){
+            return end;
         }else{
             try {
                 Thread.sleep( 1000 );
-                tempModel=sendEnd(ch,i,tempModel);
+                end=getCodeFlag(i);
             } catch (InterruptedException e) {
                 logger.error( "Thread.sleep异常:"+e.toString() );
+                return 0;
             }
         }
-        return tempModel;
+        return end;
     }
-    public static int stopAndHungUp(int ch, int i){
-        int flag=-1;
+    public static int sendEndFor0(int i){
+        int end=Fax.INSTANCE.SsmGetChState(i);
+        if(end!=0){
+            try {
+                Thread.sleep( 1000 );
+                end=sendEndFor0(i);
+            } catch (InterruptedException e) {
+                logger.error( "Thread.sleep异常:"+e.toString() );
+                end=0;
+            }
+        }
+        return end;
+    }
+    public static void stopAndHungUp(int ch, int i){
         String errMsg="";
         int isStop=Fax.INSTANCE.SsmStopTalkWith(ch,i);
         if(isStop==0){
             int hangup=Fax.INSTANCE.SsmHangup(ch);
-            if(hangup==0){
-                flag=0;
-            }else{
+            if(hangup!=0){
                 errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
                 logger.error("挂机失败:"+errMsg);
             }
@@ -196,7 +261,6 @@ public class Decide {
             errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
             logger.error("断开连接失败:"+errMsg);
         }
-        return flag;
     }
     public static void deleteFileList(List<File> list,List<File> newList){
         if(list.size()>0){
@@ -210,25 +274,61 @@ public class Decide {
             }
         }
     }
-    public static void insertMsg(int ch, String callerId, String tifPath){
-        String receiveNumber=DeviceDao.selectNumberByCh(ch);
+    public static void insertMsg(int ch, String callerId, String tifPath, String tifPathBack){
+        System.out.println("开始新增inbox");
+        String receiveNumber=decide.deviceDao.selectNumberByCh( ch );
         Inbox inbox=new Inbox();
         inbox.setSendernumber(callerId);
         inbox.setReceivenumber(receiveNumber);
         Date date=new Date();
         inbox.setCreate_time( date );
         inbox.setFilsavepath(tifPath);
-        inboxMapper.insertInbox(inbox);
+        System.out.println("inbox是啊比1");
+        if(tifPathBack.length()>0){
+            inbox.setReceiptpath( tifPathBack );
+        }
+        System.out.println("inbox是啊比2");
+        decide.inboxMapper.insertInbox( inbox );
     }
     public static void insertMsgReceipt(int ch, String callerId, String tifPathBack){
-        String receiveNumber=DeviceDao.selectNumberByCh(ch);
+        String receiveNumber=decide.deviceDao.selectNumberByCh( ch );
         Return_Receipt returnReceipt=new Return_Receipt();
         returnReceipt.setSendnumber(callerId);
         returnReceipt.setReceivenumber(receiveNumber);
         Date date=new Date();
         returnReceipt.setCreate_time( date );
         returnReceipt.setFilsavepath(tifPathBack);
-        receiptMapper.insertReceipt(returnReceipt);
+        decide.receiptMapper.insertReceipt( returnReceipt );
     }
+    public static boolean scanJpg(String tifPath) throws Exception {
+        //先转换成jpg,然后扫描jpg,返回值不为null,就是回执文件
+        String filePath=writeJpgOne(tifPath);
+        String[] datas = BarcodeScanner.scan( filePath, BarCodeType.Code_128);
+        if(datas.equals( null )){
+            return false;
+        }else{
+            return true;
+        }
 
+    }
+    public  static int getTiffPages(String tiffFilePath){
+        SeekableStream seekableStream =null;
+        int numPages=0;
+        try {
+            seekableStream = new FileSeekableStream(new File(tiffFilePath));
+            ImageDecoder decoder = ImageCodec.createImageDecoder("tiff", seekableStream, null);
+            numPages = decoder.getNumPages();
+        }catch(Exception ex){
+            logger.error( ex.toString() );
+        }finally{
+            if(seekableStream!=null){
+                try {
+                    seekableStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return numPages;
+    }
 }

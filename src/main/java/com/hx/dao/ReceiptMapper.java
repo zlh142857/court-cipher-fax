@@ -13,5 +13,5 @@ package com.hx.dao;
 public interface ReceiptMapper {
     List<Return_Receipt> queryReturn();
 
-    void insertReceipt(@Param( "returnReceipt" ) Return_Receipt returnReceipt);
+    void insertReceipt(Return_Receipt returnReceipt);
 }

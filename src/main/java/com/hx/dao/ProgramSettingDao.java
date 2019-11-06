@@ -10,4 +10,6 @@ import com.hx.modle.Program_Setting;
 public interface ProgramSettingDao {
 
     Program_Setting selectProgramSetting();
+
+    void updatePrintService(Program_Setting programSetting);
 }

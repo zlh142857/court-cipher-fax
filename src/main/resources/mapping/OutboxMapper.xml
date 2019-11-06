@@ -2,6 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.hx.dao.OutboxMapper" >
     <resultMap id="BaseResultMap" type="com.hx.modle.Outbox" >
+        <id property="id" column="id"/>
+        <result property="receivingunit" column="receivingunit"/>
+        <result property="receivenumber" column="receivenumber"/>
+        <result property="create_time" column="create_time"/>
+        <result property="sendline" column="sendline"/>
+        <result property="message" column="message"/>
+        <result property="sendernumber" column="sendernumber"/>
     </resultMap>
     <select id="getAll" resultType="com.hx.modle.Outbox">
       SELECT

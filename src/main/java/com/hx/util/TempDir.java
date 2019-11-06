@@ -25,16 +25,6 @@ public class TempDir {
         file.transferTo( fileSave );
         return FilePath;
     }
-    public static String pdfTemp(MultipartFile file) throws IOException {
-        String FilePath=PdfDir+"\\"+file.getOriginalFilename();
-        File fileDir=new File( PdfDir );
-        if (!fileDir.exists()) {
-            fileDir.mkdir();
-        }
-        File fileSave=new File( FilePath );
-        file.transferTo( fileSave );
-        return FilePath;
-    }
     //待发送的文件夹路径
     public static String ToBeSend() throws IOException {
         File fileDir=new File( PdfToFileDir );
@@ -45,7 +35,7 @@ public class TempDir {
         return tifFilePath;
     }
     //返回要保存的接收的传真的路径
-    public static String tifDir() throws IOException {
+    public static String tifDir(){
         File fileDir=new File( TiffDir );
         if (!fileDir.exists()) {
             fileDir.mkdir();

@@ -24,5 +24,5 @@ public interface OutboxMapper {
 
     int insert(@Param("outbox") Outbox outbox);
 
-    void insertNewMessage(@Param("outbox")Outbox outbox);
+    void insertNewMessage(Outbox outbox);
 }

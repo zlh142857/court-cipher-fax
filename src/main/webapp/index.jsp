@@ -18,6 +18,7 @@
     <form id="uploadForm" enctype="multipart/form-data">
         文件:<input type="file" name="file" multiple="multiple" /><br>
     </form>
+    <img src="http://localhost:8080/main"/>
     <button id="upload">上传文件</button>
 </body>
 <script src="./jquery.2.14.js"></script>
@@ -29,9 +30,9 @@
     function clickBtn3() {
         $.ajax({
             type: "GET",
-            url: "http://localhost:8080/updateDevice.do",
+            url: "http://localhost:8080/main.do",
             success: function (str) {
-                alert(str);
+                console.log(str);
             },
             error: function(str){
             }

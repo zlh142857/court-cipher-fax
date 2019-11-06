@@ -7,6 +7,7 @@ package com.hx.controller;/*
 
 import com.alibaba.fastjson.JSONObject;
 import com.hx.dao.ProgramSettingDao;
+import com.hx.modle.Program_Setting;
 import com.hx.service.PrintFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -65,6 +66,26 @@ public class PrintFileController{
     public String selectPrintService(){
         Map<String,Object> map=printFileService.selectPrintService();
         return JSONObject.toJSONString( map );
+    }
+    /**
+     *
+     * 功能描述: 设置打印机服务,法院名称,是否自动打印
+     *
+     * 业务逻辑:
+     *
+     * @param:
+     * @return:
+     * @auther: 张立恒
+     * @date: 2019/11/1 13:46
+     */
+    @RequestMapping("updatePrintService")
+    @ResponseBody
+    public void updatePrintService(Program_Setting programSetting){
+        System.out.println(programSetting.getId());
+        System.out.println(programSetting.getCourtName());
+        System.out.println(programSetting.getIsPrint());
+        System.out.println(programSetting.getPrintService());
+        printFileService.updatePrintService(programSetting);
     }
 
 }

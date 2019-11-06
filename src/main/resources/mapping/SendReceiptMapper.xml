@@ -15,8 +15,8 @@
   <insert id="insertNewMessage" parameterType="com.hx.modle.Send_Receipt">
     INSERT INTO send_receipt
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="sendernumber != null and sendernumber != ''">
-        sendernumber,
+      <if test="sendnumber != null and sendnumber != ''">
+        sendnumber,
       </if>
       <if test="receivenumber != null and receivenumber != ''">
         receivenumber,
@@ -35,8 +35,8 @@
       </if>
     </trim>
     <trim prefix=" values (" suffix=")" suffixOverrides=",">
-      <if test="sendernumber != null and sendernumber != ''">
-        #{sendernumber,jdbcType=VARCHAR},
+      <if test="sendnumber != null and sendnumber != ''">
+        #{sendnumber,jdbcType=VARCHAR},
       </if>
       <if test="receivenumber != null and receivenumber != ''">
         #{receivenumber,jdbcType=VARCHAR},
