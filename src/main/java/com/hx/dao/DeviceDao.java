@@ -20,4 +20,6 @@ public interface DeviceDao {
     List<Device_Setting> selectDevice();
 
     void updateDevice(Device_Setting deviceSetting);
+
+    Device_Setting selectPrefixByCh(int ch);
 }

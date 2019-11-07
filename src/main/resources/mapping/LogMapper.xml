@@ -18,6 +18,9 @@
         </if>
         ORDER BY createtime DESC LIMIT #{page,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
     </select>
+    <select id="selectCount" resultType="java.lang.Long">
+        SELECT count(*) FROM log_tables;
+    </select>
 
     <!--张立恒end-->
 </mapper>

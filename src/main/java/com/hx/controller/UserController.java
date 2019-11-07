@@ -15,7 +15,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class UserController {
@@ -91,19 +93,16 @@ public class UserController {
     @RequestMapping("selectLog")
     @ResponseBody
     public String selectLog(String pageNow,String pageSize,String level){
-        System.out.println(pageNow);
-        System.out.println(pageSize);
-        System.out.println(level);
-        List<Log_Tables> logList= null;
+        Map<String,Object> map=null;
         try {
             if(pageNow.length()>0&&pageSize.length()>0){
-                logList = userService.selectLog(Integer.valueOf( pageNow ),Integer.valueOf( pageSize ),level);
+                map = userService.selectLog(Integer.valueOf( pageNow ),Integer.valueOf( pageSize ),level);
             }else{
                 logger.error( "分页参数为空" );
             }
         } catch (Exception e) {
             logger.error( e.toString() );
         }
-        return JSONObject.toJSONStringWithDateFormat( logList,"yyyy-MM-dd HH:mm:ss" );
+        return JSONObject.toJSONStringWithDateFormat( map,"yyyy-MM-dd HH:mm:ss" );
     }
 }

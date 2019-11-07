@@ -25,6 +25,10 @@
   <select id="selectPrefix" resultMap="Device_Setting" parameterType="java.lang.String">
     SELECT prefix,areaCode FROM Device_Setting WHERE seatNumber=#{seatNumber,jdbcType=VARCHAR};
   </select>
+  <!--根据通道编号查看前缀-->
+  <select id="selectPrefixByCh" resultMap="Device_Setting" parameterType="java.lang.Integer">
+    SELECT prefix,areaCode FROM Device_Setting WHERE ch=#{ch,jdbcType=INTEGER};
+  </select>
   <!--根据通道编号查看座机号-->
   <select id="selectNumberByCh" resultType="java.lang.String" parameterType="java.lang.Integer">
     SELECT seatNumber FROM Device_Setting WHERE ch=#{ch,jdbcType=INTEGER};

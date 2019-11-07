@@ -124,86 +124,74 @@ public class SendFaxServiceImpl implements SendFaxService {
         int isNumber=sendNumber.length();
         String message="成功";
         if(isNumber>0){
-            receiveNumber=getReceiveNumber(sendNumber,receiveNumber);
+            receiveNumber=getReceiveNumber(Integer.parseInt( ch ),sendNumber,receiveNumber);
             //通过指定号码发送,然后查询通道是否空闲
             int isFree=Fax.INSTANCE.SsmGetChState( Integer.parseInt( ch ) );
-            System.out.println("isFree:"+isFree);
+            if(isFree==7){
+                Fax.INSTANCE.SsmHangup( Integer.parseInt( ch ) );
+                isFree=Fax.INSTANCE.SsmGetChState( Integer.parseInt( ch ) );
+            }
             if(isFree==0){
                 //进行发送
                 String Msg=sendFreeCh(receiveNumber,Integer.parseInt( ch ));
-                if(Msg.equals( "通话中" )){
-                    message=faxSendStart(Integer.parseInt( ch ),tifPath,base64,Integer.parseInt( isBack ));
-                    //已经断开连接,根据isBack判断发送的文件,然后存入数据库
-                    if(Integer.parseInt( isBack )==2){
-                        //isBack==2,说明只有回执页,所以存入数据到发回执箱
-                        //在发回执箱增加记录
-                        //发回执更改收件箱是否已回执,改成1,已回执
-                        insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
-                        if(id.length()>0){
-                            inboxMapper.updateIsReceiptById(Integer.parseInt( id ));
-                        }else{
-                            logger.error( "id为空,无法修改是否已回执" );
-                        }
-                    }else{
-                        //isBack==1/0,说明只有正文或者两个文件,所以存入数据到发件箱
-                        insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
-                    }
-                }else{
-
-                    message=Msg;
-                    if(Integer.parseInt( isBack )==2){
-                        //发送失败,不更改已发送回执状态
-                        insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
-                    }else{
-                        insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
-                    }
+                if(Msg.equals( "通话中" )) {
+                    message=getMessage( receiveNumber, Integer.parseInt( ch ), tifPath, base64, Integer.parseInt( isBack ), filename, sendNumber, courtName, Integer.parseInt( id ) );
                 }
-            }else if(isFree==7){
-                Fax.INSTANCE.SsmHangup( Integer.parseInt( ch ) );
             }else{
                 message="模拟中继线通道不为空闲状态";
             }
         }else{
+            int count=0;
             //随机选择一个号码发送,查询空闲通道,然后查询该通道是否支持发送
             for(int i=0;i<4;i++){
+                receiveNumber=getReceiveNumber(Integer.parseInt( ch ),sendNumber,receiveNumber);
                 int isFree=Fax.INSTANCE.SsmGetChState(i);
-                System.out.println("isFree:"+isFree);
                 if(isFree==0){
+                    count++;
                     sendNumber=deviceDao.selectSeatNumberByCh(i);
                     isNumber=sendNumber.length();
                     if(isNumber>0){
-                        //进行发送
-                        String Msg=sendFreeCh(receiveNumber,i);
-                        if(Msg.equals( "通话中" )){
-                            message=faxSendStart(Integer.parseInt( ch ),tifPath,base64,Integer.parseInt( isBack ));
-                            if(Integer.parseInt( isBack )==2){
-                                insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
-                                inboxMapper.updateIsReceiptById(Integer.parseInt( id ));
-                            }else{
-                                insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
-                            }
-                        }else{
-                            message=Msg;
-                            if(Integer.parseInt( isBack )==2){
-                                insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
-                            }else{
-                                insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
-                            }
-                        }
+                        message=getMessage( receiveNumber,i, tifPath, base64, Integer.parseInt( isBack ), filename, sendNumber, courtName, Integer.parseInt( id ) );
                         break;
                     }
-                }else if(isFree==7){
-                    Fax.INSTANCE.SsmHangup( Integer.parseInt( ch ) );
-                }else{
-                    message="模拟中继线通道不为空闲状态";
                 }
+            }
+            if(count==0){
+                message="模拟中继线通道不为空闲状态";
+            }
+        }
+        return message;
+    }
+    public String getMessage(String receiveNumber,int ch,String tifPath,String base64,int isBack,String filename,String sendNumber,String courtName,int id){
+        String message="";
+        //进行发送
+        String Msg=sendFreeCh(receiveNumber,ch);
+        if(Msg.equals( "通话中" )){
+            message=faxSendStart(ch,tifPath,base64,isBack);
+            if(isBack==2){
+                insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
+                inboxMapper.updateIsReceiptById(id);
+            }else{
+                insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
+            }
+        }else{
+            message=Msg;
+            if(isBack==2){
+                insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
+            }else{
+                insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
             }
         }
         return message;
     }
     //对接收方的号码进行更改
-    public String getReceiveNumber(String sendNumber,String receiveNumber){
-        Device_Setting deviceSetting=deviceDao.selectPrefix(sendNumber);
+    public String getReceiveNumber(int ch,String sendNumber,String receiveNumber){
+        Device_Setting deviceSetting=null;
+        if(sendNumber.length()>0){
+            deviceSetting=deviceDao.selectPrefix(sendNumber);
+        }else{
+            deviceSetting=deviceDao.selectPrefixByCh(ch);
+        }
         int prefixLength=deviceSetting.getPrefix().length();
         if(prefixLength!=0){
             String code=deviceSetting.getAreaCode();

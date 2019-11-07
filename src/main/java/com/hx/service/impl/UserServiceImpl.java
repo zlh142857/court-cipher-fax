@@ -13,7 +13,9 @@ import com.hx.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service("userService")
 public class UserServiceImpl implements UserService {
@@ -38,7 +40,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Log_Tables> selectLog(Integer pageNow, Integer pageSize,String level) throws Exception {
+    public Map<String,Object> selectLog(Integer pageNow, Integer pageSize, String level) throws Exception {
+        Map<String,Object> map=new HashMap<>(  );
         int page=pageNow-1;
         String levelInfo="";
         if(level.length()>0){
@@ -49,6 +52,9 @@ public class UserServiceImpl implements UserService {
             }
         }
         List<Log_Tables> logList=logMapper.selectLog(page,pageSize,levelInfo);
-        return logList;
+        Long total=logMapper.selectCount();
+        map.put( "logList",logList);
+        map.put( "total",total );
+        return map;
     }
 }
