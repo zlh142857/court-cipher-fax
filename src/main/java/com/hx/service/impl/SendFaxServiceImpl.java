@@ -146,6 +146,10 @@ public class SendFaxServiceImpl implements SendFaxService {
             for(int i=0;i<4;i++){
                 receiveNumber=getReceiveNumber(Integer.parseInt( ch ),sendNumber,receiveNumber);
                 int isFree=Fax.INSTANCE.SsmGetChState(i);
+                if(isFree==7){
+                    Fax.INSTANCE.SsmHangup(i);
+                    isFree=Fax.INSTANCE.SsmGetChState(i);
+                }
                 if(isFree==0){
                     count++;
                     sendNumber=deviceDao.selectSeatNumberByCh(i);
