@@ -41,6 +41,18 @@ public class InitCard implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
+        File directory=new File( TEMPDIR );
+        if (directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if(files.length>0){
+                for (File f : files) {
+                    if(f.isFile()){
+                        f.delete();
+                    }
+                }
+            }
+            directory.delete();
+        }
         Fax.INSTANCE.SsmCloseCti();
     }
 }

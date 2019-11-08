@@ -42,4 +42,8 @@
     UPDATE device_setting SET prefix=#{prefix,jdbcType=VARCHAR},areaCode=#{areaCode,jdbcType=VARCHAR},seatNumber=#{seatNumber,jdbcType=VARCHAR},
     chType=#{chType,jdbcType=TIMESTAMP} WHERE ch=#{ch,jdbcType=INTEGER}
   </update>
+  <!--查询座机号码不为空的ch编号-->
+  <select id="selectCh" resultType="java.lang.Integer">
+    SELECT ch FROM Device_Setting WHERE seatNumber IS NOT NULL;
+  </select>
 </mapper>

@@ -25,7 +25,7 @@ public class ColorReverse {
                 //文件与BufferedImage间的转换
                 BufferedImage bi=file2img(pathList.get( i ));  //读取图片
                 BufferedImage bii=img_inverse(bi);
-                String newFilePath=TEMPDIR+"\\"+GetTimeToFileName.GetTimeToFileName()+i+".jpg";
+                String newFilePath=TEMPDIR+"/"+GetTimeToFileName.GetTimeToFileName()+i+".jpg";
                 img2file(bii,"jpg",newFilePath);  //生成图片
                 File file=new File(newFilePath);
                 fileList.add( file );
@@ -39,7 +39,7 @@ public class ColorReverse {
             //文件与BufferedImage间的转换
             BufferedImage bi=file2img(tifPath);  //读取图片
             BufferedImage bii=img_inverse(bi);
-            newFilePath=TEMPDIR+"\\"+GetTimeToFileName.GetTimeToFileName()+".jpg";
+            newFilePath=TEMPDIR+"/"+GetTimeToFileName.GetTimeToFileName()+".jpg";
             img2file(bii,"jpg",newFilePath);  //生成图片
         }
         return newFilePath;
@@ -59,7 +59,7 @@ public class ColorReverse {
             }
             return back;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error( e.toString() );
             return null;
         }
     }

@@ -1,6 +1,7 @@
 package com.hx.service;/*
  */
 
+import com.hx.modle.ChMsg;
 import com.hx.modle.Device_Setting;
 
 import java.io.File;
@@ -20,4 +21,8 @@ public interface SendFaxService {
     String baseToTif(String base64);
 
     String createBarCode() throws IOException;
+
+    List<ChMsg> rateOfAdvance(String ch) throws Exception;
+
+    List<Device_Setting> selectChAndSeatNumber();
 }

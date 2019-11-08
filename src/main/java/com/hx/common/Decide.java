@@ -205,21 +205,14 @@ public class Decide {
                 errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
                 logger.error("挂机失败:"+errMsg);
             }
+            int stop=Fax.INSTANCE.SsmFaxStop(i);
+            if(stop!=0){
+                errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
+                logger.error("终止发送失败:"+errMsg);
+            }
         }else{
             errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
             logger.error("断开连接失败:"+errMsg);
-        }
-    }
-    public static void deleteFileList(List<File> list,List<File> newList){
-        if(list.size()>0){
-            for(int i=0;i<list.size();i++){
-                list.get(i).delete();
-            }
-        }
-        if(newList.size()>0){
-            for(int i=0;i<newList.size();i++){
-                newList.get(i).delete();
-            }
         }
     }
     public static void insertMsg(int ch, String callerId, String tifPath){

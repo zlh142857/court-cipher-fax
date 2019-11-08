@@ -10,6 +10,7 @@ import com.hx.dao.DeviceDao;
 import com.hx.dao.InboxMapper;
 import com.hx.dao.OutboxMapper;
 import com.hx.dao.SendReceiptMapper;
+import com.hx.modle.ChMsg;
 import com.hx.modle.Device_Setting;
 import com.hx.modle.Outbox;
 import com.hx.modle.Send_Receipt;
@@ -27,11 +28,17 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import static com.hx.change.ChangeFile.baseToPdf;
 import static com.hx.change.ChangeFile.pdfToTiffByWord;
+import static com.hx.common.ChStateCode.getStateMsgBy7;
+import static com.hx.common.ChStateCode.getStateMsgByFaxCh;
+import static com.hx.common.ChStateCode.getStateMsgByNot7;
+import static com.hx.common.Speed.getSpeed;
 import static com.hx.util.TempDir.fileTemp;
 
 
@@ -96,7 +103,7 @@ public class SendFaxServiceImpl implements SendFaxService {
 
     @Override
     public String createBarCode() throws IOException {
-        String uuid=GetTimeToFileName.GetTimeToFileName();
+        String uuid=GetTimeToFileName.GetTimeToFileNameToBar();
         BarcodeSettings settings = new BarcodeSettings();//创建BarcodeSettings实例
         settings.setType(BarCodeType.Code_128);//指定条码类型
         settings.setData(uuid);//设置条码数据
@@ -118,6 +125,8 @@ public class SendFaxServiceImpl implements SendFaxService {
         return new BASE64Encoder().encode(buffer);
     }
 
+
+
     @Override
     public String sendFax(String tifPath, String base64, String courtName, String receiveNumber,
                           String sendNumber, String isBack,String filename,String id,String ch) {
@@ -132,41 +141,37 @@ public class SendFaxServiceImpl implements SendFaxService {
                 isFree=Fax.INSTANCE.SsmGetChState( Integer.parseInt( ch ) );
             }
             if(isFree==0){
-                //进行发送
-                String Msg=sendFreeCh(receiveNumber,Integer.parseInt( ch ));
-                if(Msg.equals( "通话中" )) {
-                    message=getMessage( receiveNumber, Integer.parseInt( ch ), tifPath, base64, Integer.parseInt( isBack ), filename, sendNumber, courtName, Integer.parseInt( id ) );
-                }
+                message=getMessage( receiveNumber, Integer.parseInt( ch ), tifPath, base64, Integer.parseInt( isBack ), filename, sendNumber, courtName,id );
             }else{
                 message="模拟中继线通道不为空闲状态";
+                logger.error( "模拟中继线通道不为空闲状态state:"+isFree );
             }
         }else{
             int count=0;
+            int isFree=0;
             //随机选择一个号码发送,查询空闲通道,然后查询该通道是否支持发送
             for(int i=0;i<4;i++){
-                receiveNumber=getReceiveNumber(Integer.parseInt( ch ),sendNumber,receiveNumber);
-                int isFree=Fax.INSTANCE.SsmGetChState(i);
+                isFree=Fax.INSTANCE.SsmGetChState(i);
                 if(isFree==7){
                     Fax.INSTANCE.SsmHangup(i);
                     isFree=Fax.INSTANCE.SsmGetChState(i);
                 }
                 if(isFree==0){
+                    receiveNumber=getReceiveNumber(i,sendNumber,receiveNumber);
                     count++;
                     sendNumber=deviceDao.selectSeatNumberByCh(i);
-                    isNumber=sendNumber.length();
-                    if(isNumber>0){
-                        message=getMessage( receiveNumber,i, tifPath, base64, Integer.parseInt( isBack ), filename, sendNumber, courtName, Integer.parseInt( id ) );
-                        break;
-                    }
+                    message=getMessage( receiveNumber,i, tifPath, base64, Integer.parseInt( isBack ), filename, sendNumber, courtName,id);
+                    break;
                 }
             }
             if(count==0){
                 message="模拟中继线通道不为空闲状态";
+                logger.error( "模拟中继线通道不为空闲状态state:"+isFree );
             }
         }
         return message;
     }
-    public String getMessage(String receiveNumber,int ch,String tifPath,String base64,int isBack,String filename,String sendNumber,String courtName,int id){
+    public String getMessage(String receiveNumber,int ch,String tifPath,String base64,int isBack,String filename,String sendNumber,String courtName,String id){
         String message="";
         //进行发送
         String Msg=sendFreeCh(receiveNumber,ch);
@@ -174,7 +179,7 @@ public class SendFaxServiceImpl implements SendFaxService {
             message=faxSendStart(ch,tifPath,base64,isBack);
             if(isBack==2){
                 insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
-                inboxMapper.updateIsReceiptById(id);
+                inboxMapper.updateIsReceiptById(Integer.valueOf( id ));
             }else{
                 insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
             }
@@ -247,29 +252,7 @@ public class SendFaxServiceImpl implements SendFaxService {
         }else if(state==7){
             //挂起状态
             int pend=Fax.INSTANCE.SsmGetPendingReason(ch);
-            switch(pend){
-                case -1:
-                    Msg="发送失败(调用失败)";
-                    break;
-                case 0:
-                    Msg="发送失败(未检测到拨号音)";
-                    break;
-                case 1:
-                    Msg="发送失败(对方繁忙)";
-                    break;
-                case 2:
-                    Msg="发送失败(检测到回铃音后，线路上保持静默，驱动程序无法判别被叫是否摘机)";
-                    break;
-                case 3:
-                    Msg="发送失败(对方未接听)";
-                    break;
-                case 4:
-                    Msg="发送失败(对端挂机)";
-                    break;
-                case 5:
-                    Msg="发送失败(未在线路上检测到回铃音和任何其它的语音信号，驱动程序无法判断被叫用户是否摘机)";
-                    break;
-            }
+            Msg=getStateMsgBy7(pend);
         }else{
             try {
                 Thread.sleep( 1000 );
@@ -354,10 +337,14 @@ public class SendFaxServiceImpl implements SendFaxService {
         int isStop=Fax.INSTANCE.SsmStopTalkWith(ch,j);
         if(isStop==0){
             int hangup=Fax.INSTANCE.SsmHangup(ch);
-            int isFree=Fax.INSTANCE.SsmGetChState( ch);
             if(hangup!=0){
                 errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
                 logger.error("挂机失败:"+errMsg);
+            }
+            int stop=Fax.INSTANCE.SsmFaxStop(j);
+            if(stop!=0){
+                errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
+                logger.error("终止发送失败:"+errMsg);
             }
         }else{
             errMsg=Fax.INSTANCE.SsmGetLastErrMsgA();
@@ -394,16 +381,6 @@ public class SendFaxServiceImpl implements SendFaxService {
         sendReceipt.setReceivingunit( courtName );
         SendReceiptMapper.insertNewMessage(sendReceipt);
     }
-    public static void deleteFiles(String tifPath,String base64){
-        File file=new File(tifPath);
-        if(file.isFile()){
-            file.delete();
-        }
-        File file2=new File(base64);
-        if(file2.isFile()){
-            file2.delete();
-        }
-    }
     public static String getfileList(String tifPath,String base64){
         String [] main=tifPath.split("/");
         String mainText=main[main.length-1];
@@ -411,5 +388,82 @@ public class SendFaxServiceImpl implements SendFaxService {
         String receiptText=receipt[receipt.length-1];
         String fileList=mainText+";"+receiptText;
         return fileList;
+    }
+
+    @Override
+    public List<ChMsg> rateOfAdvance(String ch) throws Exception {
+        List<ChMsg> list=new ArrayList<>(  );
+        if(ch.length()>0){
+            int chCode= Integer.parseInt( ch );
+            int i=8;
+            if(chCode==0){
+                i=8;
+            }else if(chCode==1){
+                i=9;
+            }else if(chCode==2){
+                i=10;
+            }else{
+                i=11;
+            }
+            ChMsg chMsg=getchList(chCode,i);
+            list.add( chMsg );
+        }else{
+            logger.error( "ch为空" );
+        }
+        return list;
+    }
+
+
+
+    public ChMsg getchList(int ch,int i)throws Exception{
+        ChMsg chMsg=new ChMsg();
+        //查询每一条通道的状态
+        //查询0编号通道,查询通道状态,
+        int state=Fax.INSTANCE.SsmGetChState(ch);
+        String selfNumber=deviceDao.selectNumberByCh(ch);
+        chMsg.setSelfNumber(selfNumber);
+        chMsg.setCh( ch );
+        if(state==0){
+            chMsg.setFlag( true );
+        }else{
+            chMsg.setFlag( false );
+            if(state==7){
+                int code=Fax.INSTANCE.SsmGetPendingReason(ch);
+                chMsg.setMessage(getStateMsgBy7(code));
+            }else if(state==3){
+                String callerId=Fax.INSTANCE.SsmGetCallerIdA( ch );
+                if(callerId.length()>0){
+                    chMsg.setSendNumber(callerId);
+                }
+                int faxCh=Fax.INSTANCE.SsmGetChState(i);
+                chMsg.setMessage(getStateMsgByFaxCh(faxCh));
+                if(faxCh==55){
+                    int allByte=Fax.INSTANCE.SsmFaxGetAllBytes(i);
+                    if(allByte>0){
+                        int done=Fax.INSTANCE.SsmFaxGetSendBytes(i);
+                        if(done>=0){
+                            NumberFormat numberFormat = NumberFormat.getInstance();
+                            numberFormat.setMaximumFractionDigits(2);
+                            String result = numberFormat.format((float)done/(float)allByte*100);
+                            float num= Float.parseFloat( result );
+                            chMsg.setPercentage( num );
+                        }
+                    }else{
+                        int bytes=Fax.INSTANCE.SsmFaxGetRcvBytes(i);
+                        chMsg.setBytes(String.valueOf(bytes));
+                    }
+                    chMsg.setSpeed(getSpeed(Fax.INSTANCE.SsmFaxGetSpeed(i)));
+                    chMsg.setPages(Fax.INSTANCE.SsmFaxGetPages(i));;
+                }
+            }else{
+                chMsg.setMessage(getStateMsgByNot7(state));;
+            }
+        }
+        return chMsg;
+    }
+    @Override
+    public List<Device_Setting> selectChAndSeatNumber() {
+        List<Device_Setting> deviceSettings=deviceDao.selectDevice();
+        return deviceSettings;
     }
 }

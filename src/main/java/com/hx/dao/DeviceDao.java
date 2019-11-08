@@ -22,4 +22,6 @@ public interface DeviceDao {
     void updateDevice(Device_Setting deviceSetting);
 
     Device_Setting selectPrefixByCh(int ch);
+
+    List<Integer> selectCh();
 }

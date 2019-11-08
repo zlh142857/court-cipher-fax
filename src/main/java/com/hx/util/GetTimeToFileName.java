@@ -16,4 +16,11 @@ public class GetTimeToFileName {
         String fileName=sFormat.format(calendar.getTime());
         return fileName;
     }
+    public static String GetTimeToFileNameToBar(){
+        SimpleDateFormat sFormat=new SimpleDateFormat("yyyyMMddHHmmss");
+        Calendar calendar=Calendar.getInstance();
+        //获取系统当前时间并将其转换为string类型
+        String fileName=sFormat.format(calendar.getTime());
+        return fileName;
+    }
 }

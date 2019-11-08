@@ -8,8 +8,9 @@ package com.hx.controller;/*
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hx.dao.InboxMapper;
+import com.hx.dao.DeviceDao;
 import com.hx.dao.SendReceiptMapper;
+import com.hx.modle.ChMsg;
 import com.hx.modle.Device_Setting;
 import com.hx.modle.TempModel;
 import com.hx.service.SendFaxService;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +33,7 @@ public class SendFaxController {
     @Autowired
     private SendFaxService sendFaxService;
     @Autowired
-    private InboxMapper inboxMapper;
+    private DeviceDao deviceDao;
     @Autowired
     private SendReceiptMapper sendReceiptMapper;
     /**
@@ -109,7 +112,36 @@ public class SendFaxController {
     @RequestMapping("main")
     @ResponseBody
     public void main(String []args){
-        inboxMapper.updateIsReceiptById( 1 );
-
+        int done=22;
+        int allByte=100;
+        // 创建一个数值格式化对象
+        NumberFormat numberFormat = NumberFormat.getInstance();
+// 设置精确到小数点后2位
+        numberFormat.setMaximumFractionDigits(2);
+        String result = numberFormat.format((float)done/(float)allByte*100);
+        float num= Float.parseFloat( result );
+        System.out.println(num);
+    }
+    @RequestMapping("rateOfAdvance")
+    @ResponseBody
+    public synchronized String rateOfAdvance(String ch){
+        List<ChMsg> list=new ArrayList<>(  );
+        try {
+            list=sendFaxService.rateOfAdvance(ch);
+        } catch (Exception e) {
+            logger.error( e );
+        }
+        return JSONObject.toJSONString( list );
+    }
+    @RequestMapping("selectChAndSeatNumber")
+    @ResponseBody
+    public String selectChAndSeatNumber(){
+        List<Device_Setting> list=new ArrayList<>(  );
+        try {
+            list=sendFaxService.selectChAndSeatNumber();
+        } catch (Exception e) {
+            logger.error( e );
+        }
+        return JSONObject.toJSONString( list );
     }
 }

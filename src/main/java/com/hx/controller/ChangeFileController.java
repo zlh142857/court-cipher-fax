@@ -10,11 +10,8 @@ import com.hx.service.ChangeFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-
-import static com.hx.service.impl.SendFaxServiceImpl.deleteFiles;
 
 @Controller
 public class ChangeFileController {
@@ -36,21 +33,5 @@ public class ChangeFileController {
     public String changeFileSend(MultipartFile file){
         String message=changeFileService.changeFileSend(file);
         return JSONObject.toJSONString( message );
-    }
-    /**
-     *
-     * 功能描述: 关闭发送文件窗口,取消发送.点击关闭前调用,删除转换的tiff文件
-     *
-     * 业务逻辑:
-     * 
-     * @param: 
-     * @return:
-     * @auther: 张立恒
-     * @date: 2019/10/24 14:50
-     */
-    @RequestMapping("deleteTiff")
-    @ResponseBody
-    public void deleteTiff(@RequestParam("tifPath") String tifPath,@RequestParam("receiptPath") String receiptPath){
-        deleteFiles(tifPath,receiptPath);
     }
 }
