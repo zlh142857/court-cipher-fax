@@ -21,8 +21,8 @@ http://www.springframework.org/schema/context/spring-context-3.0.xsd
 		<property name="inboxMapper">
 			<ref bean="inboxMapper"/>
 		</property>
-		<property name="receiptMapper">
-			<ref bean="receiptMapper"/>
+		<property name="returnReceiptMapper">
+			<ref bean="returnReceiptMapper"/>
 		</property>
 	</bean>
 

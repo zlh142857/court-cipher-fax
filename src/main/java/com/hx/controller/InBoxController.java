@@ -3,6 +3,7 @@ package com.hx.controller;
 import com.hx.modle.Inbox;
 import com.hx.service.InBoxService;
 import com.hx.util.ExcelHelper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,27 +32,27 @@ public class InBoxController {
     /**
      * 收件箱导出
      */
-    @RequestMapping(value = "/export.do", produces = "application/form-data; charset=utf-8")
-    public void OutputExcel2(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("text/html,charset=utf-8");
+        @RequestMapping(value = "/export.do", produces = "application/form-data; charset=utf-8")
+        public void OutputExcel2(String ids ,HttpServletRequest request, HttpServletResponse response) throws Exception {
+            request.setCharacterEncoding("UTF-8");
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("text/html,charset=utf-8");
 
         //查询需要导出的数据
-        List<Inbox> list = inBoxService.getAll();
+        List<Inbox> list = inBoxService.getAll(ids.split(","));
 
         List<Object[]> data = new ArrayList<>();    //转换数据
         Iterator<Inbox> it = list.iterator();
         while (it.hasNext()) {
             Inbox m = it.next();
-            //data.add(new Object[]{m.getId(), m.getLinknumber(), m.getTypeid(), m.getLinkname()});
+            data.add(new Object[]{m.getId(), m.getSendernumber(), m.getFilsavepath(), m.getReceivenumber()});
            // data.add(new Object[]{  m.getSendname(), m.getAccepttime(), m.getFileaddress()});
         }
 
         //构建Excel表头,此处需与data中数据一一对应
         List<String> headers = new ArrayList<String>();
-        headers.add("Sendname");
-        headers.add("Accepttime");
+        headers.add("sendernumber");
+        headers.add("senderunit");
         headers.add("Fileaddress");
         ExcelHelper.exportExcel(headers, data, "downloadFile", "xlsx", response);       //downloadFile为文件名称,可以自定义,建议用英文,中文在部分浏览器会乱码
         log.error("");
@@ -59,29 +60,40 @@ public class InBoxController {
     }
 
    //收件箱查询
-   @RequestMapping(value = "/queryinbox", method = RequestMethod.POST)
+   @RequestMapping(value = "/queryinbox", method = RequestMethod.GET)
    @ResponseBody
-   public Map<String, Object> inboxs(Integer pageNo, Integer pageSize, String mailListId,String beginDate ,String endDate) {
+   public Map<String, Object> inboxs(Integer pageNo, Integer pageSize, String sendernumber, String senderunit, String receivenumber, String Isreceipt,String beginDate ,String endDate) {
         //mailListId="m";
-        beginDate=beginDate.trim();
-        endDate=endDate.trim();
        Map<String, Object> result = new HashMap<>();
        result.put("state", 0); //0代表失败，1代表成功
 
+       if ( StringUtils.isNotEmpty(beginDate) ) {
+           beginDate=beginDate.trim();  //2019-12-01 12:00:00
+       }
+       if ( StringUtils.isNotEmpty(endDate) ) {
+           endDate=endDate.trim();
+       }
        Map<String,Object> searchMap=new HashMap();
-       searchMap.put("mailListId",mailListId);
+       searchMap.put("sendernumber",sendernumber);
+       searchMap.put("senderunit",senderunit);
+       searchMap.put("receivenumber",receivenumber);
+       searchMap.put("Isreceipt",Isreceipt);
        searchMap.put("beginDate",beginDate);
        searchMap.put("endDate",endDate);
-       int count = inBoxService.queryTotalCount(searchMap);
 
-       List<Inbox> mails = inBoxService.queryALLMail(searchMap, pageNo, pageSize);
-       result.put("mails", mails);
-       result.put("totalCount", count);
+       int count = inBoxService.queryTotalCount(searchMap);
+        if ( count > 0 ) {
+            List<Inbox> mails = inBoxService.queryALLMail(searchMap, pageNo, pageSize);
+            result.put("mails", mails);
+            result.put("totalCount", count);
+        }
+
        result.put("state", 1); //0代表失败，1代表成功
        return result;
    }
-    @RequestMapping(value = "/inboxList", method = RequestMethod.GET)
-    @ResponseBody
+
+       @RequestMapping(value = "/inboxList", method = RequestMethod.GET)
+       @ResponseBody
     public Map<String, Object> mailLists() {
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
@@ -95,7 +107,7 @@ public class InBoxController {
     }
 
     //TODO 删除记录
-    @RequestMapping(value = "/deinbox", method = RequestMethod.POST)
+    @RequestMapping(value = "/deinbox", method = RequestMethod.GET)
     @ResponseBody
 
     public Map<String, Object> delinbox(String str) {

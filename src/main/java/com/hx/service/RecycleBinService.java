@@ -4,6 +4,7 @@ import com.hx.modle.RecycleBin;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 范聪敏
@@ -12,9 +13,9 @@ import java.util.List;
  */
 public interface RecycleBinService {
 
-    List<RecycleBin> queryList(Integer pageNo, Integer pageSize, String title);
+    List<RecycleBin> queryList(Map<String, Object> searchMap, Integer pageNo, Integer pageSize);
 
-    int getTotal(String title);
+    int getTotal(Map<String, Object> searchMap);
 
     boolean updateRestore(String ids);
 
@@ -32,8 +33,18 @@ public interface RecycleBinService {
      *  @param isreceipt 删除时间
      * @return 是否成功
      */
-    int insertRecycleBin(String relateType, Date recoverytime, String sendernumber, String senderunit, String receivingunit, String receivenumber,
-                         String filsavepath, Date create_time, String receiptpath, int isreceipt, String sendline, String message);
+    int insertRecycleBin(String relateType,
+                         Date recoverytime,
+                         String sendernumber,
+                         String senderunit,
+                         String receivingunit,
+                         String receivenumber,
+                         String filsavepath,
+                         Date create_time,
+                         String receiptpath,
+                         int isreceipt,
+                         String sendline,
+                         String message);
 
 
 }

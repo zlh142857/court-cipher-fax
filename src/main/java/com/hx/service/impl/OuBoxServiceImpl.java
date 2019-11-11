@@ -7,6 +7,7 @@ import com.hx.service.RecycleBinService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
@@ -26,9 +27,9 @@ public class OuBoxServiceImpl implements OutBoxService {
     RecycleBinService recycleBinService;
 
     @Override
-    public List<Outbox> getAll() {
+    public List<Outbox> getAll(String[] ids) {
 
-        return outboxMapper.getAll();
+        return outboxMapper.getAll(ids);
     }
 
     @Override
@@ -37,7 +38,7 @@ public class OuBoxServiceImpl implements OutBoxService {
     }
 
     @Override
-    public List<Outbox> queryALLMailList(Map<String, Object> searchMap, Integer pageNo, Integer pageSize) {
+    public List<Outbox> queryoutBox(Map<String, Object> searchMap, Integer pageNo, Integer pageSize) {
         //mysql LIMIT语句 参数生成  LIMIT [start] [offset]
         int start = (pageNo - 1) * pageSize;
         int offset = pageSize;
@@ -51,9 +52,17 @@ public class OuBoxServiceImpl implements OutBoxService {
 
         Outbox outbox = outboxMapper.getById(id);
 
-        recycleBinService.insertRecycleBin("outbox", new Date(), outbox.getSendernumber(),
-                String.valueOf(id), outbox.getReceivingunit(),outbox.getReceivenumber(),"",
-                (Date) outbox.getCreate_time(),"",0, outbox.getSendline(),outbox.getMessage());
+        recycleBinService.insertRecycleBin("outbox", new Date(),
+                outbox.getSendernumber(),
+                String.valueOf(id),
+                outbox.getReceivingunit(),
+                outbox.getReceivenumber(),
+                "",
+                (Date) outbox.getCreate_time(),
+                "",
+                0,
+                outbox.getSendline(),
+                outbox.getMessage());
 
         return outboxMapper.deloutbox(id);
     }

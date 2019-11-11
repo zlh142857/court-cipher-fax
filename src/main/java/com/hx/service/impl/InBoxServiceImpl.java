@@ -29,8 +29,8 @@ public class InBoxServiceImpl implements InBoxService {
 
 
     @Override
-    public List<Inbox> getAll() {
-        return inboxMapper.getAll();
+    public List<Inbox> getAll(String[] ids) {
+        return inboxMapper.getAll(ids);
     }
 
     @Override
@@ -59,8 +59,16 @@ public class InBoxServiceImpl implements InBoxService {
     public int deinbox(Integer readerId) {
         Inbox inbox = inboxMapper.getById(readerId);
 
-       recycleBinService.insertRecycleBin("inbox", new Date(), inbox.getSendernumber(),inbox.getSenderunit(),String.valueOf(readerId),inbox.getReceivenumber(),inbox.getFilsavepath(),
-               (Date) inbox.getCreate_time(),inbox.getReceiptpath(),inbox.getIsreceipt(), "","");
+       recycleBinService.insertRecycleBin("inbox", new Date(),
+               inbox.getSendernumber(),
+               inbox.getSenderunit(),
+               String.valueOf(readerId),
+               inbox.getReceivenumber(),
+               inbox.getFilsavepath(),
+               (Date) inbox.getCreate_time(),
+               inbox.getReceiptpath(),
+               inbox.getIsreceipt(),
+               "","");
         return inboxMapper.deinbox(readerId);
     }
 

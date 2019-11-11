@@ -16,14 +16,40 @@
             t.receiptpath,
             t.Isreceipt,
             t.create_time,
-            t.relate_type
+            t.relate_type,
             t.message
         FROM recycle_bin t
         WHERE 1 = 1
-        <if test="title != null and title != ''">
-            AND t.title LIEK CONCAT('%', #{title}, '%')
+        <if test="params.senderunit != null and params.senderunit != ''">
+            AND t.senderunit LIKE CONCAT('%', #{params.senderunit}, '%')
         </if>
-        LIMIT ${start}, ${offset}
+        <if test="params.receivingunit != null and params.receivingunit != ''">
+            AND t.receivingunit LIKE CONCAT('%', #{params.receivingunit}, '%')
+        </if>
+        <if test="params.receivenumber != null and params.receivenumber != ''">
+            AND t.receivenumber LIKE CONCAT('%', #{params.receivenumber}, '%')
+        </if>
+        <if test="params.sendernumber != null and params.sendernumber != ''">
+            AND t.sendernumber LIKE CONCAT('%', #{params.sendernumber}, '%')
+        </if>
+        <if test="params.sendline != null and params.sendline != ''">
+            AND t.sendline LIKE CONCAT('%', #{params.sendline}, '%')
+        </if>
+
+        <if  test="params.recoveryBeginDate!=null and params.recoveryBeginDate!=''">
+            and recoverytime &gt;=  #{params.recoveryBeginDate}
+        </if>
+        <if  test="params.recoveryEndDate!=null and params.recoveryEndDate!=''">
+            and recoverytime &lt;=  #{params.recoveryEndDate}
+        </if>
+
+        <if  test="params.beginDate!=null and params.beginDate!=''">
+            and create_time &gt;=  #{params.beginDate}
+        </if>
+        <if  test="params.endDate!=null and params.endDate!=''">
+            and create_time &lt;=  #{params.endDate}
+        </if>
+           LIMIT ${params.start}, ${params.offset}
     </select>
 
     <select id="getTotal" resultType="int">
@@ -31,8 +57,34 @@
             COUNT(*)
         FROM recycle_bin t
         WHERE 1 = 1
-        <if test="title != null and title != ''">
-            AND t.title LIEK CONCAT('%', #{title}, '%')
+        <if test="params.senderunit != null and params.senderunit != ''">
+            AND t.senderunit LIKE CONCAT('%', #{params.senderunit}, '%')
+        </if>
+        <if test="params.receivingunit != null and params.receivingunit != ''">
+            AND t.receivingunit LIKE CONCAT('%', #{params.receivingunit}, '%')
+        </if>
+        <if test="params.receivenumber != null and params.receivenumber != ''">
+            AND t.receivenumber LIKE CONCAT('%', #{params.receivenumber}, '%')
+        </if>
+        <if test="params.sendernumber != null and params.sendernumber != ''">
+            AND t.sendernumber LIKE CONCAT('%',#{params.sendernumber},'%')
+        </if>
+        <if test="params.sendline != null and params.sendline != ''">
+            AND t.sendline LIKE CONCAT('%', #{params.sendline}, '%')
+        </if>
+
+        <if  test="params.recoveryBeginDate!=null and params.recoveryBeginDate!=''">
+            AND recoverytime &gt;=  #{params.recoveryBeginDate}
+        </if>
+        <if  test="params.recoveryEndDate!=null and params.recoveryEndDate!=''">
+            AND recoverytime &lt;=  #{params.recoveryEndDate}
+        </if>
+
+        <if  test="params.beginDate!=null and params.beginDate!=''">
+            AND create_time &gt;=  #{params.beginDate}
+        </if>
+        <if  test="params.endDate!=null and params.endDate!=''">
+            AND create_time &lt;=  #{params.endDate}
         </if>
     </select>
 

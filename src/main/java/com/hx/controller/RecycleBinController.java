@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 
 import javax.annotation.Resource;
+import javax.xml.crypto.Data;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,17 +34,35 @@ import java.util.Map;
     /**
      * 分页查询列表
      */
-    @RequestMapping(value = "/queryList", method = RequestMethod.POST)
+    @RequestMapping(value = "/queryList", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> queryList(Integer pageNo, Integer pageSize, String title) {
+    public Map<String, Object> queryList(Integer pageNo, Integer pageSize, String senderunit,
+                                         String receivingunit,String receivenumber,String sendernumber,String sendline, String recoveryBeginDate,String recoveryEndDate, String beginDate,String endDate ) {
         Map<String, Object> result = new HashMap<>();
+
         result.put("state", 0); //0代表失败，1代表成功
-
+        if ( StringUtils.isNotEmpty(beginDate) ) {
+            beginDate=beginDate.trim();  //2019-12-01 12:00:00
+        }
+        if ( StringUtils.isNotEmpty(endDate) ) {
+            endDate=endDate.trim();
+        }
+        Map<String,Object> searchMap=new HashMap();
+        searchMap.put("senderunit",senderunit);
+        searchMap.put("receivingunit",receivingunit);
+        searchMap.put("receivenumber",receivenumber);
+        searchMap.put("sendernumber",sendernumber);
+        searchMap.put("sendline",sendline);
+        searchMap.put("recoveryBeginDate",recoveryBeginDate);
+        searchMap.put("recoveryEndDate",recoveryEndDate);
+        searchMap.put("beginDate",beginDate);
+        searchMap.put("endDate",endDate);
+        int totalCount = recycleBinService.getTotal(searchMap);   //查询总条数
         //查询全部回收站列表
-        List<RecycleBin> recycleBinList = recycleBinService.queryList(pageNo, pageSize, title);     //查询指定页的数据
+        List<RecycleBin> recycleBinList = recycleBinService.queryList(searchMap, pageNo, pageSize);     //查询指定页的数据
 
-        int totalCount = recycleBinService.getTotal(title);   //查询总条数
-        result.put("list", recycleBinList);
+
+        result.put("recycleBinList", recycleBinList);
         result.put("totalCount", totalCount);
         result.put("state", 1); //0代表失败，1代表成功
         return result;

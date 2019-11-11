@@ -10,7 +10,7 @@
 		insert into mail
 		 (linkname,linknumber,typeid)
 		 values
-		(#{linkname},#{linknumber},#{typeid})
+		(#{params.linkname},#{params.linknumber},#{params.typeid})
 	</insert>
 	<sql id="WithDept_Column_List">
 		e.id, e.linkname, e.linknumber, e.typeid

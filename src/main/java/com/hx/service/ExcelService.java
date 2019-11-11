@@ -9,7 +9,7 @@ import com.hx.modle.Mail_List;
 
 public interface ExcelService {
 
-	String InputExcel(InputStream is, String originalFilename);
+	String InputExcel(InputStream is, String originalFilename, String id);
 
 	List<Mail> OutputExcel();
 

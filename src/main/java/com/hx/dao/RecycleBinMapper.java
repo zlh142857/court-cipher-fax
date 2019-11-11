@@ -4,6 +4,7 @@ import com.hx.modle.RecycleBin;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 范聪敏
@@ -12,9 +13,9 @@ import java.util.List;
  */
 public interface RecycleBinMapper {
 
-    List<RecycleBin> queryList(@Param("start") int start, @Param("offset") int offset, @Param("title") String title);
+    List<RecycleBin> queryList(@Param("params") Map<String, Object> searchMap);
 
-    int getTotal(@Param("title") String title);
+    int getTotal(@Param("params") Map<String, Object> searchMap);
 
     RecycleBin getById(@Param("id") String id);
 

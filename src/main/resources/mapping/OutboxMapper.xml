@@ -11,18 +11,62 @@
         <result property="sendernumber" column="sendernumber"/>
     </resultMap>
     <select id="getAll" resultType="com.hx.modle.Outbox">
-      SELECT
-      t.id,t.sendernumber,t.receivenumber,t.receivingunit,t.create_time,t.sendline,t.message
-      FROM outbox  t
+        SELECT*
+        FROM outbox
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
     </select>
 
     <select id="queryTotalCount" resultType="int">
-        select  COUNT(*) from outbox WHERE 1 = 1
-
+        select  COUNT(*) from outbox where 1 = 1
+        <if  test="params.sendernumber!=null and params.sendernumber!=''">
+            and  sendernumber  LIKE CONCAT('%',#{params.sendernumber},'%')
+        </if>
+        <if  test="params.receivingunit!=null and params.receivingunit!=''">
+            and  receivingunit  LIKE CONCAT('%',#{params.receivingunit},'%')
+        </if>
+        <if  test="params.receivenumber!=null and params.receivenumber!=''">
+            and  receivenumber  LIKE CONCAT('%',#{params.receivenumber},'%')
+        </if>
+        <if  test="params.sendline!=null and params.sendline!=''">
+            and  sendline  LIKE CONCAT('%',#{params.sendline},'%')
+        </if>
+        <if  test="params.message!=null and params.message!=''">
+            and  message  LIKE CONCAT('%',#{params.message},'%')
+        </if>
+        <if  test="params.beginDate!=null and params.beginDate!=''">
+            and create_time &gt;=  #{params.beginDate}
+        </if>
+        <if  test="params.endDate!=null and params.endDate!=''">
+            and create_time &lt;=  #{params.endDate}
+        </if>
     </select>
 
     <select id="queryALLMailList" resultType="com.hx.modle.Outbox">
-      select  * from outbox WHERE 1 = 1
+      select  * from outbox where 1 = 1
+        <if  test="params.sendernumber!=null and params.sendernumber!=''">
+            and  sendernumber  LIKE CONCAT('%',#{params.sendernumber},'%')
+        </if>
+        <if  test="params.receivingunit!=null and params.receivingunit!=''">
+            and  receivingunit  LIKE CONCAT('%',#{params.receivingunit},'%')
+        </if>
+        <if  test="params.receivenumber!=null and params.receivenumber!=''">
+            and  receivenumber  LIKE CONCAT('%',#{params.receivenumber},'%')
+        </if>
+        <if  test="params.sendline!=null and params.sendline!=''">
+            and  sendline  LIKE CONCAT('%',#{params.sendline},'%')
+        </if>
+        <if  test="params.message!=null and params.message!=''">
+            and  message  LIKE CONCAT('%',#{params.message},'%')
+        </if>
+        <if  test="params.beginDate!=null and params.beginDate!=''">
+            and create_time &gt;=  #{params.beginDate}
+        </if>
+        <if  test="params.endDate!=null and params.endDate!=''">
+            and create_time &lt;=  #{params.endDate}
+        </if>
       LIMIT ${params.start}, ${params.offset}
      </select>
 
@@ -48,6 +92,8 @@
           #{outbox.message}
         )
     </insert>
+
+
 
     <!--张立恒start-->
     <insert id="insertNewMessage" parameterType="com.hx.modle.Outbox">

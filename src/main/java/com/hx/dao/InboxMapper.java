@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public interface InboxMapper {
 
-    List<Inbox> getAll();
+    List<Inbox> getAll(@Param("ids") String[] ids);
 
     int queryTotalCount(@Param("params") Map<String, Object> searchMap);
 

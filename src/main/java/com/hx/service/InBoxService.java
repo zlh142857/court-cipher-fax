@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public interface InBoxService {
 
-    List<Inbox> getAll();
+    List<Inbox> getAll(String[] id);
 
     int queryTotalCount(Map<String, Object> searchMap);
 
@@ -30,6 +30,7 @@ public interface InBoxService {
     boolean delinbox(String ids);
 
     int insert(Inbox inbox);
+
 
 
 

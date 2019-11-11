@@ -12,7 +12,7 @@ import java.util.Map;
  * @desc
  */
 public interface OutboxMapper {
-    List<Outbox> getAll();
+    List<Outbox> getAll(@Param("ids") String[] ids);
 
     int queryTotalCount(@Param("params") Map<String, Object> searchMap);
 

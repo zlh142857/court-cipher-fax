@@ -11,14 +11,15 @@ import java.util.Map;
  * @desc
  */
 public interface OutBoxService {
-     List<Outbox> getAll();
+     List<Outbox> getAll(String[] id);
 
     int queryTotalCount(Map<String, Object> searchMap);
 
-    List<Outbox> queryALLMailList(Map<String, Object> searchMap, Integer pageNo, Integer pageSize);
+    List<Outbox> queryoutBox(Map<String, Object> searchMap, Integer pageNo, Integer pageSize);
 
     int deloutbox(Integer readerId);
 
     int insert(Outbox outbox);
+
 
 }

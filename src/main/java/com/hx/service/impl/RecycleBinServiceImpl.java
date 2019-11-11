@@ -1,12 +1,8 @@
 package com.hx.service.impl;
 
 import com.hx.dao.RecycleBinMapper;
-import com.hx.modle.Inbox;
-import com.hx.modle.Outbox;
-import com.hx.modle.RecycleBin;
-import com.hx.service.InBoxService;
-import com.hx.service.OutBoxService;
-import com.hx.service.RecycleBinService;
+import com.hx.modle.*;
+import com.hx.service.*;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +11,7 @@ import javax.annotation.Resource;
 import javax.xml.crypto.Data;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 范聪敏
@@ -33,20 +30,27 @@ public class RecycleBinServiceImpl implements RecycleBinService {
     @Autowired
     private OutBoxService outBoxService;
 
+    @Resource
+    private ReturnReceiptService returnReceiptService;
+
+    @Resource
+    private SendReceiptService sendReceiptService;
 
     @Override
-    public List<RecycleBin> queryList(Integer pageNo, Integer pageSize, String title) {
+    public List<RecycleBin> queryList(Map<String,Object> searchMap, Integer pageNo, Integer pageSize) {
 
         //mysql LIMIT语句 参数生成  LIMIT [start] [offset]
         int start = (pageNo - 1) * pageSize;
         int offset = pageSize;
+        searchMap.put("start", start);
+        searchMap.put("offset", offset);
 
-        return recycleBinMapper.queryList(start, offset, title);
+        return recycleBinMapper.queryList(searchMap);
     }
 
     @Override
-    public int getTotal(String title) {
-        return recycleBinMapper.getTotal(title);
+    public int getTotal(Map<String,Object> searchMap) {
+        return recycleBinMapper.getTotal(searchMap);
     }
 
 
@@ -63,7 +67,7 @@ public class RecycleBinServiceImpl implements RecycleBinService {
             int rows = 0;
             if ( "inbox".equals(relateType) ) {
                 Inbox inbox = new Inbox();
-                inbox.setId(Integer.parseInt(recycleBin.getReceivingunit()));
+                //inbox.setId(Integer.parseInt(recycleBin.getReceivingunit()));
                 inbox.setSendernumber(recycleBin.getSendernumber());
                 inbox.setSenderunit(recycleBin.getSenderunit());
                 inbox.setReceivenumber(recycleBin.getReceivenumber());
@@ -75,7 +79,7 @@ public class RecycleBinServiceImpl implements RecycleBinService {
             } else if ( "outbox".equals(relateType) ) {
 
                 Outbox outbox = new Outbox();
-                outbox.setId(Integer.parseInt(recycleBin.getSenderunit()));
+                //outbox.setId(Integer.parseInt(recycleBin.getSenderunit()));
                 outbox.setSendernumber(recycleBin.getSendernumber());
                 outbox.setReceivenumber(recycleBin.getReceivenumber());
                 outbox.setReceivingunit(recycleBin.getReceivingunit());
@@ -83,7 +87,30 @@ public class RecycleBinServiceImpl implements RecycleBinService {
                 outbox.setSendline(recycleBin.getSendline());
                 outbox.setMessage(recycleBin.getMessage());
                 rows = outBoxService.insert(outbox);
-            } else {
+
+            } else if ( "Return_Receipt".equals(relateType) ) {
+
+                Return_Receipt return_receipt = new Return_Receipt();
+                //return_receipt.setId(Integer.parseInt(recycleBin.getReceivingunit()));
+                return_receipt.setReceivenumber(recycleBin.getReceivenumber());
+                return_receipt.setSenderunit(recycleBin.getSenderunit());
+                return_receipt.setSendnumber(recycleBin.getSendernumber());
+                return_receipt.setCreate_time(recycleBin.getCreate_time());
+                return_receipt.setFilsavepath(recycleBin.getReceiptpath());
+
+                rows = returnReceiptService.insert(return_receipt);
+            }else if ( "Send_Receipt".equals(relateType) ) {
+
+                Send_Receipt send_receipt = new Send_Receipt();
+               // send_receipt.setId(Integer.parseInt(recycleBin.getSenderunit()));
+                send_receipt.setReceivingunit(recycleBin.getReceivingunit());
+                send_receipt.setReceivenumber(recycleBin.getReceivenumber());
+                send_receipt.setCreate_time(recycleBin.getCreate_time());
+                send_receipt.setSendline(recycleBin.getSendline());
+                send_receipt.setMessage(recycleBin.getMessage());
+                send_receipt.setSendnumber(recycleBin.getSendernumber());
+                rows = sendReceiptService.insert(send_receipt);
+            }else {
                 continue;
             }
             if ( rows > 0 ) {

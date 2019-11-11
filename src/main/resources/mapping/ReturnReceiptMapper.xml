@@ -1,54 +1,121 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.hx.dao.ReceiptMapper" >
-  <resultMap id="Return_Receipt" type="com.hx.modle.Return_Receipt" >
-    <id property="id" column="id"/>
-    <result property="senderunit" column="senderunit"/>
-    <result property="receivenumber" column="receivenumber"/>
-    <result property="create_time" column="create_time"/>
-    <result property="filsavepath" column="filsavepath"/>
-    <result property="sendnumber" column="sendnumber"/>
-  </resultMap>
-  <!--张立恒start-->
-  <!--新增收回执箱-->
-  <insert id="insertReceipt" parameterType="com.hx.modle.Return_Receipt">
-    INSERT INTO return_receipt
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="sendnumber != null and sendnumber != ''">
-        sendnumber,
-      </if>
-      <if test="receivenumber != null and receivenumber != ''">
-        receivenumber,
-      </if>
-      <if test="senderunit != null and senderunit != ''">
-        senderunit,
-      </if>
-      <if test="create_time != null and create_time != ''">
-        create_time,
-      </if>
-      <if test="filsavepath != null and filsavepath != ''">
-        filsavepath,
-      </if>
-    </trim>
-    <trim prefix=" values (" suffix=")" suffixOverrides=",">
-      <if test="sendnumber != null and sendnumber != ''">
-        #{sendnumber,jdbcType=VARCHAR},
-      </if>
-      <if test="receivenumber != null and receivenumber != ''">
-        #{receivenumber,jdbcType=VARCHAR},
-      </if>
-      <if test="senderunit != null and senderunit != ''">
-        #{senderunit,jdbcType=VARCHAR},
-      </if>
-      <if test="create_time != null and create_time != ''">
-        #{create_time,jdbcType=TIMESTAMP},
-      </if>
-      <if test="filsavepath != null and filsavepath != ''">
-        #{filsavepath,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
-  <!--张立恒end-->
+<mapper namespace="com.hx.dao.ReturnReceiptMapper" >
+    <resultMap id="Return_Receipt" type="com.hx.modle.Return_Receipt" >
+        <id property="id" column="id"/>
+        <result property="senderunit" column="senderunit"/>
+        <result property="receivenumber" column="receivenumber"/>
+        <result property="create_time" column="create_time"/>
+        <result property="filsavepath" column="filsavepath"/>
+        <result property="sendnumber" column="sendnumber"/>
+    </resultMap>
+    <!--张立恒start-->
+    <!--新增收回执箱-->
+    <insert id="insertReceipt" parameterType="com.hx.modle.Return_Receipt">
+        INSERT INTO return_receipt
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="sendnumber != null and sendnumber != ''">
+                sendnumber,
+            </if>
+            <if test="receivenumber != null and receivenumber != ''">
+                receivenumber,
+            </if>
+            <if test="senderunit != null and senderunit != ''">
+                senderunit,
+            </if>
+            <if test="create_time != null and create_time != ''">
+                create_time,
+            </if>
+            <if test="filsavepath != null and filsavepath != ''">
+                filsavepath,
+            </if>
+        </trim>
+        <trim prefix=" values (" suffix=")" suffixOverrides=",">
+            <if test="sendnumber != null and sendnumber != ''">
+                #{sendnumber,jdbcType=VARCHAR},
+            </if>
+            <if test="receivenumber != null and receivenumber != ''">
+                #{receivenumber,jdbcType=VARCHAR},
+            </if>
+            <if test="senderunit != null and senderunit != ''">
+                #{senderunit,jdbcType=VARCHAR},
+            </if>
+            <if test="create_time != null and create_time != ''">
+                #{create_time,jdbcType=TIMESTAMP},
+            </if>
+            <if test="filsavepath != null and filsavepath != ''">
+                #{filsavepath,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <!--张立恒end-->
 
 
+    <select id="queryTotalCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM return_receipt where 1=1
+        <if  test="params.senderunit!=null and params.senderunit!=''">
+            and  senderunit  LIKE CONCAT('%',#{params.senderunit},'%')
+        </if>
+        <if  test="params.receivenumber!=null and params.receivenumber!=''">
+            and  receivenumber  LIKE CONCAT('%',#{params.receivenumber},'%')
+        </if>
+        <if  test="params.sendnumber!=null and params.sendnumber!=''">
+            and  sendnumber  LIKE CONCAT('%',#{params.sendnumber},'%')
+        </if>
+        <if  test="params.beginDate!=null and params.beginDate!=''">
+            and create_time &gt;=  #{params.beginDate}
+        </if>
+        <if  test="params.endDate!=null and params.endDate!=''">
+            and create_time &lt;=  #{params.endDate}
+        </if>
+    </select>
+
+    <select id="queryALLMail" parameterType="java.util.Map" resultType="com.hx.modle.Return_Receipt">
+        SELECT * FROM return_receipt where 1=1
+        <if  test="params.senderunit!=null and params.senderunit!=''">
+            and  senderunit  LIKE CONCAT('%',#{params.senderunit},'%')
+        </if>
+        <if  test="params.receivenumber!=null and params.receivenumber!=''">
+            and  receivenumber  LIKE CONCAT('%',#{params.receivenumber},'%')
+        </if>
+        <if  test="params.sendnumber!=null and params.sendnumber!=''">
+            and  sendnumber  LIKE CONCAT('%',#{params.sendnumber},'%')
+        </if>
+        <if  test="params.beginDate!=null and params.beginDate!=''">
+            and create_time &gt;=  #{params.beginDate}
+        </if>
+        <if  test="params.endDate!=null and params.endDate!=''">
+            and create_time &lt;=  #{params.endDate}
+        </if>
+        LIMIT ${params.start}, ${params.offset}
+    </select>
+
+    <select id="queryALLMailList" resultType="com.hx.modle.Return_Receipt">
+        select  * from return_receipt where state = 1
+    </select>
+
+    <delete id="deinbox">
+       delete from return_receipt  where  id  = #{id}
+    </delete>
+
+    <select id="getById" resultType="com.hx.modle.Return_Receipt">
+      select
+        id, senderunit, sendnumber, receivenumber, create_time, filsavepath
+        from return_receipt where id = #{id}
+        </select>
+
+    <!--<select id="queryList" resultType="com.hx.modle.Return_Receipt">-->
+      <!--select * from table limit (start-1)*limit-->
+    <!--</select>-->
+
+    <insert id="insert" parameterType="com.hx.modle.Return_Receipt">
+        INSERT INTO return_receipt(id, senderunit, sendnumber, receivenumber, create_time, filsavepath) VALUES (
+          #{return_receipt.id},
+          #{return_receipt.senderunit},
+          #{return_receipt.sendnumber},
+          #{return_receipt.receivenumber},
+          #{return_receipt.create_time},
+          #{return_receipt.filsavepath}
+        )
+    </insert>
 </mapper>

@@ -24,7 +24,7 @@ public class ExcelServiceImpl implements ExcelService {
 	private ExcelMapper excelMapper;
 
 	@Override
-	public String InputExcel(InputStream is, String originalFilename) {
+	public String InputExcel(InputStream is, String originalFilename ,String typeid) {
 
 		ArrayList<ArrayList<String>> list;
 //		if (originalFilename.endsWith(".xls")) {
@@ -36,14 +36,16 @@ public class ExcelServiceImpl implements ExcelService {
 		String fileType = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
 		list = ExcelHelper.readExcel(is, fileType);//从第二行开始读取,第一行index为0是表头部分  这种excel转集合的方式不妥当
 
-		for (int i=0,j=list.size();i<j;i++){
+		for (int i=1,j=list.size();i<j;i++){
 			ArrayList<String> row = list.get(i);
 			//此处做处理,针对空行问题要移除
 			if (row.get(0) == null || row.get(0).trim() == "") continue;	//如果首列ID为空,则跳过
 			Map<String,Object> ginsengMap = new HashMap<String,Object>();
-			ginsengMap.put("linkname", row.get(2).toString());
+			ginsengMap.put("linkname", row.get(1).toString());
 	        ginsengMap.put("linknumber", row.get(0));
-	        ginsengMap.put("typeid", row.get(1));
+	        ginsengMap.put("typeid",typeid);
+
+
 	        excelMapper.InputExcel(ginsengMap);
 		}
 		return "Import Success";

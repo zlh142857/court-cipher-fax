@@ -52,14 +52,16 @@ public class ExcelController {
 
     @RequestMapping(value = "/InputExcel.do")
     @ResponseBody
-    public String InputExcel(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws Exception {
+    public String InputExcel(@RequestParam("file") MultipartFile file,
+                             HttpServletRequest request ,String typeid) throws Exception {
         String flag = "Import Fail";// 上传标志
         if (!file.isEmpty()) {
             try {
                 String originalFilename = file.getOriginalFilename();// 原文件名字
                 log.info("文件名：" + originalFilename);
+
                 InputStream is = file.getInputStream();// 获取输入流
-                flag = excelService.InputExcel(is, originalFilename);
+                flag = excelService.InputExcel(is, originalFilename,typeid);
             } catch (Exception e) {
                 flag = "Import Exception";// 上传出错
                 e.printStackTrace();
@@ -106,15 +108,14 @@ public class ExcelController {
         while (it.hasNext()) {
             Mail m = it.next();
             //data.add(new Object[]{m.getId(), m.getLinknumber(), m.getTypeid(), m.getLinkname()});
-            data.add(new Object[]{  m.getLinknumber(), m.getTypeid(), m.getLinkname()});
+            data.add(new Object[]{  m.getLinknumber(), m.getLinkname()});
         }
 
         //构建Excel表头,此处需与data中数据一一对应
         List<String> headers = new ArrayList<String>();
         //headers.add("ID");
-        headers.add("联系人名称");
         headers.add("联系人号码");
-        headers.add("联系人类型");
+        headers.add("联系人名称");
         ExcelHelper.exportExcel(headers, data, "downloadFile","xlsx", response);       //downloadFile为文件名称,可以自定义,建议用英文,中文在部分浏览器会乱码
         log.error("sdfsdfgsdf");
         log.info("gheryh");

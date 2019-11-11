@@ -8,7 +8,7 @@ package com.hx.common;/*
 import com.hx.dao.DeviceDao;
 import com.hx.dao.InboxMapper;
 import com.hx.dao.ProgramSettingDao;
-import com.hx.dao.ReceiptMapper;
+import com.hx.dao.ReturnReceiptMapper;
 import com.hx.modle.Inbox;
 import com.hx.modle.Program_Setting;
 import com.hx.modle.Return_Receipt;
@@ -40,7 +40,7 @@ public class Decide {
     private static ProgramSettingDao programSettingDao;
     private static DeviceDao deviceDao;
     private static InboxMapper inboxMapper;
-    private static ReceiptMapper receiptMapper;
+    private static ReturnReceiptMapper returnReceiptMapper;
     private static Decide decide;
     public  void setProgramSettingDao(ProgramSettingDao programSettingDao) {
         this.programSettingDao = programSettingDao;
@@ -51,8 +51,8 @@ public class Decide {
     public  void setInboxMapper(InboxMapper inboxMapper) {
         this.inboxMapper = inboxMapper;
     }
-    public  void setReceiptMapper(ReceiptMapper receiptMapper) {
-        this.receiptMapper = receiptMapper;
+    public  void setReturnReceiptMapper(ReturnReceiptMapper returnReceiptMapper) {
+        this.returnReceiptMapper = returnReceiptMapper;
     }
     @PostConstruct
     public void init() {
@@ -60,7 +60,7 @@ public class Decide {
         decide.programSettingDao=this.programSettingDao;
         decide.inboxMapper=this.inboxMapper;
         decide.deviceDao=this.deviceDao;
-        decide.receiptMapper=this.receiptMapper;
+        decide.returnReceiptMapper=this.returnReceiptMapper;
     }
     public static void decideCh(int flag, int ch) throws Exception {
         if(flag==2){
@@ -231,7 +231,7 @@ public class Decide {
         Date date=new Date();
         returnReceipt.setCreate_time( date );
         returnReceipt.setFilsavepath(tifPathBack);
-        decide.receiptMapper.insertReceipt( returnReceipt );
+        decide.returnReceiptMapper.insertReceipt( returnReceipt );
     }
     public static boolean scanJpg(String tifPath) throws Exception {
         //进行颜色反转,再扫描,有条形码就是回执
