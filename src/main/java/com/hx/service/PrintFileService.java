@@ -2,16 +2,16 @@ package com.hx.service;/*
  */
 
 import com.hx.modle.Program_Setting;
-import org.springframework.web.multipart.MultipartFile;
+import com.hx.modle.TempModel;
 
-import java.awt.*;
+import java.util.List;
 import java.util.Map;
 
 public interface PrintFileService {
 
-    String printFile(MultipartFile[] files);
+    String printFile(List<TempModel> tempModel) throws Exception;
 
-    void printScan() throws Exception;
+    String printScan() throws Exception;
 
     Map<String,Object> selectPrintService();
 

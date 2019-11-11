@@ -9,25 +9,16 @@ import java.io.Serializable;
 
 public class TempModel implements Serializable {
     private static final long serialVersionUID = -922290095790271279L;
-    private int codeMode;
-    private int endFlag;
     private String courtName;
     private String receiveNumber;
+    private String tifPath;
 
-    public int getCodeMode() {
-        return codeMode;
+    public String getTifPath() {
+        return tifPath;
     }
 
-    public void setCodeMode(int codeMode) {
-        this.codeMode = codeMode;
-    }
-
-    public int getEndFlag() {
-        return endFlag;
-    }
-
-    public void setEndFlag(int endFlag) {
-        this.endFlag = endFlag;
+    public void setTifPath(String tifPath) {
+        this.tifPath = tifPath;
     }
 
     public String getCourtName() {
@@ -49,10 +40,9 @@ public class TempModel implements Serializable {
     @Override
     public String toString() {
         return "TempModel{" +
-                "codeMode=" + codeMode +
-                ", endFlag=" + endFlag +
-                ", courtName='" + courtName + '\'' +
+                "courtName='" + courtName + '\'' +
                 ", receiveNumber='" + receiveNumber + '\'' +
+                ", tifPath='" + tifPath + '\'' +
                 '}';
     }
 }

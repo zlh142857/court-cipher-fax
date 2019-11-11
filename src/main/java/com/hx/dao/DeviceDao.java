@@ -2,7 +2,6 @@ package com.hx.dao;/*
  */
 
 import com.hx.modle.Device_Setting;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 

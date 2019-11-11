@@ -6,48 +6,66 @@ package com.hx.controller;/*
  */
 
 import com.alibaba.fastjson.JSONObject;
-import com.hx.dao.ProgramSettingDao;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hx.modle.Program_Setting;
+import com.hx.modle.TempModel;
 import com.hx.service.PrintFileService;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import uk.co.mmscomputing.device.scanner.ScannerIOException;
 
-import javax.print.DocFlavor;
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
-import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.attribute.PrintRequestAttributeSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Controller
 public class PrintFileController{
-
+    private static Logger logger=Logger.getLogger( PrintFileController.class );
     @Autowired
     private PrintFileService printFileService;
     //打开扫描
     @RequestMapping("printScan")
-    public void printScan(String[] var0) throws ScannerIOException {
-        /*try {
-            printFileService.printScan();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-        //new testTwain_Source(var0);
-    }
-
-
-    //扫描进电脑保存格式为PDF或者为jpg,png,接收到对面所发送传真格式为PDF,所以这里只打印PDF或者是jpg,png格式文件
-    //在发送时需要转换为PDF格式再发送
-    //此打印方法可以选择多份文件直接打印
-    @RequestMapping("print")
     @ResponseBody
-    public String print(@RequestParam("files") MultipartFile[] files){
-        String str=printFileService.printFile(files);
+    public String printScan() {
+        String tifPath="";
+        try {
+            tifPath=printFileService.printScan();
+        } catch (ScannerIOException e) {
+            logger.error( e.toString() );
+        } catch (InterruptedException e) {
+            logger.error( e.toString() );
+        } catch (Exception e){
+            logger.error( e.toString() );
+        }
+        return JSONObject.toJSONString( tifPath );
+    }
+    /**
+     *
+     * 功能描述: 选中文件进行打印,文件类型为tif
+     *
+     * 业务逻辑:
+     * 
+     * @param: 
+     * @return: 
+     * @auther: 张立恒
+     * @date: 2019/11/11 9:40
+     */
+    @RequestMapping("printTifs")
+    @ResponseBody
+    public String print(String tempModels){
+        String str="";
+        ObjectMapper mapper = new ObjectMapper();
+        JavaType jt = mapper.getTypeFactory().constructParametricType(ArrayList.class, TempModel.class);
+        try{
+            List<TempModel> tempList =  (List<TempModel>)mapper.readValue(tempModels, jt);
+            str=printFileService.printFile(tempList);
+        }catch (Exception e){
+            logger.error( e.toString() );
+        }
         return JSONObject.toJSONString( str );
     }
     /**
@@ -81,10 +99,6 @@ public class PrintFileController{
     @RequestMapping("updatePrintService")
     @ResponseBody
     public void updatePrintService(Program_Setting programSetting){
-        System.out.println(programSetting.getId());
-        System.out.println(programSetting.getCourtName());
-        System.out.println(programSetting.getIsPrint());
-        System.out.println(programSetting.getPrintService());
         printFileService.updatePrintService(programSetting);
     }
 

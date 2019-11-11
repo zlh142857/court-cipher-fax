@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.hx.common.StaticFinal.TEMPDIR;
-
+//对jpg文件进行颜色反转
 public class ColorReverse {
     private static Logger logger=Logger.getLogger( ColorReverse.class );
     public static List<File> writeJpg(List<String> pathList) {

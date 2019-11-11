@@ -1,7 +1,6 @@
 package com.hx.service;/*
  */
 
-import com.hx.modle.Log_Tables;
 import com.hx.modle.Login;
 
 import java.util.List;

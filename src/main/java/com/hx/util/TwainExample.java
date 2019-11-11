@@ -7,7 +7,12 @@ package com.hx.util;/*
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.imageio.ImageIO;
+
+import org.apache.log4j.Logger;
 import uk.co.mmscomputing.device.scanner.Scanner;
 import uk.co.mmscomputing.device.scanner.ScannerDevice;
 import uk.co.mmscomputing.device.scanner.ScannerIOException;
@@ -16,46 +21,44 @@ import uk.co.mmscomputing.device.scanner.ScannerListener;
 import uk.co.mmscomputing.device.scanner.ScannerIOMetadata.Type;
 import uk.co.mmscomputing.device.twain.jtwain;
 
-public class TwainExample  implements ScannerListener {
-    static TwainExample app;
-    Scanner scanner = Scanner.getDevice();
+import static com.hx.util.TempDir.fileTemp;
 
-    public TwainExample(String[] var1) throws ScannerIOException {
+public class TwainExample implements ScannerListener {
+    private static Logger logger=Logger.getLogger( TwainExample.class );
+    public static TwainExample app;
+    Scanner scanner = Scanner.getDevice();
+    public static String pdfPath="";
+    public static List<String> list=null;
+    public static int count=0;
+    public TwainExample() throws ScannerIOException {
         this.scanner.addListener(this);
         jtwain.getSource().setShowUI(false);
         this.scanner.acquire();
     }
-
     public void update(Type var1, ScannerIOMetadata var2) {
         if (var1.equals(ScannerIOMetadata.ACQUIRED)) {
             BufferedImage var3 = var2.getImage();
-            System.out.println("Have an image now!");
-
             try {
-                ImageIO.write(var3, "tif", new File("D:\\tifToPdf\\mmsc_image.tif"));
-            } catch (Exception var5) {
-                var5.printStackTrace();
+                list=new ArrayList<>(  );
+                pdfPath=fileTemp()+".jpg";
+                list.add( pdfPath );
+                try {
+                    ImageIO.write(var3, "jpg", new File(pdfPath));
+                } catch (Exception e) {
+                    logger.error( e.toString() );
+                }
+            } catch (IOException e) {
+                logger.error( e.toString() );
             }
         } else if (var1.equals(ScannerIOMetadata.NEGOTIATE)) {
             ScannerDevice var6 = var2.getDevice();
         } else if (var1.equals(ScannerIOMetadata.STATECHANGE)) {
-            System.err.println(var2.getStateStr());
             if (var2.isFinished()) {
-                System.exit(0);
+                count=1;
             }
         } else if (var1.equals(ScannerIOMetadata.EXCEPTION)) {
             var2.getException().printStackTrace();
         }
 
     }
-
-    public static void main(String[] var0) {
-        try {
-            app = new TwainExample(var0);
-        } catch (Exception var2) {
-            var2.printStackTrace();
-        }
-
-    }
-
 }

@@ -7,6 +7,10 @@ package com.hx.change;/*
 
 import com.hx.util.GetTimeToFileName;
 import com.hx.util.TempDir;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.ComThread;
 import com.jacob.com.Dispatch;
@@ -64,11 +68,6 @@ public class ChangeFile {
         }
         // 如果没有这句话,winword.exe进程将不会关闭
         ComThread.Release();
-        //删除临时Word文档
-        File delFile = new File(docFilePath);
-        if(delFile.isFile()){
-            delFile.delete();
-        }
         return pdfPath;
     }
 
@@ -185,9 +184,6 @@ public class ChangeFile {
                 throw new IOException( e );
             }
         }
-        if(file.isFile()){
-            file.delete();
-        }
         return back;
     }
     public static String baseToPdf(String base64){
@@ -236,5 +232,30 @@ public class ChangeFile {
             }
         }
         return pdfPath;
+    }
+    //扫描生成的jpg转换为一份PDF文件
+    public static void jpgToPdf(String outPdfFilepath, List<String> list) throws Exception {
+        File file = new File(outPdfFilepath);
+        // 第一步：创建一个document对象。
+        Document document = new Document();
+        document.setMargins(0, 0, 0, 0);
+        // 创建一个PdfWriter实例，
+        PdfWriter.getInstance(document, new FileOutputStream(file));
+        document.open();
+        // 第四步：在文档中增加图片。
+        int len = list.size();
+        for (int i = 0; i < len; i++) {
+            String temp = list.get( i );
+            Image img = Image.getInstance(temp);
+            img.setAlignment(Image.ALIGN_CENTER);
+            img.scaleAbsolute(597, 844);// 直接设定显示尺寸
+            // 根据图片大小设置页面，一定要先设置页面，再newPage（），否则无效
+            //document.setPageSize(new Rectangle(img.getWidth(), img.getHeight()));
+            document.setPageSize(new Rectangle(597, 844));
+            document.newPage();
+            document.add(img);
+        }
+        // 第五步：关闭文档。
+        document.close();
     }
 }

@@ -16,17 +16,13 @@ import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.hx.common.StaticFinal.TEMPDIR;
 
 public class TiffToJPEG {
     private static Logger logger=Logger.getLogger(TiffToJPEG.class);
-    public static Map<String,Object> readerTiff(String tiffPath){
-        Map<String,Object> map=new HashMap<>(  );
-        List<File> list = new ArrayList<File>();
+    public static List<String> readerTiff(String tiffPath){
         List<String> pathList = new ArrayList<>();
         String filePre = TEMPDIR+"/"+GetTimeToFileName.GetTimeToFileName();
         FileSeekableStream fss = null;
@@ -47,7 +43,6 @@ public class TiffToJPEG {
                 pb.add("JPEG");
                 pb.add(param);
                 op = JAI.create("filestore", pb);
-                list.add(file);
                 pathList.add(filePath);
             }
         }catch(Exception e){
@@ -60,8 +55,6 @@ public class TiffToJPEG {
                 logger.error( e.toString() );
             }
         }
-        map.put("fileList",list);
-        map.put("pathList",pathList);
-        return map;
+        return pathList;
     }
 }

@@ -72,12 +72,10 @@ public class Decide {
                 int pages=0;
                 if(tifLength>0){
                     pages=getTiffPages(tifPath);
-                    Map<String,Object> fileMap=readerTiff(tifPath);
-                    List<String> pathList=(List<String>)fileMap.get("pathList");
+                    List<String> pathList=readerTiff(tifPath);
                     if(pages==1){
                         //扫描
                         boolean scanResult=getFileType(pathList);
-                        System.out.println("scanResult"+scanResult);
                         if(scanResult){
                             //只有回执页
                             insertMsgReceipt(ch,map.get( "callerId" ), tifPath);
@@ -93,9 +91,9 @@ public class Decide {
                     String printService=programSetting.getPrintService();
                     if(programSetting.getIsPrint()==0){
                         try {
+                            //进行颜色反转
                             List<File> newList=writeJpg(pathList);
                             PrintImage.printImageWhenReceive(newList,printService);
-                            //deleteFileList((List<File>)fileMap.get("fileList"),newList);
                         } catch (Exception e) {
                             logger.error( e.toString() );
                         }
@@ -236,7 +234,7 @@ public class Decide {
         decide.receiptMapper.insertReceipt( returnReceipt );
     }
     public static boolean scanJpg(String tifPath) throws Exception {
-        //先转换成jpg,然后扫描jpg,返回值不为null,就是回执文件
+        //进行颜色反转,再扫描,有条形码就是回执
         String filePath=writeJpgOne(tifPath);
         String[] datas = BarcodeScanner.scan( filePath, BarCodeType.Code_128);
         String str=datas[0];
@@ -269,7 +267,6 @@ public class Decide {
     }
     public static boolean getFileType(List<String> pathList)throws Exception{
         String jpgPath=pathList.get(pathList.size()-1);
-        System.out.println(jpgPath);
         boolean scanOk=scanJpg(jpgPath);
         if(scanOk){
             //有条形码,回执页加正文
