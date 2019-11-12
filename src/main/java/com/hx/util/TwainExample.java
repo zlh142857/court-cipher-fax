@@ -27,8 +27,8 @@ public class TwainExample implements ScannerListener {
     private static Logger logger=Logger.getLogger( TwainExample.class );
     public static TwainExample app;
     Scanner scanner = Scanner.getDevice();
-    public static String pdfPath="";
-    public static List<String> list=null;
+    public static String tifPath="";
+    public static List<String> list=new ArrayList<>(  );;
     public static int count=0;
     public TwainExample() throws ScannerIOException {
         this.scanner.addListener(this);
@@ -39,11 +39,10 @@ public class TwainExample implements ScannerListener {
         if (var1.equals(ScannerIOMetadata.ACQUIRED)) {
             BufferedImage var3 = var2.getImage();
             try {
-                list=new ArrayList<>(  );
-                pdfPath=fileTemp()+".jpg";
-                list.add( pdfPath );
+                tifPath=fileTemp()+".tif";
+                list.add( tifPath );
                 try {
-                    ImageIO.write(var3, "jpg", new File(pdfPath));
+                    ImageIO.write(var3, "tif", new File(tifPath));
                 } catch (Exception e) {
                     logger.error( e.toString() );
                 }

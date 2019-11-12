@@ -74,6 +74,8 @@ public class SendFaxController {
             List<TempModel> tempList =  (List<TempModel>)mapper.readValue(tempModels, jt);
             for(int i=0;i<tempList.size();i++){
                 mes=sendFaxService.sendFax(tifPath,receiptPath,tempList.get( i ).getCourtName(),tempList.get(i).getReceiveNumber(),sendNumber,isBack,filename,id,ch);
+                Thread.sleep( 4000 );
+                System.out.println(mes+"i");
             }
         } catch (Exception e) {
             logger.error( e.toString() );

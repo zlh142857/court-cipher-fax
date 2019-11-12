@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.hx.change.ChangeFile.jpgToPdf;
-import static com.hx.change.ChangeFile.pdfToTiffByWord;
+import static com.hx.change.ChangeFile.pdfToTiffByWordScan;
+import static com.hx.change.ImgToPdf.imgToPdf;
 import static com.hx.util.ColorReverse.writeJpg;
 import static com.hx.util.TempDir.fileTemp;
 import static com.hx.util.TiffToJPEG.readerTiff;
@@ -74,11 +74,12 @@ public class PrintFileServiceImpl implements PrintFileService {
             if(count==1){
                 list=TwainExample.list;
                 if(list.size()>0){
-                    jpgToPdf(pdfPath,list);
+                    imgToPdf(list,pdfPath);
                     File file=new File(pdfPath);
                     OutputStream os=new FileOutputStream( new File( tifPath ) );
-                    flag=pdfToTiffByWord(file,os);
+                    flag=pdfToTiffByWordScan( file, os );
                 }
+                TwainExample.list=new ArrayList<>(  );
                 TwainExample.count=0;
                 break;
             }

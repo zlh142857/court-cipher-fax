@@ -310,21 +310,14 @@
       <version>1.0</version>
     </dependency>
     <!--条形码-->
-    <!-- webSocket 开始-->
     <dependency>
-      <groupId>javax.websocket</groupId>
-      <artifactId>javax.websocket-api</artifactId>
-      <version>1.1</version>
-      <scope>provided</scope>
+      <groupId>net.coobird</groupId>
+      <artifactId>thumbnailator</artifactId>
+      <version>0.4.8</version>
     </dependency>
-    <dependency>
-      <groupId>javax</groupId>
-      <artifactId>javaee-api</artifactId>
-      <version>7.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <!-- webSocket 结束-->
     <!--张立恒 end-->
+
+
   </dependencies>
 
 

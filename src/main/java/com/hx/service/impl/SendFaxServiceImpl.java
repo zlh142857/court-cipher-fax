@@ -139,6 +139,7 @@ public class SendFaxServiceImpl implements SendFaxService {
             if(isFree==7){
                 Fax.INSTANCE.SsmHangup( Integer.parseInt( ch ) );
                 isFree=Fax.INSTANCE.SsmGetChState( Integer.parseInt( ch ) );
+                System.out.println(isFree+"isFree");
             }
             if(isFree==0){
                 message=getMessage( receiveNumber, Integer.parseInt( ch ), tifPath, base64, Integer.parseInt( isBack ), filename, sendNumber, courtName,id );
@@ -413,8 +414,6 @@ public class SendFaxServiceImpl implements SendFaxService {
         return list;
     }
 
-
-
     public ChMsg getchList(int ch,int i)throws Exception{
         ChMsg chMsg=new ChMsg();
         //查询每一条通道的状态
@@ -443,7 +442,7 @@ public class SendFaxServiceImpl implements SendFaxService {
                         int done=Fax.INSTANCE.SsmFaxGetSendBytes(i);
                         if(done>=0){
                             NumberFormat numberFormat = NumberFormat.getInstance();
-                            numberFormat.setMaximumFractionDigits(2);
+                            numberFormat.setMaximumFractionDigits(0);
                             String result = numberFormat.format((float)done/(float)allByte*100);
                             float num= Float.parseFloat( result );
                             chMsg.setPercentage( num );

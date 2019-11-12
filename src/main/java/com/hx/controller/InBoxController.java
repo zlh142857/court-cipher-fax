@@ -1,5 +1,6 @@
 package com.hx.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.hx.modle.Inbox;
 import com.hx.service.InBoxService;
 import com.hx.util.ExcelHelper;
@@ -62,7 +63,7 @@ public class InBoxController {
    //收件箱查询
    @RequestMapping(value = "/queryinbox", method = RequestMethod.GET)
    @ResponseBody
-   public Map<String, Object> inboxs(Integer pageNo, Integer pageSize, String sendernumber, String senderunit, String receivenumber, String Isreceipt,String beginDate ,String endDate) {
+   public String inboxs(Integer pageNo, Integer pageSize, String sendernumber, String senderunit, String receivenumber, String Isreceipt,String beginDate ,String endDate) {
         //mailListId="m";
        Map<String, Object> result = new HashMap<>();
        result.put("state", 0); //0代表失败，1代表成功
@@ -89,7 +90,7 @@ public class InBoxController {
         }
 
        result.put("state", 1); //0代表失败，1代表成功
-       return result;
+       return JSONObject.toJSONStringWithDateFormat( result,"yyyy-MM-dd HH:mm:ss" );
    }
 
        @RequestMapping(value = "/inboxList", method = RequestMethod.GET)
