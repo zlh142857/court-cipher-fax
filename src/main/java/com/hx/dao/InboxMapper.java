@@ -35,4 +35,10 @@ public interface InboxMapper {
     void insertInbox(Inbox inbox);
 
     void updateIsReceiptById(int id);
+
+    void updateIsLink(Integer id);
+
+    String selectTifPath(Integer id);
+
+    void updateIsReceiptByBarCode(String barCode);
 }

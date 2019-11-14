@@ -14,8 +14,8 @@
     SELECT seatNumber,ch FROM Device_Setting WHERE seatNumber IS NOT NULL AND chType!=1;
   </select>
   <!--初始化板卡时查询通道类型-->
-  <select id="selectChType" resultMap="Device_Setting">
-    SELECT ch,chType FROM Device_Setting WHERE chType!=0;
+  <select id="selectChType" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+    SELECT chType FROM Device_Setting WHERE ch=#{ch,jdbcType=INTEGER};
   </select>
   <!--根据通道编号查询支持发送的座机号-->
   <select id="selectSeatNumberByCh" resultType="java.lang.String" parameterType="java.lang.Integer">

@@ -7,23 +7,40 @@ package com.hx.schedule;/*
 
 import com.hx.common.Decide;
 import com.hx.common.Fax;
+import com.hx.service.SendFaxService;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.annotation.PostConstruct;
 
 public class Ch_3 implements Runnable {
     private Logger logger=Logger.getLogger(this.getClass());
+    private static SendFaxService sendFaxService;
+    private static Ch_3 ch_3;
+    @PostConstruct
+    public void init() {
+        ch_3=this;
+        ch_3.sendFaxService=this.sendFaxService;
+    }
+    public  void setSendFaxService(SendFaxService sendFaxService) {
+        this.sendFaxService = sendFaxService;
+    }
     @Override
     public void run(){
         try{
             //业务逻辑:先查询通道的状态码
             int stateCode=Fax.INSTANCE.SsmGetChState(3);
             if(stateCode!=-1){
-                //当前状态为振铃,便开始接收
-                Decide.decideCh(stateCode,3);
+                int chType=ch_3.sendFaxService.selectChType(3);
+                if(chType!=2){
+                    //当前状态为振铃,便开始接收
+                    Decide.decideCh(stateCode,3);
+                }
             }else{
                 logger.error( "查看通道编号3状态调用失败" );
             }
-        }catch (Throwable t){
-            logger.error( t.toString() );
+        }catch (Exception e){
+            logger.error( e.toString() );
         }
     }
 }

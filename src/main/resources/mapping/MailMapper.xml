@@ -59,4 +59,9 @@
     from mail_ist
     where id = #{id}
     </delete>
+    <!--张立恒-->
+    <select id="selectCourtName" resultType="java.lang.String" parameterType="java.lang.String">
+      SELECT linkname FROM mail WHERE linknumber=#{callerId,jdbcType=VARCHAR}
+    </select>
+    <!--张立恒-->
 </mapper>

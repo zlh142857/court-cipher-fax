@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.hx.modle.Mail;
-import com.hx.modle.Mail_List;
 
 
 public interface ExcelService {

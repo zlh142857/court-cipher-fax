@@ -8,7 +8,7 @@ import java.util.List;
 public interface DeviceDao {
     List<Device_Setting> selectSeatNumber();
 
-    List<Device_Setting> selectChType();
+    int selectChType(int ch);
 
     String selectSeatNumberByCh(int i);
 

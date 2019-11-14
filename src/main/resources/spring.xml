@@ -24,6 +24,39 @@ http://www.springframework.org/schema/context/spring-context-3.0.xsd
 		<property name="returnReceiptMapper">
 			<ref bean="returnReceiptMapper"/>
 		</property>
+		<property name="mailMapper">
+			<ref bean="mailMapper"/>
+		</property>
+	</bean>
+	<bean id="SendSchTask" class="com.hx.common.SendSchTask">
+		<property name="sendFaxService">
+			<ref bean="sendFaxService"/>
+		</property>
+	</bean>
+	<bean id="Ch_0" class="com.hx.schedule.Ch_0">
+		<property name="sendFaxService">
+			<ref bean="sendFaxService"/>
+		</property>
+	</bean>
+	<bean id="Ch_1" class="com.hx.schedule.Ch_1">
+		<property name="sendFaxService">
+			<ref bean="sendFaxService"/>
+		</property>
+	</bean>
+	<bean id="Ch_2" class="com.hx.schedule.Ch_2">
+		<property name="sendFaxService">
+			<ref bean="sendFaxService"/>
+		</property>
+	</bean>
+	<bean id="Ch_3" class="com.hx.schedule.Ch_3">
+		<property name="sendFaxService">
+			<ref bean="sendFaxService"/>
+		</property>
+	</bean>
+	<bean id="SchTask" class="com.hx.schedule.SchTask">
+		<property name="schMapper">
+			<ref bean="schMapper"/>
+		</property>
 	</bean>
 
 

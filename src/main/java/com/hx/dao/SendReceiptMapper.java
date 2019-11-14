@@ -1,6 +1,7 @@
 package com.hx.dao;/*
  */
 
+import com.hx.modle.Sch_Task;
 import com.hx.modle.Send_Receipt;
 import org.apache.ibatis.annotations.Param;
 
@@ -32,4 +33,10 @@ public interface SendReceiptMapper {
     int deinbox(Integer readerId);
 
     int insert(@Param("send_receipt") Send_Receipt send_receipt);
+
+    List<Sch_Task> selectReceiptNoLink(@Param( "page" )int page,@Param( "pageSize" )Integer pageSize);
+
+    Long selectCountNoLink();
+
+    void updateIsLink(@Param( "id" ) int id,@Param( "tifPath" ) String tifPath);
 }

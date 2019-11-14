@@ -9,14 +9,16 @@
     <result property="sendline" column="sendline"/>
     <result property="message" column="message"/>
     <result property="sendnumber" column="sendnumber"/>
+    <result property="isLink" column="isLink"/>
+    <result property="tifPath" column="tifPath"/>
   </resultMap>
   <!--张立恒start-->
   <!--新增发回执箱-->
   <insert id="insertNewMessage" parameterType="com.hx.modle.Send_Receipt">
     INSERT INTO send_receipt
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="sendernumber != null and sendernumber != ''">
-        sendernumber,
+      <if test="sendnumber != null and sendnumber != ''">
+        sendnumber,
       </if>
       <if test="receivenumber != null and receivenumber != ''">
         receivenumber,
@@ -35,8 +37,8 @@
       </if>
     </trim>
     <trim prefix=" values (" suffix=")" suffixOverrides=",">
-      <if test="sendernumber != null and sendernumber != ''">
-        #{sendernumber,jdbcType=VARCHAR},
+      <if test="sendnumber != null and sendnumber != ''">
+        #{sendnumber,jdbcType=VARCHAR},
       </if>
       <if test="receivenumber != null and receivenumber != ''">
         #{receivenumber,jdbcType=VARCHAR},
@@ -55,6 +57,18 @@
       </if>
     </trim>
   </insert>
+  <!--查询未被关联的发回执箱信息-->
+  <select id="selectReceiptNoLink" resultType="com.hx.modle.Send_Receipt">
+    SELECT id,receivingunit,receivenumber,sendline,isLink,create_time FROM send_receipt WHERE isLink=0 AND message!='成功' ORDER BY create_time DESC LIMIT #{page,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER};
+  </select>
+  <!--查询未被关联的发回执箱信息总条数-->
+  <select id="selectCountNoLink" resultType="java.lang.Long">
+    SELECT count(*) FROM send_receipt WHERE isLink=0;
+  </select>
+  <!--修改是否已关联,改成已关联:1-->
+  <update id="updateIsLink" parameterType="java.lang.Integer">
+      UPDATE send_receipt SET isLink=1,tifPath=#{tifPath,jdbcType=VARCHAR} WHERE id=#{id,jdbcType=INTEGER}
+  </update>
   <!--张立恒end-->
 
   <select id="queryALLMail" parameterType="java.util.Map" resultType="com.hx.modle.Send_Receipt">
@@ -77,8 +91,8 @@
     <if  test="params.message!=null and params.message!=''">
       and message LIKE CONCAT('%',#{params.message},'%')
     </if>
-    <if  test="params.sendernumber!=null and params.sendernumber!=''">
-      and sendernumber LIKE CONCAT('%',#{params.sendernumber},'%')
+    <if  test="params.sendnumber!=null and params.sendnumber!=''">
+      and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
     </if>
     LIMIT ${params.start}, ${params.offset}
   </select>
@@ -103,7 +117,7 @@
     <if  test="params.message!=null and params.message!=''">
       and message LIKE CONCAT('%',#{params.message},'%')
     </if>
-    <if  test="params.sendernumber!=null and params.sendernumber!=''">
+    <if  test="params.sendnumber!=null and params.sendnumber!=''">
       and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
     </if>
     </select>
@@ -118,7 +132,7 @@
 
   <select id="getById" resultType="com.hx.modle.Send_Receipt">
       select
-        id, receivingunit, receivenumber, create_time, sendline, message,sendernumber
+        id, receivingunit, receivenumber, create_time, sendline, message,sendnumber
         from send_receipt where id = #{id}
         </select>
 
@@ -127,14 +141,14 @@
     <!--</select>-->
 
   <insert id="insert" parameterType="com.hx.modle.Send_Receipt">
-        INSERT INTO send_receipt(id, receivingunit, receivenumber, create_time, sendline, message,sendernumber) VALUES (
+        INSERT INTO send_receipt(id, receivingunit, receivenumber, create_time, sendline, message,sendnumber) VALUES (
           #{send_receipt.id},
           #{send_receipt.receivingunit},
           #{send_receipt.receivenumber},
           #{send_receipt.create_time},
           #{send_receipt.sendline},
           #{send_receipt.message},
-          #{send_receipt.sendernumber}
+          #{send_receipt.sendnumber}
         )
     </insert>
 

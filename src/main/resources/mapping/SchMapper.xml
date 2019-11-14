@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hx.dao.SchMapper" >
+    <resultMap id="SchMapper" type="com.hx.modle.Sch_Task" >
+        <id property="id" column="id"/>
+        <result property="tifPath" column="tifPath"/>
+        <result property="receiptPath" column="receiptPath"/>
+        <result property="courtName" column="courtName"/>
+        <result property="receiveNumber" column="receiveNumber"/>
+        <result property="sendNumber" column="sendNumber"/>
+        <result property="isBack" column="isBack"/>
+        <result property="ch" column="ch"/>
+        <result property="filename" column="filename"/>
+        <result property="outboxId" column="outboxId"/>
+        <result property="sendTime" column="sendTime"/>
+        <result property="createTime" column="createTime"/>
+    </resultMap>
+
+    <!--张立恒start-->
+    <!--监听器查询定时任务-->
+    <select id="selectTask" resultType="com.hx.modle.Sch_Task">
+      SELECT * FROM sch_task;
+    </select>
+    <!--查询定时任务列表-->
+    <select id="selectTaskLimit" resultType="com.hx.modle.Sch_Task">
+      SELECT * FROM sch_task ORDER BY sendTime ASC LIMIT #{page,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER};
+    </select>
+    <select id="selectCount" resultType="java.lang.Long">
+      SELECT count(*) FROM sch_task;
+    </select>
+    <!--新增定时任务-->
+    <insert id="insertSchTask" parameterType="com.hx.modle.Sch_Task">
+        INSERT INTO sch_task
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="tifPath != null and tifPath != ''">
+                tifPath,
+            </if>
+            <if test="receiptPath != null and receiptPath != ''">
+                receiptPath,
+            </if>
+            <if test="courtName != null and courtName != ''">
+                courtName,
+            </if>
+            <if test="receiveNumber != null and receiveNumber != ''">
+                receiveNumber,
+            </if>
+            <if test="sendNumber != null and sendNumber != ''">
+                sendNumber,
+            </if>
+            <if test="isBack != null and isBack != ''">
+                isBack,
+            </if>
+            <if test="ch != null and ch != ''">
+                ch,
+            </if>
+            <if test="filename != null and filename != ''">
+                filename,
+            </if>
+            <if test="outboxId != null and outboxId != ''">
+                outboxId,
+            </if>
+            <if test="sendTime != null and sendTime != ''">
+                sendTime,
+            </if>
+            <if test="createTime != null and createTime != ''">
+                createTime,
+            </if>
+        </trim>
+        <trim prefix=" values (" suffix=")" suffixOverrides=",">
+            <if test="tifPath != null and tifPath != ''">
+                #{tifPath,jdbcType=VARCHAR},
+            </if>
+            <if test="receiptPath != null and receiptPath != ''">
+                #{receiptPath,jdbcType=VARCHAR},
+            </if>
+            <if test="courtName != null and courtName != ''">
+                #{courtName,jdbcType=VARCHAR},
+            </if>
+            <if test="receiveNumber != null and receiveNumber != ''">
+                #{receiveNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="sendNumber != null and sendNumber != ''">
+                #{sendNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="isBack != null and isBack != ''">
+                #{isBack,jdbcType=VARCHAR},
+            </if>
+            <if test="ch != null and ch != ''">
+                #{ch,jdbcType=VARCHAR},
+            </if>
+            <if test="filename != null and filename != ''">
+                #{filename,jdbcType=VARCHAR},
+            </if>
+            <if test="outboxId != null and outboxId != ''">
+                #{outboxId,jdbcType=VARCHAR},
+            </if>
+            <if test="sendTime != null and sendTime != ''">
+                #{sendTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null and createTime != ''">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <!--修改设备信息-->
+    <update id="updateTaskDate">
+        UPDATE sch_task SET sendTime=#{sendDate,jdbcType=TIMESTAMP} WHERE id=#{id,jdbcType=INTEGER}
+    </update>
+    <!--删除任务-->
+    <delete id="deleteSchTask" parameterType="java.lang.Integer">
+      DELETE FROM sch_task WHERE id=#{id,jdbcType=INTEGER}
+    </delete>
+    <!--张立恒end-->
+</mapper>

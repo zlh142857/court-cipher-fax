@@ -8,8 +8,6 @@ package com.hx.controller;/*
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hx.dao.DeviceDao;
-import com.hx.dao.SendReceiptMapper;
 import com.hx.modle.ChMsg;
 import com.hx.modle.Device_Setting;
 import com.hx.modle.TempModel;
@@ -22,19 +20,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.*;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class SendFaxController {
     private static Logger logger=Logger.getLogger(SendFaxController.class);
     @Autowired
     private SendFaxService sendFaxService;
-    @Autowired
-    private DeviceDao deviceDao;
-    @Autowired
-    private SendReceiptMapper sendReceiptMapper;
     /**
      *
      * 功能描述: 发送前,自动选择线路发送还是指定号码发送,下拉列表框查询,从device_setting表中查询
@@ -74,8 +66,7 @@ public class SendFaxController {
             List<TempModel> tempList =  (List<TempModel>)mapper.readValue(tempModels, jt);
             for(int i=0;i<tempList.size();i++){
                 mes=sendFaxService.sendFax(tifPath,receiptPath,tempList.get( i ).getCourtName(),tempList.get(i).getReceiveNumber(),sendNumber,isBack,filename,id,ch);
-                Thread.sleep( 4000 );
-                System.out.println(mes+"i");
+                Thread.sleep( 3000 );
             }
         } catch (Exception e) {
             logger.error( e.toString() );
@@ -110,19 +101,6 @@ public class SendFaxController {
         }
         return JSONObject.toJSONString( file );
     }
-    @RequestMapping("main")
-    @ResponseBody
-    public void main(String []args){
-        int done=22;
-        int allByte=100;
-        // 创建一个数值格式化对象
-        NumberFormat numberFormat = NumberFormat.getInstance();
-// 设置精确到小数点后2位
-        numberFormat.setMaximumFractionDigits(2);
-        String result = numberFormat.format((float)done/(float)allByte*100);
-        float num= Float.parseFloat( result );
-        System.out.println(num);
-    }
     @RequestMapping("rateOfAdvance")
     @ResponseBody
     public synchronized String rateOfAdvance(String ch){
@@ -145,4 +123,94 @@ public class SendFaxController {
         }
         return JSONObject.toJSONString( list );
     }
+    /**
+     *
+     * 功能描述: 新增定时任务
+     *
+     * 业务逻辑:
+     *
+     * @param:
+     * @return:
+     * @auther: 张立恒
+     * @date: 2019/11/13 18:49
+     */
+    @RequestMapping("insertSchTask")
+    @ResponseBody
+    public boolean insertSchTask(String tifPath,String receiptPath,String tempModels,String sendNumber,
+                                 String isBack,String ch,String filename,String id,String sendTime){
+        boolean flag=false;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JavaType jt = mapper.getTypeFactory().constructParametricType(ArrayList.class, TempModel.class);
+            List<TempModel> tempList =  (List<TempModel>)mapper.readValue(tempModels, jt);
+            flag=sendFaxService.insertSchTask(tifPath,receiptPath,tempList,sendNumber,isBack,filename,id,ch,sendTime);
+        } catch (Exception e) {
+            logger.error( e );
+        }
+        return flag;
+    }
+    @RequestMapping("deleteSchTask")
+    @ResponseBody
+    public boolean deleteSchTask(String id){
+        boolean flag=false;
+        try {
+            flag=sendFaxService.deleteSchTask(id);
+        } catch (Exception e) {
+            logger.error( e );
+        }
+        return flag;
+    }
+    @RequestMapping("updateTaskDate")
+    @ResponseBody
+    public boolean updateTaskDate(String id,String date){
+        boolean flag=false;
+        try {
+            flag=sendFaxService.updateTaskDate(id,date);
+        } catch (Exception e) {
+            logger.error( e );
+        }
+        return flag;
+    }
+    @RequestMapping("selectTaskLimit")
+    @ResponseBody
+    public String selectTaskLimit(String pageNow,String pageSize){
+        Map<String,Object> map=null;
+        try {
+            if(pageNow!=null||pageSize!=null){
+                map=sendFaxService.selectTaskLimit(Integer.valueOf( pageNow ),Integer.valueOf( pageSize ));
+            }else{
+                logger.error( "分页参数为空" );
+            }
+        } catch (Exception e) {
+            logger.error( e );
+        }
+        return JSONObject.toJSONStringWithDateFormat( map,"yyyy-MM-dd HH:mm:ss" );
+    }
+    /**
+     *
+     * 功能描述: 右键发送回执,给前端返回一个回执文件的路径,回执文件从正文中剥离出来
+     *
+     * 业务逻辑:
+     *
+     * @param:
+     * @return:
+     * @auther: 张立恒
+     * @date: 2019/11/13 13:51
+     */
+    @RequestMapping("getBackFilePath")
+    @ResponseBody
+    public String getBackFilePath(String id){
+        String filePath="";
+        try {
+            if(id!=null||id!=null){
+                filePath=sendFaxService.getBackFilePath(Integer.valueOf( id ));
+            }else{
+                logger.error( "id为空" );
+            }
+        } catch (Exception e) {
+            logger.error( e );
+        }
+        return JSONObject.toJSONString(filePath);
+    }
+
 }

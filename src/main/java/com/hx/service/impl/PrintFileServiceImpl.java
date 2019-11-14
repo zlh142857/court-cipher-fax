@@ -38,25 +38,21 @@ public class PrintFileServiceImpl implements PrintFileService {
     private ProgramSettingDao programSettingDao;
     //tif文件先转换成jpg
     @Override
-    public String printFile(List<TempModel> tempModels) throws Exception {
-        int fileLength=tempModels.size();
+    public String printFile(String tifPath) throws Exception {
+        int fileLength=tifPath.length();
         if(fileLength==0){
-            return "请上传有效文件";
+            return "文件路径丢失";
         }
-        for(int i=0;i<fileLength;i++){
-            //先判断文件是否为空,不为空则继续,为空循环获取下一个文件
-            int len=tempModels.get( i ).getTifPath().length();
-            if(len>0){
-                //查询打印服务名称
-                Program_Setting programSetting=programSettingDao.selectProgramSetting();
-                String printService=programSetting.getPrintService();
-                //先把tif转换为jpg的list集合,然后进行染色反转,再打印
-                List<String> jpgList=readerTiff(tempModels.get( i ).getTifPath());
-                //颜色反转
-                List<File> newList=writeJpg(jpgList);
-                //打印
-                PrintImage.printImageWhenReceive(newList,printService);
-            }
+        if(fileLength>0){
+            //查询打印服务名称
+            Program_Setting programSetting=programSettingDao.selectProgramSetting();
+            String printService=programSetting.getPrintService();
+            //先把tif转换为jpg的list集合,然后进行染色反转,再打印
+            List<String> jpgList=readerTiff(tifPath);
+            //颜色反转
+            List<File> newList=writeJpg(jpgList);
+            //打印
+            PrintImage.printImageWhenReceive(newList,printService);
         }
         return "打印结束";
     }

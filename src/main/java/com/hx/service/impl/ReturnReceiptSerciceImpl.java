@@ -1,16 +1,13 @@
 package com.hx.service.impl;
 
 import com.hx.dao.ReturnReceiptMapper;
-import com.hx.modle.Inbox;
 import com.hx.modle.Return_Receipt;
 import com.hx.service.RecycleBinService;
 import com.hx.service.ReturnReceiptService;
-import org.apache.commons.lang.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;

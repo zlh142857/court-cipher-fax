@@ -5,10 +5,7 @@ package com.hx.common;/*
  *@功能:
  */
 
-import com.hx.dao.DeviceDao;
-import com.hx.dao.InboxMapper;
-import com.hx.dao.ProgramSettingDao;
-import com.hx.dao.ReturnReceiptMapper;
+import com.hx.dao.*;
 import com.hx.modle.Inbox;
 import com.hx.modle.Program_Setting;
 import com.hx.modle.Return_Receipt;
@@ -29,7 +26,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.hx.util.ColorReverse.writeJpg;
-import static com.hx.util.ColorReverse.writeJpgOne;
+import static com.hx.util.ColorReverse.writeJpgOneDecide;
 import static com.hx.util.TempDir.tifDir;
 import static com.hx.util.TiffToJPEG.readerTiff;
 
@@ -41,6 +38,7 @@ public class Decide {
     private static DeviceDao deviceDao;
     private static InboxMapper inboxMapper;
     private static ReturnReceiptMapper returnReceiptMapper;
+    private static MailMapper mailMapper;
     private static Decide decide;
     public  void setProgramSettingDao(ProgramSettingDao programSettingDao) {
         this.programSettingDao = programSettingDao;
@@ -54,6 +52,9 @@ public class Decide {
     public  void setReturnReceiptMapper(ReturnReceiptMapper returnReceiptMapper) {
         this.returnReceiptMapper = returnReceiptMapper;
     }
+    public  void setMailMapper(MailMapper mailMapper) {
+        this.mailMapper = mailMapper;
+    }
     @PostConstruct
     public void init() {
         decide=this;
@@ -61,43 +62,58 @@ public class Decide {
         decide.inboxMapper=this.inboxMapper;
         decide.deviceDao=this.deviceDao;
         decide.returnReceiptMapper=this.returnReceiptMapper;
+        decide.mailMapper=this.mailMapper;
     }
     public static void decideCh(int flag, int ch) throws Exception {
         if(flag==2){
             Map<String,String> map=chState_2(ch);
             if(map.get( "message" ).equals( "成功" )){
                 //先存入数据库再打印,先获取tiff文件页数,==1,并扫描有条形码,说明是回执页
-                int tifLength=map.get( "tifPath" ).length();
                 String tifPath=map.get( "tifPath" );
                 int pages=0;
-                if(tifLength>0){
+                if(tifPath.length()>0){
                     pages=getTiffPages(tifPath);
                     List<String> pathList=readerTiff(tifPath);
+                    String barCode=getFileType(pathList);//根据最后一页的jpg获取扫描结果
                     if(pages==1){
-                        //扫描
-                        boolean scanResult=getFileType(pathList);
-                        if(scanResult){
+                        if(barCode.length()>0){
                             //只有回执页
                             insertMsgReceipt(ch,map.get( "callerId" ), tifPath);
                         }else{
-                            //只有正文
-                            insertMsg(ch,map.get( "callerId" ), tifPath);
+                            //只有正文,设置是否回执状态为3:没有回执文件
+                            insertMsg(ch,map.get( "callerId" ), tifPath,barCode);
                         }
                     }else{
-                        insertMsg(ch,map.get( "callerId" ), tifPath);
+                        insertMsg(ch,map.get( "callerId" ), tifPath,barCode);
                     }
-                    //查询打印服务名称
-                    Program_Setting programSetting=decide.programSettingDao.selectProgramSetting();
-                    String printService=programSetting.getPrintService();
-                    if(programSetting.getIsPrint()==0){
-                        try {
-                            //进行颜色反转
-                            List<File> newList=writeJpg(pathList);
-                            PrintImage.printImageWhenReceive(newList,printService);
-                        } catch (Exception e) {
-                            logger.error( e.toString() );
-                        }
+                    if(barCode.length()>0){
+                        //查询打印服务名称
+                        /*Program_Setting programSetting=decide.programSettingDao.selectProgramSetting();
+                        String printService=programSetting.getPrintService();
+                        if(programSetting.getIsPrint()==0){
+                            try {
+                                //进行颜色反转
+                                List<File> newList=writeJpgByBar(pathList);
+                                PrintImage.printImageWhenReceive(newList,printService);
+                            } catch (Exception e) {
+                                logger.error( e.toString() );
+                            }
 
+                        }*/
+                    }else{
+                        //查询打印服务名称
+                        Program_Setting programSetting=decide.programSettingDao.selectProgramSetting();
+                        String printService=programSetting.getPrintService();
+                        if(programSetting.getIsPrint()==0){
+                            try {
+                                //进行颜色反转
+                                List<File> newList=writeJpg(pathList);
+                                PrintImage.printImageWhenReceive(newList,printService);
+                            } catch (Exception e) {
+                                logger.error( e.toString() );
+                            }
+
+                        }
                     }
                 }
 
@@ -105,7 +121,7 @@ public class Decide {
 
         }
     }
-    public static Map<String,String> chState_2(int ch) throws Exception {
+    public static Map<String,String> chState_2(int ch){
         Map<String,String> map=new HashMap<>(  );
         String message="成功";
         String tifPath="";
@@ -136,7 +152,7 @@ public class Decide {
                     if(isOk==0){
                         //开始接收,当通道状态为55的时候可以获取文件编码
                         //当通道状态为0的时候可以挂起或者接收第二次
-                        int state= getCodeFlag(i);
+                        int state= getCodeFlag(i,ch);
                         if (state==55) {
                             //说明已经在接收中
                             int end=sendEndFor0(i);
@@ -164,16 +180,18 @@ public class Decide {
         stopAndHungUp(ch,i);
         return map;
     }
-    public static int getCodeFlag(int i){
+    public static int getCodeFlag(int i,int ch){
         int end=Fax.INSTANCE.SsmGetChState(i);
         if(end==55){
             return end;
         }else if(end ==0){
             return end;
+        }else if(end ==7){
+            stopAndHungUp(i,ch);
         }else{
             try {
                 Thread.sleep( 1000 );
-                end=getCodeFlag(i);
+                end=getCodeFlag(i,ch);
             } catch (InterruptedException e) {
                 logger.error( "Thread.sleep异常:"+e.toString() );
                 return 0;
@@ -213,19 +231,37 @@ public class Decide {
             logger.error("断开连接失败:"+errMsg);
         }
     }
-    public static void insertMsg(int ch, String callerId, String tifPath){
+    public static void insertMsg(int ch, String callerId, String tifPath,String barCode){
         String receiveNumber=decide.deviceDao.selectNumberByCh( ch );
+        //根据callerId查询通讯簿有没有相同号码的法院名称
+        String courtName=decide.mailMapper.selectCourtName(callerId);
         Inbox inbox=new Inbox();
+        if(courtName.length()>0){
+            inbox.setSenderunit( courtName );
+        }else{
+            inbox.setSenderunit( callerId );
+        }
         inbox.setSendernumber(callerId);
         inbox.setReceivenumber(receiveNumber);
         Date date=new Date();
         inbox.setCreate_time( date );
         inbox.setFilsavepath(tifPath);
+        if(barCode!=""||barCode!=null){
+            inbox.setBarCode( barCode );
+            inbox.setIsreceipt( 2 );
+        }
         decide.inboxMapper.insertInbox( inbox );
     }
     public static void insertMsgReceipt(int ch, String callerId, String tifPathBack){
+        //根据callerId查询通讯簿有没有相同号码的法院名称
         String receiveNumber=decide.deviceDao.selectNumberByCh( ch );
+        String courtName=decide.mailMapper.selectCourtName(callerId);
         Return_Receipt returnReceipt=new Return_Receipt();
+        if(courtName.length()>0){
+            returnReceipt.setSenderunit( courtName );
+        }else{
+            returnReceipt.setSenderunit( callerId );
+        }
         returnReceipt.setSendnumber(callerId);
         returnReceipt.setReceivenumber(receiveNumber);
         Date date=new Date();
@@ -233,15 +269,15 @@ public class Decide {
         returnReceipt.setFilsavepath(tifPathBack);
         decide.returnReceiptMapper.insertReceipt( returnReceipt );
     }
-    public static boolean scanJpg(String tifPath) throws Exception {
+    public static String scanJpg(String tifPath) throws Exception {
         //进行颜色反转,再扫描,有条形码就是回执
-        String filePath=writeJpgOne(tifPath);
+        String filePath=writeJpgOneDecide(tifPath);
         String[] datas = BarcodeScanner.scan( filePath, BarCodeType.Code_128);
         String str=datas[0];
         if(str.contains( "N" )){
-            return false;
+            return "";
         } else{
-            return true;
+            return str;
         }
 
     }
@@ -265,15 +301,15 @@ public class Decide {
         }
         return numPages;
     }
-    public static boolean getFileType(List<String> pathList)throws Exception{
-        String jpgPath=pathList.get(pathList.size()-1);
-        boolean scanOk=scanJpg(jpgPath);
-        if(scanOk){
+    public static String getFileType(List<String> pathList)throws Exception{
+        String jpgPath=pathList.get(pathList.size()-1);//最后一页jpg
+        String barCode=scanJpg(jpgPath);
+        if(barCode.length()>0){
             //有条形码,回执页加正文
-            return true;
+            return barCode;
         }else{
             //说明没有条形码,就是正文
-            return false;
+            return "";
         }
     }
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface PrintFileService {
 
-    String printFile(List<TempModel> tempModel) throws Exception;
+    String printFile(String tifPath) throws Exception;
 
     String printScan() throws Exception;
 

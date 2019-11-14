@@ -21,6 +21,7 @@ import static com.hx.util.TempDir.fileTemp;
 
 public class ImgToPdf {
     private static Logger logger=Logger.getLogger( ImgToPdf.class );
+    //参数,文件路径的list集合,要保存的PDF路径
     public static void imgToPdf(List<String> files,String pdfPath) throws Exception{
         ImgUtil imageUtil = new ImgUtil();
         List<String> newList=new ArrayList<>(  );

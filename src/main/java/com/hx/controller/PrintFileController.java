@@ -56,13 +56,11 @@ public class PrintFileController{
      */
     @RequestMapping("printTifs")
     @ResponseBody
-    public String print(String tempModel){
+    public String print(String tifPath){
+        System.out.println(tifPath+":tifPath");
         String str="";
-        ObjectMapper mapper = new ObjectMapper();
-        JavaType jt = mapper.getTypeFactory().constructParametricType(ArrayList.class, TempModel.class);
         try{
-            List<TempModel> tempList =  (List<TempModel>)mapper.readValue(tempModel, jt);
-            str=printFileService.printFile(tempList);
+            str=printFileService.printFile(tifPath);
         }catch (Exception e){
             logger.error( e.toString() );
         }

@@ -10,6 +10,8 @@
         <result property="isreceipt" column="isreceipt"/>
         <result property="sendernumber" column="sendernumber"/>
         <result property="filsavepath" column="filsavepath"/>
+        <result property="isLink" column="isLink"/>
+        <result property="barCode" column="barCode"/>
     </resultMap>
 
     <delete id="deinbox">
@@ -152,7 +154,18 @@
     </insert>
     <!--修改是否已回执,改成已回执:1-->
     <update id="updateIsReceiptById" parameterType="java.lang.Integer">
-      UPDATE inbox SET Isreceipt=1 WHERE id={id,jdbcType=INTEGER}
+      UPDATE inbox SET Isreceipt=1 WHERE id=#{id,jdbcType=INTEGER}
     </update>
+    <update id="updateIsReceiptByBarCode" parameterType="java.lang.String">
+      UPDATE inbox SET Isreceipt=1 WHERE barCode=#{barCode,jdbcType=VARCHAR}
+    </update>
+    <!--修改是否已关联,改成已关联:1-->
+    <update id="updateIsLink" parameterType="java.lang.Integer">
+      UPDATE inbox SET isLink=1 WHERE id=#{id,jdbcType=INTEGER}
+    </update>
+    <!--查询一次正文路径,改成已关联:1-->
+    <select id="selectTifPath" resultType="java.lang.String" parameterType="java.lang.Integer">
+      SELECT filsavepath FROM inbox WHERE id=#{id,jdbcType=INTEGER}
+    </select>
     <!--张立恒end-->
 </mapper>

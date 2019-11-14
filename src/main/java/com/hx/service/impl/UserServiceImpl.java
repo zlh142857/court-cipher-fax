@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
         Map<String,Object> map=new HashMap<>(  );
         int page=pageNow-1;
         String levelInfo="";
-        if(level.length()>0){
+        if(level != null || level != ""){
             if(level.equals( "1" )){
                 levelInfo="ERROR";
             }else{

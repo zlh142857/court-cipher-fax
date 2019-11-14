@@ -48,7 +48,7 @@ public class UserController {
     public String deleteUser(String id){
         String mes="删除失败";
         try {
-            if(id.length()>0){
+            if(id != null){
                 userService.deleteUser( Integer.parseInt( id ) );
                 mes="删除成功";
             }else{
@@ -64,7 +64,7 @@ public class UserController {
     public String updateUser(String id,String password){
         String msg="修改失败";
         try {
-            if(id.length()>0&&password.length()>0){
+            if(id != null && password != null){
                 userService.updateUser( Integer.parseInt( id ),password);
                 msg="修改成功";
             }else{
@@ -92,7 +92,7 @@ public class UserController {
     public String selectLog(String pageNow,String pageSize,String level){
         Map<String,Object> map=null;
         try {
-            if(pageNow.length()>0&&pageSize.length()>0){
+            if(pageNow != null && pageSize != null){
                 map = userService.selectLog(Integer.valueOf( pageNow ),Integer.valueOf( pageSize ),level);
             }else{
                 logger.error( "分页参数为空" );

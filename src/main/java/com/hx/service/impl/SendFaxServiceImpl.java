@@ -6,18 +6,13 @@ package com.hx.service.impl;/*
  */
 
 import com.hx.common.Fax;
-import com.hx.dao.DeviceDao;
-import com.hx.dao.InboxMapper;
-import com.hx.dao.OutboxMapper;
-import com.hx.dao.SendReceiptMapper;
-import com.hx.modle.ChMsg;
-import com.hx.modle.Device_Setting;
-import com.hx.modle.Outbox;
-import com.hx.modle.Send_Receipt;
+import com.hx.dao.*;
+import com.hx.modle.*;
 import com.hx.service.SendFaxService;
 import com.hx.util.GetTimeToFileName;
 import com.spire.barcode.BarCodeGenerator;
 import com.spire.barcode.BarCodeType;
+import com.spire.barcode.BarcodeScanner;
 import com.spire.barcode.BarcodeSettings;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,18 +23,24 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.List;
 
 import static com.hx.change.ChangeFile.baseToPdf;
 import static com.hx.change.ChangeFile.pdfToTiffByWord;
+import static com.hx.change.ChangeFile.pdfToTiffSendBack;
+import static com.hx.change.ImgToPdf.imgToPdf;
 import static com.hx.common.ChStateCode.getStateMsgBy7;
 import static com.hx.common.ChStateCode.getStateMsgByFaxCh;
 import static com.hx.common.ChStateCode.getStateMsgByNot7;
 import static com.hx.common.Speed.getSpeed;
 import static com.hx.util.TempDir.fileTemp;
+import static com.hx.util.TempDir.schTask;
+import static com.hx.util.TiffToJPEG.readerTiff;
 
 
 @Service("sendFaxService")
@@ -53,6 +54,8 @@ public class SendFaxServiceImpl implements SendFaxService {
     private SendReceiptMapper SendReceiptMapper;
     @Autowired
     private InboxMapper inboxMapper;
+    @Autowired
+    private SchMapper schMapper;
     //查询座机号下拉列表框
     @Override
     public List<Device_Setting> selectSeatNumber() {
@@ -61,9 +64,9 @@ public class SendFaxServiceImpl implements SendFaxService {
     }
     //初始化板卡时查询通道类型
     @Override
-    public List<Device_Setting> selectChType() {
-        List<Device_Setting> list=deviceDao.selectChType();
-        return list;
+    public int selectChType(int ch) {
+        int chType=deviceDao.selectChType(ch);
+        return chType;
     }
 
     @Override
@@ -129,17 +132,15 @@ public class SendFaxServiceImpl implements SendFaxService {
 
     @Override
     public String sendFax(String tifPath, String base64, String courtName, String receiveNumber,
-                          String sendNumber, String isBack,String filename,String id,String ch) {
-        int isNumber=sendNumber.length();
-        String message="成功";
-        if(isNumber>0){
+                          String sendNumber, String isBack,String filename,String id,String ch) throws Exception {
+        String message="失败";
+        if(sendNumber!=null || sendNumber != ""){
             receiveNumber=getReceiveNumber(Integer.parseInt( ch ),sendNumber,receiveNumber);
             //通过指定号码发送,然后查询通道是否空闲
             int isFree=Fax.INSTANCE.SsmGetChState( Integer.parseInt( ch ) );
             if(isFree==7){
                 Fax.INSTANCE.SsmHangup( Integer.parseInt( ch ) );
                 isFree=Fax.INSTANCE.SsmGetChState( Integer.parseInt( ch ) );
-                System.out.println(isFree+"isFree");
             }
             if(isFree==0){
                 message=getMessage( receiveNumber, Integer.parseInt( ch ), tifPath, base64, Integer.parseInt( isBack ), filename, sendNumber, courtName,id );
@@ -172,15 +173,25 @@ public class SendFaxServiceImpl implements SendFaxService {
         }
         return message;
     }
-    public String getMessage(String receiveNumber,int ch,String tifPath,String base64,int isBack,String filename,String sendNumber,String courtName,String id){
+    public String getMessage(String receiveNumber,int ch,String tifPath,String base64,int isBack,String filename,String sendNumber,String courtName,String id) throws Exception {
         String message="";
         //进行发送
         String Msg=sendFreeCh(receiveNumber,ch);
         if(Msg.equals( "通话中" )){
             message=faxSendStart(ch,tifPath,base64,isBack);
             if(isBack==2){
+                //只有回执页
                 insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
-                inboxMapper.updateIsReceiptById(Integer.valueOf( id ));
+                if(id.length()>0){
+                    inboxMapper.updateIsReceiptById(Integer.valueOf( id ));
+                }
+                //扫描一次条形码,有条形码的话,就找到相应条形码的收件箱数据,更改已回执
+                String[] datas = BarcodeScanner.scan( tifPath, BarCodeType.Code_128);
+                String str=datas[0];
+                System.out.println("barCode:"+str);
+                if(!str.contains( "N" )){
+                    inboxMapper.updateIsReceiptByBarCode( str );
+                }
             }else{
                 insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
             }
@@ -197,25 +208,34 @@ public class SendFaxServiceImpl implements SendFaxService {
     //对接收方的号码进行更改
     public String getReceiveNumber(int ch,String sendNumber,String receiveNumber){
         Device_Setting deviceSetting=null;
+        //查看有没有前缀
         if(sendNumber.length()>0){
             deviceSetting=deviceDao.selectPrefix(sendNumber);
         }else{
             deviceSetting=deviceDao.selectPrefixByCh(ch);
         }
-        int prefixLength=deviceSetting.getPrefix().length();
+        int prefixLength=deviceSetting.getPrefix().length();//前缀长度
         if(prefixLength!=0){
-            String code=deviceSetting.getAreaCode();
-            int codeLength=code.length();
-            String codeR=receiveNumber.substring(0,codeLength);
-            if(codeR.equals(code)){
-                receiveNumber=deviceSetting.getPrefix()+receiveNumber.substring( codeLength, receiveNumber.length());
+            if(receiveNumber.length()==11){
+                String code=deviceSetting.getAreaCode();//区号
+                int codeLength=code.length();
+                String codeR=receiveNumber.substring(0,codeLength);
+                if(codeR.equals(code)){
+                    //区号相同
+                    receiveNumber=deviceSetting.getPrefix()+receiveNumber.substring( codeLength, receiveNumber.length());
+                }
+            }else{
+                receiveNumber=deviceSetting.getPrefix()+receiveNumber;
             }
         }else{
-            String code=deviceSetting.getAreaCode();
-            int codeLength=code.length();
-            String codeR=receiveNumber.substring(0,codeLength);
-            if(codeR.equals(code)){
-                receiveNumber=receiveNumber.substring( codeLength, receiveNumber.length());
+            //没有前缀
+            if(receiveNumber.length()==11) {
+                String code = deviceSetting.getAreaCode();
+                int codeLength = code.length();
+                String codeR = receiveNumber.substring( 0, codeLength );
+                if (codeR.equals( code )) {
+                    receiveNumber = receiveNumber.substring( codeLength, receiveNumber.length() );
+                }
             }
         }
         return receiveNumber;
@@ -254,6 +274,7 @@ public class SendFaxServiceImpl implements SendFaxService {
             //挂起状态
             int pend=Fax.INSTANCE.SsmGetPendingReason(ch);
             Msg=getStateMsgBy7(pend);
+            //Fax.INSTANCE.SsmHangup( ch );
         }else{
             try {
                 Thread.sleep( 1000 );
@@ -292,10 +313,9 @@ public class SendFaxServiceImpl implements SendFaxService {
                     sendFlag=Fax.INSTANCE.SsmFaxStartSend(j,tifPath);
                 }else{
                     //回执页
-                    int baseLength=base64.length();
-                    System.out.println(base64);
+                    int baseLength=tifPath.length();
                     if(baseLength>0){
-                        sendFlag=Fax.INSTANCE.SsmFaxStartSend(j,base64);
+                        sendFlag=Fax.INSTANCE.SsmFaxStartSend(j,tifPath);
                     }else{
                         errMsg="获取回执文件失败";
                     }
@@ -394,7 +414,7 @@ public class SendFaxServiceImpl implements SendFaxService {
     @Override
     public List<ChMsg> rateOfAdvance(String ch) throws Exception {
         List<ChMsg> list=new ArrayList<>(  );
-        if(ch.length()>0){
+        if(ch != null || ch != ""){
             int chCode= Integer.parseInt( ch );
             int i=8;
             if(chCode==0){
@@ -429,9 +449,10 @@ public class SendFaxServiceImpl implements SendFaxService {
             if(state==7){
                 int code=Fax.INSTANCE.SsmGetPendingReason(ch);
                 chMsg.setMessage(getStateMsgBy7(code));
+                Fax.INSTANCE.SsmHangup(ch);
             }else if(state==3){
                 String callerId=Fax.INSTANCE.SsmGetCallerIdA( ch );
-                if(callerId.length()>0){
+                if(callerId !=null || callerId != ""){
                     chMsg.setSendNumber(callerId);
                 }
                 int faxCh=Fax.INSTANCE.SsmGetChState(i);
@@ -465,4 +486,109 @@ public class SendFaxServiceImpl implements SendFaxService {
         List<Device_Setting> deviceSettings=deviceDao.selectDevice();
         return deviceSettings;
     }
+
+    @Override
+    public boolean insertSchTask(String tifPath, String receiptPath, List<TempModel> tempList, String sendNumber, String isBack, String filename, String id, String ch, String sendTime) throws ParseException, InterruptedException, IOException {
+        boolean flag=false;
+        int count=0;
+        for(int i=0;i<tempList.size();i++){
+            String tifPath2="";
+            String receiptNew="";
+            if(tifPath != null || tifPath != ""){
+                tifPath2=fileTemp()+".tif";
+                File tifFile=new File(tifPath);
+                File tifNewPath = new File(tifPath2);
+                tifFile.renameTo(tifNewPath);
+            }
+            Thread.sleep( 3 );
+            if(receiptPath != null || receiptPath != ""){
+                receiptNew=fileTemp()+".tif";
+                File tifFile2=new File(receiptPath);
+                File tifNewPath = new File(receiptNew);
+                tifFile2.renameTo(tifNewPath);
+            }
+            Sch_Task schTask=new Sch_Task();
+            schTask.setCh( ch );
+            schTask.setCourtName( tempList.get( i ).getCourtName() );
+            Date date=new Date(  );
+            schTask.setCreateTime( date );
+            schTask.setFilename( filename );
+            schTask.setIsBack( isBack );
+            schTask.setOutboxId( id );
+            schTask.setReceiptPath( receiptNew );
+            schTask.setReceiveNumber( tempList.get( i ).getReceiveNumber() );
+            schTask.setTifPath( tifPath2 );
+            schTask.setSendNumber( sendNumber );
+            DateFormat format= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date sendDate=format.parse( sendTime );
+            schTask.setSendTime( sendDate );
+            schMapper.insertSchTask(schTask);
+            count++;
+        }
+        if(count==tempList.size()){
+            flag=true;
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteSchTask(String id) {
+        boolean flag=false;
+        if(id!=null || id != null){
+            schMapper.deleteSchTask(Integer.valueOf( id ));
+            flag=true;
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean updateTaskDate(String id, String date) throws ParseException {
+        boolean flag=false;
+        if(id!=null || id != ""){
+            if(date !=null || date !=""){
+                DateFormat format= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date sendDate=format.parse( date );
+                schMapper.updateTaskDate(Integer.valueOf( id ),sendDate);
+                flag=true;
+            }
+        }
+        return flag;
+    }
+
+    @Override
+    public Map<String,Object> selectTaskLimit(Integer pageNow, Integer pageSize) {
+        Map<String,Object> map=new HashMap<>(  );
+        int page=pageNow-1;
+        List<Sch_Task> list=schMapper.selectTaskLimit(page,pageSize);
+        Long total=schMapper.selectCount();
+        map.put( "list",list);
+        map.put( "total",total );
+        return map;
+    }
+
+    @Override
+    public String getBackFilePath(Integer id) throws Exception {
+        //根据id查询收件箱的文件路径,
+        String tifPath=inboxMapper.selectTifPath( id );
+        List<String> pathList=readerTiff(tifPath);
+        List<String> newList=new ArrayList<>(  );
+        newList.add( pathList.get( pathList.size()-1 ) );
+        String pdfPath=fileTemp()+".pdf";
+        //获取最后一页,然后转换成PDF,再转换成tif
+        imgToPdf(newList,pdfPath);
+        //最后转换PDF为tif
+        String filePath=fileTemp()+".tif";
+        File file=new File( pdfPath );
+        boolean flag=false;
+        if(file.exists()){
+            OutputStream os=new FileOutputStream(filePath);
+            flag=pdfToTiffSendBack(file,os);
+        }
+        if(!flag){
+            filePath="";
+        }
+        return filePath;
+    }
+
+
 }

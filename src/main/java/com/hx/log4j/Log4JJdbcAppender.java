@@ -3,8 +3,6 @@ package com.hx.log4j;
 import org.apache.log4j.jdbc.JDBCAppender;
 import org.apache.log4j.spi.LoggingEvent;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * @author 范聪敏

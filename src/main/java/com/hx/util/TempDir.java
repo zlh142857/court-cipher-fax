@@ -43,4 +43,13 @@ public class TempDir {
         String tifFilePath=TiffDir+"/"+GetTimeToFileName.GetTimeToFileName()+".tif";
         return tifFilePath;
     }
+    //返回要保存的接收的传真的路径
+    public static String schTask(){
+        File fileDir=new File( SCHTASK );
+        if (!fileDir.exists()) {
+            fileDir.mkdir();
+        }
+        String tifFilePath=SCHTASK+"/"+GetTimeToFileName.GetTimeToFileName()+".tif";
+        return tifFilePath;
+    }
 }

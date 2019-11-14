@@ -7,10 +7,6 @@ package com.hx.change;/*
 
 import com.hx.util.GetTimeToFileName;
 import com.hx.util.TempDir;
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.text.pdf.RandomAccessFileOrArray;
-import com.itextpdf.text.pdf.codec.TiffImage;
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.ComThread;
 import com.jacob.com.Dispatch;
@@ -25,7 +21,6 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
 import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage;
 import java.awt.image.BufferedImage;
@@ -82,6 +77,7 @@ public class ChangeFile {
     /** 打印精度设置 */
     public static final float DPI = 209f; //图片的像素
     public static final float DPI2 = 210.9f;
+    public static final float DPI3 = 209.1f;
     public static boolean pdfToTiff(MultipartFile file,OutputStream os) throws IOException {
         boolean back=false;
         InputStream is=file.getInputStream();
@@ -218,6 +214,59 @@ public class ChangeFile {
             param.setExtraFields(extras);
             param.setExtraImages(piList.iterator());// 设置图片的迭代器
             BufferedImage fimg = renderer.renderImageWithDPI(0, DPI2,ImageType.BINARY);
+            PlanarImage fpi = JAI.create("mosaic",fimg); // 通过JAI的create()方法实例化jai的图片对象
+            ImageEncoder enc = ImageCodec.createImageEncoder(IMG_FORMAT, os,
+                    param);
+            enc.encode(fpi);// 指定第一个进行编码的jai图片对象,并将输出写入到与此
+            back=true;
+        } catch (IOException e) {
+            throw new IOException( e );
+        } finally {
+            try {
+                if (doc != null)
+                    doc.close();
+                if (os != null){
+                    os.close();
+                }
+                if (is != null){
+                    is.close();
+                }
+            } catch (IOException e) {
+                throw new IOException( e );
+            }
+        }
+        return back;
+    }
+    public static boolean pdfToTiffSendBack(File file,OutputStream os) throws IOException {
+        boolean back=false;
+        InputStream is=new FileInputStream( file );
+        PDDocument doc = null;
+        try {
+            doc = PDDocument.load(is);
+            int pageCount = doc.getNumberOfPages();
+            PDFRenderer renderer = new PDFRenderer(doc); // 根据PDDocument对象创建pdf渲染器
+            List<PlanarImage> piList = new ArrayList<PlanarImage>();
+            for (int i = 0+1; i < pageCount; i++) {
+                BufferedImage image = renderer.renderImageWithDPI(i, DPI3,
+                        ImageType.BINARY);
+                PlanarImage pimg = JAI.create("mosaic", image);
+                piList.add(pimg);
+            }
+            TIFFEncodeParam param = new TIFFEncodeParam();// 创建tiff编码参数类
+            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_2D);// 压缩参数
+            param.setT4PadEOLs( false );
+            param.setReverseFillOrder( false );
+            param.setT4Encode2D( false );
+            param.setWriteTiled( false );
+            param.setLittleEndian( false );
+            TIFFField[] extras = new TIFFField[2];
+            extras[0] = new TIFFField(TIFFImageDecoder.TIFF_X_RESOLUTION,
+                    TIFFField.TIFF_RATIONAL, 1, (Object) new long[][] {{ (long) 408, 2 } });
+            extras[1] = new TIFFField(TIFFImageDecoder.TIFF_Y_RESOLUTION,
+                    TIFFField.TIFF_RATIONAL, 1, (Object) new long[][] {{ (long) 392, 2 } });
+            param.setExtraFields(extras);
+            param.setExtraImages(piList.iterator());// 设置图片的迭代器
+            BufferedImage fimg = renderer.renderImageWithDPI(0, DPI3,ImageType.BINARY);
             PlanarImage fpi = JAI.create("mosaic",fimg); // 通过JAI的create()方法实例化jai的图片对象
             ImageEncoder enc = ImageCodec.createImageEncoder(IMG_FORMAT, os,
                     param);
