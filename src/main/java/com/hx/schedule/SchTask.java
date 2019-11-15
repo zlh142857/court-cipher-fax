@@ -15,11 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
-
-//每分钟查询一次定时任务,如果定时任务指定时间和当前系统时间相隔不到一分钟,就进行发送
+//每分钟查询一次公共list集合,有值就获取list值进行发送,然后把公共的list置为空,公共list每分钟都从数据库查一次马上要发送的值,有几条就count==几,
+//然后获取把公共的list集合赋值给新的私有list集合,然后新list集合进行发送
 public class SchTask implements Runnable{
     private static SchMapper schMapper;
     private static SchTask schTask;
+    public static List<Sch_Task> schTasks=new ArrayList<>(  );
+    public static int schCount=0;
     @PostConstruct
     public void init() {
         schTask=this;
@@ -33,21 +35,19 @@ public class SchTask implements Runnable{
     public void run(){
         try{
             //业务逻辑:先查询定时任务表
-            List<Sch_Task> schTasks=schTask.schMapper.selectTask();
+            List<Sch_Task> schTaskList=schTask.schMapper.selectTask();
             //一分钟之内的任务添加到list集合,然后依次发送
-            List<Sch_Task> list=new ArrayList<>(  );
-            for(int i=0;i<schTasks.size();i++){
-                long time=schTasks.get(i).getSendTime().getTime();
+            for(int i=0;i<schTaskList.size();i++){
+                long time=schTaskList.get(i).getSendTime().getTime();
                 long  nowTime = System.currentTimeMillis();
                 long interval=time-nowTime;
                 //如果时间差距在1分钟之内,就进行发送
                 if(interval<=60000 && interval>=0){
-                    list.add( schTasks.get( i ) );
+                    schTasks.add( schTaskList.get( i ) );
                 }
             }
-            if(list.size()>0){
-                System.out.println(list.toString());
-                SendSchTask.sendSchTask(list);
+            if(schTasks.size()>0){
+                schCount=1;
             }
         }catch (Exception e){
             logger.error( e.toString() );

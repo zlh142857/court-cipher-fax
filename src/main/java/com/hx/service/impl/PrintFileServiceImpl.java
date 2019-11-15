@@ -29,6 +29,7 @@ import static com.hx.change.ChangeFile.pdfToTiffByWordScan;
 import static com.hx.change.ImgToPdf.imgToPdf;
 import static com.hx.util.ColorReverse.writeJpg;
 import static com.hx.util.TempDir.fileTemp;
+import static com.hx.util.TempDir.schTask;
 import static com.hx.util.TiffToJPEG.readerTiff;
 
 
@@ -59,7 +60,7 @@ public class PrintFileServiceImpl implements PrintFileService {
     //扫描功能,返回文件保存路径
     @Override
     public String printScan() throws Exception{
-        String tifPath=fileTemp()+".tif";
+        String tifPath=schTask()+".tif";
         String pdfPath=fileTemp()+".pdf";
         List<String> list=null;
         boolean flag=false;

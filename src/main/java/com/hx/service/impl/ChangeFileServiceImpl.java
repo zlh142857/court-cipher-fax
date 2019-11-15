@@ -16,6 +16,7 @@ import java.io.*;
 import static com.hx.change.ChangeFile.pdfToTiff;
 import static com.hx.change.ChangeFile.pdfToTiffByWord;
 import static com.hx.change.ChangeFile.wordToPDF;
+import static com.hx.common.StaticFinal.SCHTASK;
 import static com.hx.common.StaticFinal.TEMPDIR;
 
 @Service("changeFileService")
@@ -36,7 +37,7 @@ public class ChangeFileServiceImpl implements ChangeFileService {
                 int last = fileName.length();
                 String suffix = fileName.substring(begin, last);
                 boolean back=false;
-                String tifPath=TEMPDIR+"/"+GetTimeToFileName.GetTimeToFileName()+".tif";
+                String tifPath=SCHTASK+"/"+GetTimeToFileName.GetTimeToFileName()+".tif";
                 if(suffix.equals( ".doc" )||suffix.equals( ".docx" )){
                     back=mkdirDir(file,fileType,tifPath);
                 }else if(suffix.equals( ".pdf" )){
@@ -65,7 +66,7 @@ public class ChangeFileServiceImpl implements ChangeFileService {
         try {
             inputStream=file.getInputStream();
             //先判断目录名是否存在
-            File fileDir=new File( TEMPDIR );
+            File fileDir=new File( SCHTASK );
             if (!fileDir.exists()) {
                 fileDir.mkdir();
             }

@@ -94,7 +94,7 @@ public class ChangeFile {
                 piList.add(pimg);
             }
             TIFFEncodeParam param = new TIFFEncodeParam();// 创建tiff编码参数类
-            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_2D);// 压缩参数
+            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_1D);// 压缩参数
             param.setT4PadEOLs( false );
             param.setReverseFillOrder( false );
             param.setT4Encode2D( false );
@@ -147,7 +147,7 @@ public class ChangeFile {
                 piList.add(pimg);
             }
             TIFFEncodeParam param = new TIFFEncodeParam();// 创建tiff编码参数类
-            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_2D);// 压缩参数
+            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_1D);// 压缩参数
             param.setT4PadEOLs( false );
             param.setReverseFillOrder( false );
             param.setT4Encode2D( false );
@@ -200,7 +200,7 @@ public class ChangeFile {
                 piList.add(pimg);
             }
             TIFFEncodeParam param = new TIFFEncodeParam();// 创建tiff编码参数类
-            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_2D);// 压缩参数
+            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_1D);// 压缩参数
             param.setT4PadEOLs( false );
             param.setReverseFillOrder( false );
             param.setT4Encode2D( false );
@@ -253,7 +253,7 @@ public class ChangeFile {
                 piList.add(pimg);
             }
             TIFFEncodeParam param = new TIFFEncodeParam();// 创建tiff编码参数类
-            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_2D);// 压缩参数
+            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_1D);// 压缩参数
             param.setT4PadEOLs( false );
             param.setReverseFillOrder( false );
             param.setT4Encode2D( false );

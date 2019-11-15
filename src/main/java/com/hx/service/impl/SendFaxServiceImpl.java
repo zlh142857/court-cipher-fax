@@ -38,6 +38,7 @@ import static com.hx.common.ChStateCode.getStateMsgBy7;
 import static com.hx.common.ChStateCode.getStateMsgByFaxCh;
 import static com.hx.common.ChStateCode.getStateMsgByNot7;
 import static com.hx.common.Speed.getSpeed;
+import static com.hx.controller.WebSocket.*;
 import static com.hx.util.TempDir.fileTemp;
 import static com.hx.util.TempDir.schTask;
 import static com.hx.util.TiffToJPEG.readerTiff;
@@ -74,7 +75,7 @@ public class SendFaxServiceImpl implements SendFaxService {
         String tifPath="";
         OutputStream os=null;
         try {
-            tifPath=fileTemp()+".tif";
+            tifPath=schTask()+".tif";
             String pdfPath=baseToPdf(base64);
             File file=new File( pdfPath );
             os=new FileOutputStream( new File( tifPath ) );
@@ -188,8 +189,9 @@ public class SendFaxServiceImpl implements SendFaxService {
                 //扫描一次条形码,有条形码的话,就找到相应条形码的收件箱数据,更改已回执
                 String[] datas = BarcodeScanner.scan( tifPath, BarCodeType.Code_128);
                 String str=datas[0];
-                System.out.println("barCode:"+str);
-                if(!str.contains( "N" )){
+                if(null==str){
+
+                }else{
                     inboxMapper.updateIsReceiptByBarCode( str );
                 }
             }else{
@@ -274,7 +276,6 @@ public class SendFaxServiceImpl implements SendFaxService {
             //挂起状态
             int pend=Fax.INSTANCE.SsmGetPendingReason(ch);
             Msg=getStateMsgBy7(pend);
-            //Fax.INSTANCE.SsmHangup( ch );
         }else{
             try {
                 Thread.sleep( 1000 );
@@ -307,14 +308,13 @@ public class SendFaxServiceImpl implements SendFaxService {
                 if(isBack==0){
                     //两份文件
                     String szFile=getfileList(tifPath,base64);
-                    sendFlag=Fax.INSTANCE.SsmFaxSendMultiFile(j,"D:\\\\tempDir\\\\",szFile);
+                    sendFlag=Fax.INSTANCE.SsmFaxSendMultiFile(j,"D:\\\\schTask\\\\",szFile);
                 }else if(isBack==1){
                     //仅正文
                     sendFlag=Fax.INSTANCE.SsmFaxStartSend(j,tifPath);
                 }else{
                     //回执页
-                    int baseLength=tifPath.length();
-                    if(baseLength>0){
+                    if(null != tifPath){
                         sendFlag=Fax.INSTANCE.SsmFaxStartSend(j,tifPath);
                     }else{
                         errMsg="获取回执文件失败";
@@ -323,14 +323,14 @@ public class SendFaxServiceImpl implements SendFaxService {
                 if(sendFlag==0){
                     //等待通道为空闲状态
                     sendEndFor0(j);
+                    //空闲后挂起
+                    stopAndHungUp(ch,j);
                     logger.info("发送成功");
                 }else{
                     String e=Fax.INSTANCE.SsmGetLastErrMsgA();
                     logger.error( "发送失败:"+e );
                     errMsg="发送失败";
                 }
-                //空闲后挂起
-                stopAndHungUp(ch,j);
             }else{
                 String e=Fax.INSTANCE.SsmGetLastErrMsgA();
                 logger.error( "建立连接失败:"+e );
@@ -386,6 +386,11 @@ public class SendFaxServiceImpl implements SendFaxService {
         outbox.setCreate_time(date);
         outbox.setReceivingunit( courtName );
         outboxMapper.insertNewMessage(outbox);
+        WebModel webModel=new WebModel();
+        webModel.setTime( date );
+        webModel.setMsg( "[发件箱]收到一个新消息" );
+        outboxModels.add( webModel );
+        outboxCount=1;
     }
     public void insertDataReceipt(String message,String receiveNumber,String filename,String sendNumber,String courtName){
         Send_Receipt sendReceipt=new Send_Receipt();
@@ -401,6 +406,11 @@ public class SendFaxServiceImpl implements SendFaxService {
         sendReceipt.setCreate_time(date);
         sendReceipt.setReceivingunit( courtName );
         SendReceiptMapper.insertNewMessage(sendReceipt);
+        WebModel webModel=new WebModel();
+        webModel.setTime( date );
+        webModel.setMsg( "[发回执箱]收到一个新消息" );
+        sendModels.add( webModel );
+        sendCount=1;
     }
     public static String getfileList(String tifPath,String base64){
         String [] main=tifPath.split("/");
@@ -439,6 +449,7 @@ public class SendFaxServiceImpl implements SendFaxService {
         //查询每一条通道的状态
         //查询0编号通道,查询通道状态,
         int state=Fax.INSTANCE.SsmGetChState(ch);
+        int stateFax=Fax.INSTANCE.SsmGetChState(i);
         String selfNumber=deviceDao.selectNumberByCh(ch);
         chMsg.setSelfNumber(selfNumber);
         chMsg.setCh( ch );
@@ -450,6 +461,9 @@ public class SendFaxServiceImpl implements SendFaxService {
                 int code=Fax.INSTANCE.SsmGetPendingReason(ch);
                 chMsg.setMessage(getStateMsgBy7(code));
                 Fax.INSTANCE.SsmHangup(ch);
+                if(stateFax!=0){
+                    Fax.INSTANCE.SsmFaxStop( i );
+                }
             }else if(state==3){
                 String callerId=Fax.INSTANCE.SsmGetCallerIdA( ch );
                 if(callerId !=null || callerId != ""){
@@ -495,14 +509,14 @@ public class SendFaxServiceImpl implements SendFaxService {
             String tifPath2="";
             String receiptNew="";
             if(tifPath != null || tifPath != ""){
-                tifPath2=fileTemp()+".tif";
+                tifPath2=schTask()+".tif";
                 File tifFile=new File(tifPath);
                 File tifNewPath = new File(tifPath2);
                 tifFile.renameTo(tifNewPath);
             }
             Thread.sleep( 3 );
             if(receiptPath != null || receiptPath != ""){
-                receiptNew=fileTemp()+".tif";
+                receiptNew=schTask()+".tif";
                 File tifFile2=new File(receiptPath);
                 File tifNewPath = new File(receiptNew);
                 tifFile2.renameTo(tifNewPath);
@@ -577,7 +591,7 @@ public class SendFaxServiceImpl implements SendFaxService {
         //获取最后一页,然后转换成PDF,再转换成tif
         imgToPdf(newList,pdfPath);
         //最后转换PDF为tif
-        String filePath=fileTemp()+".tif";
+        String filePath=schTask()+".tif";
         File file=new File( pdfPath );
         boolean flag=false;
         if(file.exists()){

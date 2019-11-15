@@ -9,6 +9,7 @@ import com.hx.dao.*;
 import com.hx.modle.Inbox;
 import com.hx.modle.Program_Setting;
 import com.hx.modle.Return_Receipt;
+import com.hx.modle.WebModel;
 import com.hx.util.PrintImage;
 import com.spire.barcode.BarCodeType;
 import com.spire.barcode.BarcodeScanner;
@@ -25,8 +26,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import static com.hx.controller.WebSocket.*;
 import static com.hx.util.ColorReverse.writeJpg;
-import static com.hx.util.ColorReverse.writeJpgOneDecide;
+import static com.hx.util.ColorReverse.writeJpgOne;
 import static com.hx.util.TempDir.tifDir;
 import static com.hx.util.TiffToJPEG.readerTiff;
 
@@ -80,40 +82,24 @@ public class Decide {
                             //只有回执页
                             insertMsgReceipt(ch,map.get( "callerId" ), tifPath);
                         }else{
-                            //只有正文,设置是否回执状态为3:没有回执文件
+                            //只有正文,设置是否回执状态为2:没有回执文件
                             insertMsg(ch,map.get( "callerId" ), tifPath,barCode);
                         }
                     }else{
                         insertMsg(ch,map.get( "callerId" ), tifPath,barCode);
                     }
-                    if(barCode.length()>0){
-                        //查询打印服务名称
-                        /*Program_Setting programSetting=decide.programSettingDao.selectProgramSetting();
-                        String printService=programSetting.getPrintService();
-                        if(programSetting.getIsPrint()==0){
-                            try {
-                                //进行颜色反转
-                                List<File> newList=writeJpgByBar(pathList);
-                                PrintImage.printImageWhenReceive(newList,printService);
-                            } catch (Exception e) {
-                                logger.error( e.toString() );
-                            }
-
-                        }*/
-                    }else{
-                        //查询打印服务名称
-                        Program_Setting programSetting=decide.programSettingDao.selectProgramSetting();
-                        String printService=programSetting.getPrintService();
-                        if(programSetting.getIsPrint()==0){
-                            try {
-                                //进行颜色反转
-                                List<File> newList=writeJpg(pathList);
-                                PrintImage.printImageWhenReceive(newList,printService);
-                            } catch (Exception e) {
-                                logger.error( e.toString() );
-                            }
-
+                    //查询打印服务名称
+                    Program_Setting programSetting=decide.programSettingDao.selectProgramSetting();
+                    String printService=programSetting.getPrintService();
+                    if(programSetting.getIsPrint()==0){
+                        try {
+                            //进行颜色反转
+                            List<File> newList=writeJpg(pathList);
+                            PrintImage.printImageWhenReceive(newList,printService);
+                        } catch (Exception e) {
+                            logger.error( e.toString() );
                         }
+
                     }
                 }
 
@@ -161,6 +147,7 @@ public class Decide {
                                 map.put( "tifPath",tifPath );
                                 map.put( "callerId",callerId );
                                 logger.info("接收成功");
+                                stopAndHungUp(ch,i);
                             }
                         }else{
                             message="接收失败";
@@ -177,7 +164,6 @@ public class Decide {
             }
         }
         map.put( "message",message );
-        stopAndHungUp(ch,i);
         return map;
     }
     public static int getCodeFlag(int i,int ch){
@@ -246,11 +232,17 @@ public class Decide {
         Date date=new Date();
         inbox.setCreate_time( date );
         inbox.setFilsavepath(tifPath);
-        if(barCode!=""||barCode!=null){
+        if(barCode.length()>0){
             inbox.setBarCode( barCode );
+        }else{
             inbox.setIsreceipt( 2 );
         }
         decide.inboxMapper.insertInbox( inbox );
+        WebModel webModel=new WebModel();
+        webModel.setTime( date );
+        webModel.setMsg( "[收件箱]收到一个新消息" );
+        inboxModels.add( webModel );
+        inboxCount=1;
     }
     public static void insertMsgReceipt(int ch, String callerId, String tifPathBack){
         //根据callerId查询通讯簿有没有相同号码的法院名称
@@ -268,13 +260,18 @@ public class Decide {
         returnReceipt.setCreate_time( date );
         returnReceipt.setFilsavepath(tifPathBack);
         decide.returnReceiptMapper.insertReceipt( returnReceipt );
+        WebModel webModel=new WebModel();
+        webModel.setTime( date );
+        webModel.setMsg( "[收回执箱]收到一个新消息" );
+        webModels.add( webModel );
+        webModelCount=1;
     }
     public static String scanJpg(String tifPath) throws Exception {
         //进行颜色反转,再扫描,有条形码就是回执
-        String filePath=writeJpgOneDecide(tifPath);
+        String filePath=writeJpgOne(tifPath);
         String[] datas = BarcodeScanner.scan( filePath, BarCodeType.Code_128);
         String str=datas[0];
-        if(str.contains( "N" )){
+        if(null==str){
             return "";
         } else{
             return str;

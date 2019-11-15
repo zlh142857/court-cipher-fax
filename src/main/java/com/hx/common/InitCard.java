@@ -15,6 +15,7 @@ import javax.servlet.ServletContextListener;
 import java.io.File;
 
 import static com.hx.common.StaticFinal.TEMPDIR;
+import static com.hx.schedule.ScheduleTask.executorService;
 
 //项目启动自动初始化板卡一次
 //在初始化板卡成功后,调用定时器任务,开始监听接收传真
@@ -41,6 +42,8 @@ public class InitCard implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
+        Fax.INSTANCE.SsmCloseCti();
+        executorService.shutdownNow();
         File directory=new File( TEMPDIR );
         if (directory.isDirectory()) {
             File[] files = directory.listFiles();
@@ -53,6 +56,5 @@ public class InitCard implements ServletContextListener {
             }
             directory.delete();
         }
-        Fax.INSTANCE.SsmCloseCti();
     }
 }

@@ -10,7 +10,7 @@
             t.senderunit,
             t.receivingunit,
             t.receivenumber,
-            t.sendernumber,
+            t.sendnumber,
             t.sendline,
             t.filsavepath,
             t.receiptpath,
@@ -29,8 +29,8 @@
         <if test="params.receivenumber != null and params.receivenumber != ''">
             AND t.receivenumber LIKE CONCAT('%', #{params.receivenumber}, '%')
         </if>
-        <if test="params.sendernumber != null and params.sendernumber != ''">
-            AND t.sendernumber LIKE CONCAT('%', #{params.sendernumber}, '%')
+        <if test="params.sendnumber != null and params.sendnumber != ''">
+            AND t.sendnumber LIKE CONCAT('%', #{params.sendnumber}, '%')
         </if>
         <if test="params.sendline != null and params.sendline != ''">
             AND t.sendline LIKE CONCAT('%', #{params.sendline}, '%')
@@ -66,8 +66,8 @@
         <if test="params.receivenumber != null and params.receivenumber != ''">
             AND t.receivenumber LIKE CONCAT('%', #{params.receivenumber}, '%')
         </if>
-        <if test="params.sendernumber != null and params.sendernumber != ''">
-            AND t.sendernumber LIKE CONCAT('%',#{params.sendernumber},'%')
+        <if test="params.sendnumber != null and params.sendnumber != ''">
+            AND t.sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
         </if>
         <if test="params.sendline != null and params.sendline != ''">
             AND t.sendline LIKE CONCAT('%', #{params.sendline}, '%')
@@ -96,7 +96,7 @@
             t.senderunit,
             t.receivingunit,
             t.receivenumber,
-            t.sendernumber,
+            t.sendnumber,
             t.sendline,
             t.filsavepath,
             t.receiptpath,
@@ -119,9 +119,9 @@
     </delete>
 
     <insert id="insert" parameterType="com.hx.modle.RecycleBin">
-        INSERT INTO recycle_bin(recoverytime,sendernumber, senderunit,receivingunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt,
+        INSERT INTO recycle_bin(recoverytime,sendnumber, senderunit,receivingunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt,
          relate_type, sendline, message) VALUES (
-          #{ recycleBin.recoverytime},#{ recycleBin.sendernumber}, #{recycleBin.senderunit}, #{recycleBin.receivingunit}, #{recycleBin.receivenumber}, #{recycleBin.filsavepath},
+          #{ recycleBin.recoverytime},#{ recycleBin.sendnumber}, #{recycleBin.senderunit}, #{recycleBin.receivingunit}, #{recycleBin.receivenumber}, #{recycleBin.filsavepath},
           #{recycleBin.create_time},#{recycleBin.receiptpath},#{recycleBin.Isreceipt},#{recycleBin.relate_type},#{recycleBin.sendline},#{recycleBin.message}
         )
     </insert>

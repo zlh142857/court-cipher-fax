@@ -4,6 +4,7 @@ import com.hx.modle.Inbox;
 import com.hx.util.Query;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -41,4 +42,5 @@ public interface InboxMapper {
     String selectTifPath(Integer id);
 
     void updateIsReceiptByBarCode(String barCode);
+
 }

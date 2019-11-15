@@ -7,7 +7,7 @@
         <result property="receivenumber" column="receivenumber"/>
         <result property="create_time" column="create_time"/>
         <result property="senderunit" column="senderunit"/>
-        <result property="isreceipt" column="isreceipt"/>
+        <result property="isreceipt" column="Isreceipt"/>
         <result property="sendernumber" column="sendernumber"/>
         <result property="filsavepath" column="filsavepath"/>
         <result property="isLink" column="isLink"/>
@@ -130,6 +130,12 @@
             <if test="senderunit != null and senderunit != ''">
                 senderunit,
             </if>
+            <if test="barCode != null and barCode != ''">
+                barCode,
+            </if>
+            <if test="isreceipt != null and isreceipt != ''">
+                Isreceipt,
+            </if>
         </trim>
         <trim prefix=" values (" suffix=")" suffixOverrides=",">
             <if test="sendernumber != null and sendernumber != ''">
@@ -149,6 +155,12 @@
             </if>
             <if test="senderunit != null and senderunit != ''">
                 #{senderunit,jdbcType=VARCHAR},
+            </if>
+            <if test="barCode != null and barCode != ''">
+                #{barCode,jdbcType=VARCHAR},
+            </if>
+            <if test="isreceipt != null and isreceipt != ''">
+                #{isreceipt,jdbcType=VARCHAR},
             </if>
         </trim>
     </insert>

@@ -6,10 +6,7 @@ package com.hx.controller;/*
  */
 
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hx.modle.Program_Setting;
-import com.hx.modle.TempModel;
 import com.hx.service.PrintFileService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import uk.co.mmscomputing.device.scanner.ScannerIOException;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -57,7 +52,6 @@ public class PrintFileController{
     @RequestMapping("printTifs")
     @ResponseBody
     public String print(String tifPath){
-        System.out.println(tifPath+":tifPath");
         String str="";
         try{
             str=printFileService.printFile(tifPath);
