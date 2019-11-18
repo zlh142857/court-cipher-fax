@@ -34,6 +34,7 @@ public class SendSchTask {
             String filename=schTaskList.get( i ).getFilename();
             String outboxId=schTaskList.get( i ).getOutboxId();
             sendSchTask.sendFaxService.sendFax(tifPath,receiptPath,courtName,receiveNumber,sendNumber,isBack,filename,outboxId,ch);
+            sendFaxService.deleteSchTask(schTaskList.get( i ).getId());
             Thread.sleep( 3000 );
         }
     }

@@ -26,7 +26,7 @@ public interface MailService {
 
     int delmaillist(Integer readerId);
 
-    List<Mail_List> queryALLMail(Map<String, Object> searchMap, Integer pageNo, Integer pageSize);
+    List<Mail_List> queryALLMail(Map<String, Object> searchMap);
 
-    int queryTotalCount(Map<String, Object> searchMap);
+   // int queryTotalCount(Map<String, Object> searchMap);
 }

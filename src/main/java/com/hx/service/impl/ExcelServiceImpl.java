@@ -25,7 +25,6 @@ public class ExcelServiceImpl implements ExcelService {
 
 	@Override
 	public String InputExcel(InputStream is, String originalFilename ,String typeid) {
-
 		ArrayList<ArrayList<String>> list;
 //		if (originalFilename.endsWith(".xls")) {
 //			list = Mail_List.readExcel2003(is);
@@ -44,8 +43,6 @@ public class ExcelServiceImpl implements ExcelService {
 			ginsengMap.put("linkname", row.get(1).toString());
 	        ginsengMap.put("linknumber", row.get(0));
 	        ginsengMap.put("typeid",typeid);
-
-
 	        excelMapper.InputExcel(ginsengMap);
 		}
 		return "Import Success";

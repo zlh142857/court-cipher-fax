@@ -1,11 +1,9 @@
 package com.hx.dao;/*
  */
 
-import com.hx.modle.Sch_Task;
 import com.hx.modle.Send_Receipt;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +23,7 @@ public interface SendReceiptMapper {
 
     int queryTotalCount(@Param("params") Map<String, Object> searchMap);
 
-    List<Send_Receipt> queryALLMail(@Param("params") Map<String, Object> searchMap);
+    List<Send_Receipt> queryALLMail(@Param("params") Map<String,Object> searchMap);
 
     List<Send_Receipt> queryALLMailList();
 
@@ -35,9 +33,5 @@ public interface SendReceiptMapper {
 
     int insert(@Param("send_receipt") Send_Receipt send_receipt);
 
-    List<Sch_Task> selectReceiptNoLink(@Param( "page" )int page,@Param( "pageSize" )Integer pageSize);
-
-    Long selectCountNoLink();
-
-    void updateIsLink(@Param( "id" ) int id,@Param( "tifPath" ) String tifPath);
+    void updateIsLinkByBar(@Param( "barCode" )String barCode,@Param( "tifPath" )String tifPath);
 }

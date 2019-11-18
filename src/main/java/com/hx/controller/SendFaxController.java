@@ -154,7 +154,11 @@ public class SendFaxController {
     public boolean deleteSchTask(String id){
         boolean flag=false;
         try {
-            flag=sendFaxService.deleteSchTask(id);
+            if(null !=id || ""!=id){
+                flag=sendFaxService.deleteSchTask(Integer.valueOf( id ));
+            }else{
+                logger.error( "id为空" );
+            }
         } catch (Exception e) {
             logger.error( e );
         }
@@ -176,7 +180,7 @@ public class SendFaxController {
     public String selectTaskLimit(String pageNow,String pageSize){
         Map<String,Object> map=null;
         try {
-            if(pageNow!=null||pageSize!=null){
+            if(null!=pageNow||""!=pageSize){
                 map=sendFaxService.selectTaskLimit(Integer.valueOf( pageNow ),Integer.valueOf( pageSize ));
             }else{
                 logger.error( "分页参数为空" );
@@ -188,29 +192,54 @@ public class SendFaxController {
     }
     /**
      *
-     * 功能描述: 右键发送回执,给前端返回一个回执文件的路径,回执文件从正文中剥离出来
+     * 功能描述: 发送前预览文件,给前端发送PDFbase64
      *
      * 业务逻辑:
      *
      * @param:
      * @return:
      * @auther: 张立恒
-     * @date: 2019/11/13 13:51
+     * @date: 2019/11/15 14:42
      */
-    @RequestMapping("getBackFilePath")
+    @RequestMapping("tifView")
     @ResponseBody
-    public String getBackFilePath(String id){
-        String filePath="";
+    public String tifView(String tifPath){
+        String map="";
         try {
-            if(id!=null||id!=null){
-                filePath=sendFaxService.getBackFilePath(Integer.valueOf( id ));
+            if(null!=tifPath||""!=tifPath){
+                map=sendFaxService.tifView(tifPath);
             }else{
-                logger.error( "id为空" );
+                logger.error( "参数为空" );
             }
         } catch (Exception e) {
             logger.error( e );
         }
-        return JSONObject.toJSONString(filePath);
+        return JSONObject.toJSONString( map);
     }
-
+    /**
+     *
+     * 功能描述:取消发送
+     *
+     * 业务逻辑:
+     * 
+     * @param: 
+     * @return: 
+     * @auther: 张立恒
+     * @date: 2019/11/18 9:50
+     */
+    @RequestMapping("undoSend")
+    @ResponseBody
+    public boolean undoSend(String ch){
+        boolean flag=false;
+        try {
+            if(null!=ch||""!=ch){
+                flag=sendFaxService.undoSend(ch);
+            }else{
+                logger.error( "参数为空" );
+            }
+        } catch (Exception e) {
+            logger.error( e );
+        }
+        return flag;
+    }
 }

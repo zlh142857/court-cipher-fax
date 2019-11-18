@@ -24,14 +24,7 @@ public interface RecycleBinService {
     /**
      * 插入到回收站
      * @param recoverytime 回收时间
-     * @param sendernumber 删除数据所在表
-     * @param senderunit 删除数据的ID
-     * @param receivenumber 删除数据标题
-     * @param filsavepath 删除时间
-     * @param create_time 删除时间
-     * @param receiptpath 删除时间
-     *  @param isreceipt 删除时间
-     * @return 是否成功
+     * @param isLink
      */
     int insertRecycleBin(String relateType,
                          Date recoverytime,
@@ -44,7 +37,10 @@ public interface RecycleBinService {
                          String receiptpath,
                          int isreceipt,
                          String sendline,
-                         String message);
+                         String message,
+                         int isLink,
+                         String barCode,
+                         String tifPath);
 
 
-}
+   }

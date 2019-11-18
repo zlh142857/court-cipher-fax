@@ -7,14 +7,9 @@ package com.hx.controller;/*
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.hx.dao.InboxMapper;
-import com.hx.dao.OutboxMapper;
-import com.hx.dao.ReturnReceiptMapper;
-import com.hx.dao.SendReceiptMapper;
 import com.hx.modle.WebModel;
 import org.apache.log4j.Logger;
 
-import javax.annotation.PostConstruct;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
@@ -51,30 +46,35 @@ public class WebSocket {
     @OnMessage
     public void onMessage(String message, Session session)throws Exception{
         for(;;){
-            if(webModelCount==1){
+            if(1==webModelCount){
                 String msg=JSONObject.toJSONStringWithDateFormat( webModels,"yyyy-MM-dd HH:mm:ss" );
                 sendMessageAll(msg);
                 webModelCount=0;
                 webModels=new ArrayList<>(  );
+                Thread.sleep( 200 );
             }
-            if(inboxCount==1){
+            if(1==inboxCount){
                 String msg=JSONObject.toJSONStringWithDateFormat( inboxModels,"yyyy-MM-dd HH:mm:ss" );
                 sendMessageAll(msg);
                 inboxCount=0;
                 inboxModels=new ArrayList<>(  );
+                Thread.sleep( 200 );
             }
-            if(outboxCount==1){
+            if(1==outboxCount){
                 String msg=JSONObject.toJSONStringWithDateFormat( outboxModels,"yyyy-MM-dd HH:mm:ss" );
                 sendMessageAll(msg);
                 outboxCount=0;
                 outboxModels=new ArrayList<>(  );
+                Thread.sleep( 200 );
             }
-            if(sendCount==1){
+            if(1==sendCount){
                 String msg=JSONObject.toJSONStringWithDateFormat( sendModels,"yyyy-MM-dd HH:mm:ss" );
                 sendMessageAll(msg);
                 sendCount=0;
                 sendModels=new ArrayList<>(  );
+                Thread.sleep( 200 );
             }
+            Thread.sleep( 1000 );
         }
 
     }

@@ -1,10 +1,8 @@
 package com.hx.dao;
 
 import com.hx.modle.Inbox;
-import com.hx.util.Query;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +12,6 @@ import java.util.Map;
  * @desc
  */
 public interface InboxMapper {
-
     List<Inbox> getAll(@Param("ids") String[] ids);
 
     int queryTotalCount(@Param("params") Map<String, Object> searchMap);
@@ -27,10 +24,6 @@ public interface InboxMapper {
 
     Inbox getById(Integer id);
 
-    List<Inbox> queryALLMaillist(Query query);
-
-    int queryinboxCount(Query query);
-
     int insert(@Param("inbox") Inbox inbox);
 
     void insertInbox(Inbox inbox);
@@ -39,8 +32,7 @@ public interface InboxMapper {
 
     void updateIsLink(Integer id);
 
-    String selectTifPath(Integer id);
-
     void updateIsReceiptByBarCode(String barCode);
 
+    Inbox selectBarAndTifPath(Integer id);
 }

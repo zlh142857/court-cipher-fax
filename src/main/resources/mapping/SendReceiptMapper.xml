@@ -11,6 +11,7 @@
     <result property="sendnumber" column="sendnumber"/>
     <result property="isLink" column="isLink"/>
     <result property="tifPath" column="tifPath"/>
+    <result property="barCode" column="barCode"/>
   </resultMap>
   <!--张立恒start-->
   <!--新增发回执箱-->
@@ -35,6 +36,9 @@
       <if test="message != null and message != ''">
         message,
       </if>
+      <if test="barCode != null and barCode != ''">
+        barCode,
+      </if>
     </trim>
     <trim prefix=" values (" suffix=")" suffixOverrides=",">
       <if test="sendnumber != null and sendnumber != ''">
@@ -55,19 +59,14 @@
       <if test="message != null and message != ''">
         #{message,jdbcType=VARCHAR},
       </if>
+      <if test="barCode != null and barCode != ''">
+        #{barCode,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
-  <!--查询未被关联的发回执箱信息-->
-  <select id="selectReceiptNoLink" resultType="com.hx.modle.Send_Receipt">
-    SELECT id,receivingunit,receivenumber,sendline,isLink,create_time FROM send_receipt WHERE isLink=0 AND message!='成功' ORDER BY create_time DESC LIMIT #{page,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER};
-  </select>
-  <!--查询未被关联的发回执箱信息总条数-->
-  <select id="selectCountNoLink" resultType="java.lang.Long">
-    SELECT count(*) FROM send_receipt WHERE isLink=0;
-  </select>
   <!--修改是否已关联,改成已关联:1-->
-  <update id="updateIsLink" parameterType="java.lang.Integer">
-      UPDATE send_receipt SET isLink=1,tifPath=#{tifPath,jdbcType=VARCHAR} WHERE id=#{id,jdbcType=INTEGER}
+  <update id="updateIsLinkByBar">
+      UPDATE send_receipt SET isLink=1,tifPath=#{tifPath,jdbcType=VARCHAR} WHERE barCode=#{barCode,jdbcType=VARCHAR}
   </update>
   <!--张立恒end-->
 

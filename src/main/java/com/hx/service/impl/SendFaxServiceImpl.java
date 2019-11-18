@@ -32,13 +32,13 @@ import java.util.List;
 
 import static com.hx.change.ChangeFile.baseToPdf;
 import static com.hx.change.ChangeFile.pdfToTiffByWord;
-import static com.hx.change.ChangeFile.pdfToTiffSendBack;
 import static com.hx.change.ImgToPdf.imgToPdf;
 import static com.hx.common.ChStateCode.getStateMsgBy7;
 import static com.hx.common.ChStateCode.getStateMsgByFaxCh;
 import static com.hx.common.ChStateCode.getStateMsgByNot7;
 import static com.hx.common.Speed.getSpeed;
 import static com.hx.controller.WebSocket.*;
+import static com.hx.util.ColorReverse.writeJpgView;
 import static com.hx.util.TempDir.fileTemp;
 import static com.hx.util.TempDir.schTask;
 import static com.hx.util.TiffToJPEG.readerTiff;
@@ -57,6 +57,8 @@ public class SendFaxServiceImpl implements SendFaxService {
     private InboxMapper inboxMapper;
     @Autowired
     private SchMapper schMapper;
+    public static String faxResult="";
+    public static int faxCh=0;
     //查询座机号下拉列表框
     @Override
     public List<Device_Setting> selectSeatNumber() {
@@ -75,7 +77,7 @@ public class SendFaxServiceImpl implements SendFaxService {
         String tifPath="";
         OutputStream os=null;
         try {
-            tifPath=schTask()+".tif";
+            tifPath=schTask();
             String pdfPath=baseToPdf(base64);
             File file=new File( pdfPath );
             os=new FileOutputStream( new File( tifPath ) );
@@ -113,9 +115,9 @@ public class SendFaxServiceImpl implements SendFaxService {
         settings.setData(uuid);//设置条码数据
         settings.setData2D(uuid);//设置条码显示数据
         settings.setShowTextOnBottom(true);//设置数据文本显示在条码底部
-        settings.setX(0.8f);//设置黑白条宽度
-        settings.setImageHeight(50);//设置生成的条码图片高度
-        settings.setImageWidth(70);//设置生成的条码图片宽度
+        settings.setX(1.1f);//设置黑白条宽度
+        settings.setImageHeight(80);//设置生成的条码图片高度
+        settings.setImageWidth(100);//设置生成的条码图片宽度
         settings.setBackColor(new Color(250,255,255));//设置条码背景色
         BarCodeGenerator barCodeGenerator = new BarCodeGenerator(settings);//创建BarCodeGenerator实例
         BufferedImage bufferedImage = barCodeGenerator.generateImage();//根据settings生成图像数据，保存至BufferedImage实例
@@ -146,7 +148,7 @@ public class SendFaxServiceImpl implements SendFaxService {
             if(isFree==0){
                 message=getMessage( receiveNumber, Integer.parseInt( ch ), tifPath, base64, Integer.parseInt( isBack ), filename, sendNumber, courtName,id );
             }else{
-                message="模拟中继线通道不为空闲状态";
+                message="线路繁忙,请稍后发送";
                 logger.error( "模拟中继线通道不为空闲状态state:"+isFree );
             }
         }else{
@@ -168,7 +170,7 @@ public class SendFaxServiceImpl implements SendFaxService {
                 }
             }
             if(count==0){
-                message="模拟中继线通道不为空闲状态";
+                message="线路繁忙,请稍后发送";
                 logger.error( "模拟中继线通道不为空闲状态state:"+isFree );
             }
         }
@@ -181,18 +183,20 @@ public class SendFaxServiceImpl implements SendFaxService {
         if(Msg.equals( "通话中" )){
             message=faxSendStart(ch,tifPath,base64,isBack);
             if(isBack==2){
-                //只有回执页
-                insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
+                //只有回执页,新增进发回执箱,修改已回执状态
                 if(id.length()>0){
                     inboxMapper.updateIsReceiptById(Integer.valueOf( id ));
                 }
-                //扫描一次条形码,有条形码的话,就找到相应条形码的收件箱数据,更改已回执
-                String[] datas = BarcodeScanner.scan( tifPath, BarCodeType.Code_128);
-                String str=datas[0];
-                if(null==str){
-
-                }else{
-                    inboxMapper.updateIsReceiptByBarCode( str );
+                try{
+                    String[] datas = BarcodeScanner.scan( tifPath, BarCodeType.Code_128);
+                    String str=datas[0];
+                    //扫描一次条形码,有条形码的话,就找到相应条形码的收件箱数据,更改已回执
+                    if(null!=str){
+                        inboxMapper.updateIsReceiptByBarCode( str );
+                    }
+                    insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName,str );
+                }catch (Exception e){
+                    logger.error( e );
                 }
             }else{
                 insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
@@ -200,7 +204,7 @@ public class SendFaxServiceImpl implements SendFaxService {
         }else{
             message=Msg;
             if(isBack==2){
-                insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName );
+                insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName,null);
             }else{
                 insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
             }
@@ -318,6 +322,8 @@ public class SendFaxServiceImpl implements SendFaxService {
                         sendFlag=Fax.INSTANCE.SsmFaxStartSend(j,tifPath);
                     }else{
                         errMsg="获取回执文件失败";
+                        faxResult="发送失败";
+                        faxCh=ch;
                     }
                 }
                 if(sendFlag==0){
@@ -330,14 +336,20 @@ public class SendFaxServiceImpl implements SendFaxService {
                     String e=Fax.INSTANCE.SsmGetLastErrMsgA();
                     logger.error( "发送失败:"+e );
                     errMsg="发送失败";
+                    faxResult="发送失败";
+                    faxCh=ch;
                 }
             }else{
                 String e=Fax.INSTANCE.SsmGetLastErrMsgA();
                 logger.error( "建立连接失败:"+e );
                 errMsg="建立连接失败";
+                faxResult="发送失败";
+                faxCh=ch;
             }
         }else{
             errMsg="没有空闲通道";
+            faxResult="发送失败";
+            faxCh=ch;
         }
         return errMsg;
     }
@@ -381,7 +393,7 @@ public class SendFaxServiceImpl implements SendFaxService {
             outbox.setMessage( "失败("+message+")" );
         }
         outbox.setSendline( filename );
-        outbox.setSendernumber( sendNumber );
+        outbox.setSendnumber( sendNumber );
         Date date=new Date();
         outbox.setCreate_time(date);
         outbox.setReceivingunit( courtName );
@@ -392,7 +404,7 @@ public class SendFaxServiceImpl implements SendFaxService {
         outboxModels.add( webModel );
         outboxCount=1;
     }
-    public void insertDataReceipt(String message,String receiveNumber,String filename,String sendNumber,String courtName){
+    public void insertDataReceipt(String message,String receiveNumber,String filename,String sendNumber,String courtName,String barCode){
         Send_Receipt sendReceipt=new Send_Receipt();
         sendReceipt.setReceivenumber( receiveNumber );
         if(message.equals( "成功" )){
@@ -400,6 +412,7 @@ public class SendFaxServiceImpl implements SendFaxService {
         }else{
             sendReceipt.setMessage( "失败("+message+")" );
         }
+        sendReceipt.setBarCode( barCode );
         sendReceipt.setSendline( filename );
         sendReceipt.setSendnumber( sendNumber );
         Date date=new Date();
@@ -449,7 +462,6 @@ public class SendFaxServiceImpl implements SendFaxService {
         //查询每一条通道的状态
         //查询0编号通道,查询通道状态,
         int state=Fax.INSTANCE.SsmGetChState(ch);
-        int stateFax=Fax.INSTANCE.SsmGetChState(i);
         String selfNumber=deviceDao.selectNumberByCh(ch);
         chMsg.setSelfNumber(selfNumber);
         chMsg.setCh( ch );
@@ -460,10 +472,6 @@ public class SendFaxServiceImpl implements SendFaxService {
             if(state==7){
                 int code=Fax.INSTANCE.SsmGetPendingReason(ch);
                 chMsg.setMessage(getStateMsgBy7(code));
-                Fax.INSTANCE.SsmHangup(ch);
-                if(stateFax!=0){
-                    Fax.INSTANCE.SsmFaxStop( i );
-                }
             }else if(state==3){
                 String callerId=Fax.INSTANCE.SsmGetCallerIdA( ch );
                 if(callerId !=null || callerId != ""){
@@ -546,13 +554,9 @@ public class SendFaxServiceImpl implements SendFaxService {
     }
 
     @Override
-    public boolean deleteSchTask(String id) {
-        boolean flag=false;
-        if(id!=null || id != null){
-            schMapper.deleteSchTask(Integer.valueOf( id ));
-            flag=true;
-        }
-        return flag;
+    public boolean deleteSchTask(int id) {
+        schMapper.deleteSchTask(id);
+        return true;
     }
 
     @Override
@@ -581,27 +585,45 @@ public class SendFaxServiceImpl implements SendFaxService {
     }
 
     @Override
-    public String getBackFilePath(Integer id) throws Exception {
-        //根据id查询收件箱的文件路径,
-        String tifPath=inboxMapper.selectTifPath( id );
-        List<String> pathList=readerTiff(tifPath);
-        List<String> newList=new ArrayList<>(  );
-        newList.add( pathList.get( pathList.size()-1 ) );
-        String pdfPath=fileTemp()+".pdf";
-        //获取最后一页,然后转换成PDF,再转换成tif
-        imgToPdf(newList,pdfPath);
-        //最后转换PDF为tif
-        String filePath=schTask()+".tif";
-        File file=new File( pdfPath );
-        boolean flag=false;
+    public String tifView(String tifPath) throws Exception {
+        //tif转换成jpg,进行颜色转换后,再转换成PDF,然后再转换成base64
+        List<String> jpgList=readerTiff(tifPath);
+        List<String> whiteJpg=writeJpgView(jpgList);
+        String pdf=fileTemp()+".pdf";
+        imgToPdf(whiteJpg,pdf);
+        File file = new File(pdf);
+        byte[] buffer=null;
         if(file.exists()){
-            OutputStream os=new FileOutputStream(filePath);
-            flag=pdfToTiffSendBack(file,os);
+            FileInputStream inputFile = new FileInputStream(file);
+            buffer = new byte[(int)file.length()];
+            inputFile.read(buffer);
+            inputFile.close();
         }
-        if(!flag){
-            filePath="";
+        return new BASE64Encoder().encode(buffer);
+    }
+
+    @Override
+    public boolean undoSend(String ch) {
+        int code=Integer.valueOf( ch );
+        int i=8;
+        if(code==0){
+            i=8;
+        }else if(code==1){
+            i=9;
         }
-        return filePath;
+        else if(code==2){
+            i=10;
+        }
+        else if(code==3){
+            i=11;
+        }
+        int stateFax=Fax.INSTANCE.SsmGetChState(i);
+        if(stateFax!=0){
+            Fax.INSTANCE.SsmFaxStop( i );
+            Fax.INSTANCE.SsmStopTalkWith( code,i );
+        }
+        Fax.INSTANCE.SsmHangup( code );
+        return true;
     }
 
 

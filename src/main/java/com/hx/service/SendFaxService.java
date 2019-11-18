@@ -30,11 +30,13 @@ public interface SendFaxService {
 
     boolean insertSchTask(String tifPath, String receiptPath, List<TempModel> tempList, String sendNumber, String isBack, String filename, String id, String ch, String sendTime) throws ParseException, InterruptedException, IOException;
 
-    boolean deleteSchTask(String id);
+    boolean deleteSchTask(int id);
 
     boolean updateTaskDate(String id, String date) throws ParseException;
 
     Map<String,Object> selectTaskLimit(Integer pageNow, Integer pageSize);
 
-    String getBackFilePath(Integer id) throws Exception;
+    String tifView(String tifPath) throws Exception;
+
+    boolean undoSend(String ch);
 }

@@ -35,7 +35,8 @@ import java.util.Map;
     @RequestMapping(value = "/queryList", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> queryList(Integer pageNo, Integer pageSize, String senderunit,
-                                         String receivingunit,String receivenumber,String sendernumber,String sendline, String recoveryBeginDate,String recoveryEndDate, String beginDate,String endDate ) {
+                                         String receivingunit,String receivenumber,String sendnumber,
+                                         String sendline, String recoveryBeginDate,String recoveryEndDate, String beginDate,String endDate ) {
         Map<String, Object> result = new HashMap<>();
 
         result.put("state", 0); //0代表失败，1代表成功
@@ -49,7 +50,7 @@ import java.util.Map;
         searchMap.put("senderunit",senderunit);
         searchMap.put("receivingunit",receivingunit);
         searchMap.put("receivenumber",receivenumber);
-        searchMap.put("sendernumber",sendernumber);
+        searchMap.put("sendnumber",sendnumber);
         searchMap.put("sendline",sendline);
         searchMap.put("recoveryBeginDate",recoveryBeginDate);
         searchMap.put("recoveryEndDate",recoveryEndDate);
@@ -58,8 +59,6 @@ import java.util.Map;
         int totalCount = recycleBinService.getTotal(searchMap);   //查询总条数
         //查询全部回收站列表
         List<RecycleBin> recycleBinList = recycleBinService.queryList(searchMap, pageNo, pageSize);     //查询指定页的数据
-
-
         result.put("recycleBinList", recycleBinList);
         result.put("totalCount", totalCount);
         result.put("state", 1); //0代表失败，1代表成功
@@ -75,15 +74,16 @@ import java.util.Map;
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
         if ( StringUtils.isEmpty(ids) ) {
+
             result.put("msg", "参数错误");
+            log.error("参数错误"+ids);
             return result;
         }
-
         boolean b = recycleBinService.updateRestore(ids);
         if ( b ) {
             result.put("state", 1); //0代表失败，1代表成功
         }
-
+        log.info("还原成功");
         return result;
     }
 
@@ -97,14 +97,14 @@ import java.util.Map;
         result.put("state", 0); //0代表失败，1代表成功
         if ( StringUtils.isEmpty(ids) ) {
             result.put("msg", "参数错误");
+            log.error("参数错误");
             return result;
         }
-
         boolean b = recycleBinService.deleteById(ids);
         if ( b ) {
             result.put("state", 1); //0代表失败，1代表成功
         }
-
+        log.info("删除成功");
         return result;
     }
 }

@@ -7,7 +7,6 @@ package com.hx.service.impl;/*
 
 import com.hx.dao.ProgramSettingDao;
 import com.hx.modle.Program_Setting;
-import com.hx.modle.TempModel;
 import com.hx.service.PrintFileService;
 import com.hx.util.PrintImage;
 import com.hx.util.TwainExample;

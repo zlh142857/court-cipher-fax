@@ -1,7 +1,6 @@
 package com.hx.service;
 
 import com.hx.modle.Inbox;
-import com.hx.util.Query;
 
 import java.util.List;
 import java.util.Map;
@@ -22,10 +21,6 @@ public interface InBoxService {
     List<Inbox> queryALLMailList();
 
     int deinbox(Integer readerId);
-
-    List<Inbox> queryALLMaillist(Query query);
-
-    int queryinboxCount(Query query);
 
     boolean delinbox(String ids);
 

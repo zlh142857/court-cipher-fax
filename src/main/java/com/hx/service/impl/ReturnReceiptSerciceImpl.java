@@ -54,9 +54,20 @@ public class ReturnReceiptSerciceImpl implements ReturnReceiptService {
     @Override
     public int deinbox(Integer readerId) {
         Return_Receipt return_receipt = returnReceiptMapperr.getById(readerId);
-
-        recycleBinService.insertRecycleBin("Return_Receipt", new Date(), return_receipt.getSendnumber(),return_receipt.getSenderunit(),String.valueOf(readerId),return_receipt.getReceivenumber(),"",
-                return_receipt.getCreate_time(),return_receipt.getFilsavepath(),0, "","");
+        if ( null == return_receipt  ) {
+            return 1;
+        }
+        recycleBinService.insertRecycleBin("Return_Receipt",
+                new Date(),
+                return_receipt.getSendnumber(),
+                return_receipt.getSenderunit(),
+                String.valueOf(readerId),
+                return_receipt.getReceivenumber(),
+                "",
+                return_receipt.getCreate_time(),
+                return_receipt.getFilsavepath(),
+                0, "","", 0,
+                "","");
         return returnReceiptMapperr.deinbox(readerId);
     }
 

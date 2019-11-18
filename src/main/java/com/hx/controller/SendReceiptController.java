@@ -30,7 +30,8 @@ public class SendReceiptController {
     //收件箱查询
     @RequestMapping(value = "/queryReturnReceipt", method = RequestMethod.GET)
     @ResponseBody
-    public String inboxs(Integer pageNo, Integer pageSize, String receivingunit, String sendline, String message, String sendernumber,String beginDate ,String endDate) {
+    public Map<String, Object> inboxs(Integer pageNo, Integer pageSize, String receivingunit, String sendline,
+                                      String message, String sendnumber,String beginDate ,String endDate) {
         //mailListId="m";
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
@@ -47,42 +48,37 @@ public class SendReceiptController {
         searchMap.put("endDate",endDate);
         searchMap.put("sendline",sendline);
         searchMap.put("message",message);
-        searchMap.put("sendnumber",sendernumber);
+        searchMap.put("sendnumber",sendnumber);
         int count = sendReceiptService.queryTotalCount(searchMap);
         if ( count > 0 ) {
             List<Send_Receipt> mails = sendReceiptService.queryALLMail(searchMap, pageNo, pageSize);
             result.put("mails", mails);
             result.put("totalCount", count);
         }
-
         result.put("state", 1); //0代表失败，1代表成功
-        return JSONObject.toJSONStringWithDateFormat( result,"yyyy-MM-dd HH:mm:ss");
+        return result;
     }
     @RequestMapping(value = "/ReturnReceipts", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> mailLists() {
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
-
         //TODO 查询全部
         List<Send_Receipt> mailLists = sendReceiptService.queryALLMailList();
         result.put("mailLists", mailLists); //
-
         result.put("state", 1); //0代表失败，1代表成功
         return result;
     }
 
     //TODO 删除记录
-    @RequestMapping(value = "/deleSendReceipt", method = RequestMethod.POST)
+    @RequestMapping(value = "/deleSendReceipt", method = RequestMethod.GET)
     @ResponseBody
-
     public Map<String, Object> delinbox(String str) {
-
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
-
         if ( null == str || "".equals(str.trim()) ) {
             result.put("msg", "参数错误");
+            log.error("参数为空"+str);
             return result;
         }
         String[] split = str.split(",");
@@ -91,38 +87,14 @@ public class SendReceiptController {
                 sendReceiptService.deinbox(Integer.parseInt(split[i]));
             }
             result.put("state", 1); //0代表失败，1代表成功
+            log.info("删除成功");
         } catch (Exception e) {
+            log.error("删除失败");
             e.printStackTrace();
             result.put("msg", e.getMessage());
         }
         return result;
 
-    }
-    /**
-     *
-     * 功能描述: 点击关联回执的按钮,然后弹框,查询未被关联的发回执箱信息
-     *
-     * 业务逻辑:
-     *
-     * @param:
-     * @return:
-     * @auther: 张立恒
-     * @date: 2019/11/13 9:51
-     */
-    @RequestMapping("/selectReceiptNoLink")
-    @ResponseBody
-    public String selectReceiptNoLink(String pageNow,String pageSize){
-        Map<String,Object> map=null;
-        try {
-            if(pageNow!=null||pageSize!=null){
-                map=sendReceiptService.selectReceiptNoLink(Integer.valueOf( pageNow ),Integer.valueOf( pageSize ));
-            }else{
-                log.error( "分页参数为空" );
-            }
-        } catch (Exception e) {
-            log.error( e );
-        }
-        return JSONObject.toJSONStringWithDateFormat( map,"yyyy-MM-dd HH:mm:ss" );
     }
     /**
      *
@@ -138,11 +110,11 @@ public class SendReceiptController {
      */
     @RequestMapping("/updateIsLink")
     @ResponseBody
-    public boolean updateIsLink(String intBoxId,String receiptId){
+    public boolean updateIsLink(String inBoxId){
         boolean flag=false;
         try {
-            if(intBoxId != null || receiptId != null && intBoxId != "" || receiptId != ""){
-                flag=sendReceiptService.updateIsLink(intBoxId,receiptId);
+            if(null !=inBoxId){
+                flag=sendReceiptService.updateIsLink(inBoxId);
             }
         } catch (Exception e) {
             log.error( e );
@@ -165,7 +137,7 @@ public class SendReceiptController {
     public String checkText(String tifPath){
         String base64="";
         try {
-            if(tifPath != null || tifPath != ""){
+            if(null != tifPath || "" != tifPath){
                 base64=sendReceiptService.checkText(tifPath);
             }
         } catch (Exception e) {

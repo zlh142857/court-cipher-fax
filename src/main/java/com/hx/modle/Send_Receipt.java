@@ -18,6 +18,7 @@ public class Send_Receipt {
     private String sendnumber;//发送方号码
     private int isLink; //是否已关联
     private String tifPath;  //关联后绑定的正文原件路径
+    private String barCode;//条形码
 
     public int getId() {
         return id;
@@ -91,6 +92,14 @@ public class Send_Receipt {
         this.tifPath = tifPath;
     }
 
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
+    }
+
     @Override
     public String toString() {
         return "Send_Receipt{" +
@@ -103,6 +112,7 @@ public class Send_Receipt {
                 ", sendnumber='" + sendnumber + '\'' +
                 ", isLink=" + isLink +
                 ", tifPath='" + tifPath + '\'' +
+                ", barCode='" + barCode + '\'' +
                 '}';
     }
 }

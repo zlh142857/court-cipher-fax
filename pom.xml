@@ -329,6 +329,11 @@
       <scope>provided</scope>
     </dependency>
     <!-- webSocket 结束-->
+    <dependency>
+      <groupId>aspose</groupId>
+      <artifactId>aspose-words</artifactId>
+      <version>15.8.0-jdk16</version>
+    </dependency>
     <!--张立恒 end-->
 
 

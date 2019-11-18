@@ -17,7 +17,7 @@ public interface OutBoxService {
 
     List<Outbox> queryoutBox(Map<String, Object> searchMap, Integer pageNo, Integer pageSize);
 
-    int deloutbox(Integer readerId);
+    int deloutbox(Integer id);
 
     int insert(Outbox outbox);
 

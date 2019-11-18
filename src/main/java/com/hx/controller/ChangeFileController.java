@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+
 @Controller
 public class ChangeFileController {
     @Autowired
@@ -31,7 +33,8 @@ public class ChangeFileController {
     @RequestMapping("changeFileSend")
     @ResponseBody
     public String changeFileSend(MultipartFile file){
-        String message=changeFileService.changeFileSend(file);
+        Map<String,Object> message=null;
+        message=changeFileService.changeFileSend(file);
         return JSONObject.toJSONString( message );
     }
 }

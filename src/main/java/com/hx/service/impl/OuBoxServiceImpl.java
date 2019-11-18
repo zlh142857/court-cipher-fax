@@ -48,13 +48,15 @@ public class OuBoxServiceImpl implements OutBoxService {
     }
 
     @Override
-    public int deloutbox(Integer id) {
+    public int deloutbox(Integer readerId) {
 
-        Outbox outbox = outboxMapper.getById(id);
-
+        Outbox outbox = outboxMapper.getById(readerId);
+        if ( null == outbox  ) {
+            return 1;
+        }
         recycleBinService.insertRecycleBin("outbox", new Date(),
-                outbox.getSendernumber(),
-                String.valueOf(id),
+                outbox.getSendnumber(),
+                String.valueOf(readerId),
                 outbox.getReceivingunit(),
                 outbox.getReceivenumber(),
                 "",
@@ -62,9 +64,9 @@ public class OuBoxServiceImpl implements OutBoxService {
                 "",
                 0,
                 outbox.getSendline(),
-                outbox.getMessage());
-
-        return outboxMapper.deloutbox(id);
+                outbox.getMessage(),
+                0,"","");
+        return outboxMapper.deloutbox(readerId);
     }
 
     @Override

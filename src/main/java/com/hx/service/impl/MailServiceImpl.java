@@ -65,23 +65,24 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public int delmaillist(Integer id) {
+        mailMapper.deletemail(id);
 
         return mailMapper.delmaillist(id);
     }
 
     @Override
-    public List<Mail_List> queryALLMail(Map<String, Object> searchMap, Integer pageNo, Integer pageSize) {
+    public List<Mail_List> queryALLMail(Map<String, Object> searchMap) {
 
         //mysql LIMIT语句 参数生成  LIMIT [start] [offset]
-        int start = (pageNo - 1) * pageSize;
-        int offset = pageSize;
-        searchMap.put("start", start);
-        searchMap.put("offset", offset);
+//        int start = (pageNo - 1) * pageSize;
+//        int offset = pageSize;
+//        searchMap.put("start", start);
+//        searchMap.put("offset", offset);
         return mailMapper.queryALLMail(searchMap);
     }
 
-    @Override
-    public int queryTotalCount(Map<String, Object> searchMap) {
-        return mailMapper.queryTotalCount(searchMap);
-    }
+//    @Override
+//    public int queryTotalCount(Map<String, Object> searchMap) {
+//        return mailMapper.queryTotalCount(searchMap);
+//    }
 }

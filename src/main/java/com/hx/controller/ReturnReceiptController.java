@@ -28,11 +28,10 @@ public class ReturnReceiptController {
     private static Logger log = Logger.getLogger(Controller.class);// 日志文件
 
     //收回执查询
-    @RequestMapping(value = "/ReturnReceiptlist", method = RequestMethod.POST)
+    @RequestMapping(value = "/ReturnReceiptlist", method = RequestMethod.GET)
     @ResponseBody
     public Map<String, Object> inboxs(Integer pageNo, Integer pageSize, String senderunit,
                                       String receivenumber, String sendnumber, String beginDate , String endDate) {
-
         if ( StringUtils.isNotEmpty(beginDate) ) {
             beginDate=beginDate.trim();  //2019-12-01 12:00:00
         }
@@ -55,7 +54,6 @@ public class ReturnReceiptController {
             result.put("mails", mails);
             result.put("totalCount", count);
         }
-
         result.put("state", 1); //0代表失败，1代表成功
         return result;
     }
@@ -64,26 +62,23 @@ public class ReturnReceiptController {
     public Map<String, Object> mailLists() {
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
-
         //TODO 查询全部
         List<Return_Receipt> mailLists = returnReceiptService.queryALLMailList();
         result.put("mailLists", mailLists); //
-
         result.put("state", 1); //0代表失败，1代表成功
         return result;
     }
 
     //TODO 删除记录
-    @RequestMapping(value = "/delReturnReceipt", method = RequestMethod.POST)
+    @RequestMapping(value = "/delReturnReceipt", method = RequestMethod.GET)
     @ResponseBody
-
     public Map<String, Object> delinbox(String str) {
 
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
-
         if ( null == str || "".equals(str.trim()) ) {
             result.put("msg", "参数错误");
+            log.error("参数错误"+str);
             return result;
         }
         String[] split = str.split(",");
@@ -91,6 +86,7 @@ public class ReturnReceiptController {
             for (int i = 0; i < split.length; i++) {
                 returnReceiptService.deinbox(Integer.parseInt(split[i]));
             }
+            log.info("删除成功");
             result.put("state", 1); //0代表失败，1代表成功
         } catch (Exception e) {
             e.printStackTrace();

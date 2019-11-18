@@ -5,12 +5,9 @@ package com.hx.schedule;/*
  *@功能:
  */
 
-import com.hx.common.SendSchTask;
 import com.hx.dao.SchMapper;
 import com.hx.modle.Sch_Task;
-import com.hx.service.SendFaxService;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;

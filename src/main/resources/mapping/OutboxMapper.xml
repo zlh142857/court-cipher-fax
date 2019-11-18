@@ -8,7 +8,7 @@
         <result property="create_time" column="create_time"/>
         <result property="sendline" column="sendline"/>
         <result property="message" column="message"/>
-        <result property="sendernumber" column="sendernumber"/>
+        <result property="sendnumber" column="sendnumber"/>
     </resultMap>
     <select id="getAll" resultType="com.hx.modle.Outbox">
         SELECT*
@@ -21,8 +21,8 @@
 
     <select id="queryTotalCount" resultType="int">
         select  COUNT(*) from outbox where 1 = 1
-        <if  test="params.sendernumber!=null and params.sendernumber!=''">
-            and  sendernumber  LIKE CONCAT('%',#{params.sendernumber},'%')
+        <if  test="params.sendnumber!=null and params.sendnumber!=''">
+            and  sendnumber  LIKE CONCAT('%',#{params.sendnumber},'%')
         </if>
         <if  test="params.receivingunit!=null and params.receivingunit!=''">
             and  receivingunit  LIKE CONCAT('%',#{params.receivingunit},'%')
@@ -46,8 +46,8 @@
 
     <select id="queryALLMailList" resultType="com.hx.modle.Outbox">
       select  * from outbox where 1 = 1
-        <if  test="params.sendernumber!=null and params.sendernumber!=''">
-            and  sendernumber  LIKE CONCAT('%',#{params.sendernumber},'%')
+        <if  test="params.sendnumber!=null and params.sendnumber!=''">
+            and  sendnumber  LIKE CONCAT('%',#{params.sendnumber},'%')
         </if>
         <if  test="params.receivingunit!=null and params.receivingunit!=''">
             and  receivingunit  LIKE CONCAT('%',#{params.receivingunit},'%')
@@ -77,14 +77,14 @@
 
   <select id="getById" resultType="com.hx.modle.Outbox">
       SELECT
-      t.id,t.sendernumber,t.receivenumber,t.receivingunit,t.create_time,t.sendline,t.message
+      t.id,t.sendnumber,t.receivenumber,t.receivingunit,t.create_time,t.sendline,t.message
       FROM outbox  t where id = #{id}
   </select>
 
     <insert id="insert" parameterType="com.hx.modle.Outbox">
-        INSERT INTO outbox(id,sendernumber,receivenumber,receivingunit,create_time,sendline,message) VALUES (
+        INSERT INTO outbox(id,sendnumber,receivenumber,receivingunit,create_time,sendline,message) VALUES (
           #{outbox.id},
-          #{outbox.sendernumber},
+          #{outbox.sendnumber},
           #{outbox.receivenumber},
           #{outbox.receivingunit},
           #{outbox.create_time},
@@ -99,8 +99,8 @@
     <insert id="insertNewMessage" parameterType="com.hx.modle.Outbox">
         INSERT INTO outbox
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="sendernumber != null and sendernumber != ''">
-                sendernumber,
+            <if test="sendnumber != null and sendnumber != ''">
+                sendnumber,
             </if>
             <if test="receivenumber != null and receivenumber != ''">
                 receivenumber,
@@ -119,8 +119,8 @@
             </if>
         </trim>
         <trim prefix=" values (" suffix=")" suffixOverrides=",">
-            <if test="sendernumber != null and sendernumber != ''">
-                #{sendernumber,jdbcType=VARCHAR},
+            <if test="sendnumber != null and sendnumber != ''">
+                #{sendnumber,jdbcType=VARCHAR},
             </if>
             <if test="receivenumber != null and receivenumber != ''">
                 #{receivenumber,jdbcType=VARCHAR},

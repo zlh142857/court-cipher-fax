@@ -16,7 +16,7 @@ public class RecycleBin implements Serializable {
     private String senderunit;
     private String receivingunit;
     private String receivenumber;
-    private String sendernumber;
+    private String sendnumber;
     private String sendline;
     private String filsavepath;
     private String receiptpath;
@@ -68,12 +68,12 @@ public class RecycleBin implements Serializable {
         this.receivenumber = receivenumber;
     }
 
-    public String getSendernumber() {
-        return sendernumber;
+    public String getSendnumber() {
+        return sendnumber;
     }
 
-    public void setSendernumber(String sendernumber) {
-        this.sendernumber = sendernumber;
+    public void setSendnumber(String sendnumber) {
+        this.sendnumber = sendnumber;
     }
 
     public String getSendline() {
@@ -164,7 +164,7 @@ public class RecycleBin implements Serializable {
                 ", senderunit='" + senderunit + '\'' +
                 ", receivingunit='" + receivingunit + '\'' +
                 ", receivenumber='" + receivenumber + '\'' +
-                ", sendernumber='" + sendernumber + '\'' +
+                ", sendnumber='" + sendnumber + '\'' +
                 ", sendline='" + sendline + '\'' +
                 ", filsavepath='" + filsavepath + '\'' +
                 ", receiptpath='" + receiptpath + '\'' +

@@ -3,6 +3,8 @@ package com.hx.service;/*
 
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
+
 public interface ChangeFileService {
-    String changeFileSend(MultipartFile file);
+    Map<String,Object> changeFileSend(MultipartFile file);
 }

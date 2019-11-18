@@ -11,7 +11,7 @@ import java.util.Date;
 public class Inbox implements Serializable {
     private static final long serialVersionUID = 1670857753595889875L;
     private int id;//id
-    private String sendernumber;//发送方号码
+    private String sendnumber;//发送方号码
     private String senderunit;//发送方单位
     private String receivenumber;//接收号码
     private String filsavepath;//文件保存路径
@@ -29,12 +29,12 @@ public class Inbox implements Serializable {
         this.id = id;
     }
 
-    public String getSendernumber() {
-        return sendernumber;
+    public String getSendnumber() {
+        return sendnumber;
     }
 
-    public void setSendernumber(String sendernumber) {
-        this.sendernumber = sendernumber;
+    public void setSendnumber(String sendnumber) {
+        this.sendnumber = sendnumber;
     }
 
     public String getSenderunit() {
@@ -105,7 +105,7 @@ public class Inbox implements Serializable {
     public String toString() {
         return "Inbox{" +
                 "id=" + id +
-                ", sendernumber='" + sendernumber + '\'' +
+                ", sendnumber='" + sendnumber + '\'' +
                 ", senderunit='" + senderunit + '\'' +
                 ", receivenumber='" + receivenumber + '\'' +
                 ", filsavepath='" + filsavepath + '\'' +

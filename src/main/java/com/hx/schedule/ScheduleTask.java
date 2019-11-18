@@ -19,4 +19,11 @@ public class ScheduleTask {
         executorService.scheduleAtFixedRate(new SchTask(), 0, 1, TimeUnit.MINUTES);
         executorService.scheduleAtFixedRate(new SchSend(), 0, 30, TimeUnit.SECONDS);
     }
+    public static ScheduledExecutorService chBadMsgStopService= Executors.newScheduledThreadPool(4);
+    public static void chBadMsgStop(){
+        chBadMsgStopService.scheduleAtFixedRate(new ChStop0(), 0, 1, TimeUnit.SECONDS);
+        chBadMsgStopService.scheduleAtFixedRate(new ChStop1(), 0, 1, TimeUnit.SECONDS);
+        chBadMsgStopService.scheduleAtFixedRate(new ChStop2(), 0, 1, TimeUnit.SECONDS);
+        chBadMsgStopService.scheduleAtFixedRate(new ChStop3(), 0, 1, TimeUnit.SECONDS);
+    }
 }

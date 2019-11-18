@@ -5,12 +5,9 @@ package com.hx.change;/*
  *@功能:
  */
 
-import com.hx.util.GetTimeToFileName;
-import com.hx.util.TempDir;
-import com.jacob.activeX.ActiveXComponent;
-import com.jacob.com.ComThread;
-import com.jacob.com.Dispatch;
-import com.jacob.com.Variant;
+import com.aspose.words.Document;
+import com.aspose.words.License;
+import com.aspose.words.SaveFormat;
 import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageEncoder;
 import com.sun.media.jai.codec.TIFFEncodeParam;
@@ -31,6 +28,7 @@ import java.util.List;
 import com.sun.media.jai.codec.TIFFField;
 import sun.misc.BASE64Decoder;
 
+import static com.hx.common.StaticFinal.LICENSE;
 import static com.hx.common.StaticFinal.TEMPDIR;
 import static com.hx.util.TempDir.fileTemp;
 
@@ -38,34 +36,46 @@ public class ChangeFile {
     private static Logger logger=Logger.getLogger(ChangeFile.class);
     //将Word转换为PDF文档,返回值为PDF文件保存路径
     public static String wordToPDF(MultipartFile file)throws IOException{
-        ActiveXComponent app = null;
-        Dispatch doc = null;
-        String pdfFileName=GetTimeToFileName.GetTimeToFileName()+".pdf";
-        String docFilePath="";
-        String pdfPath=TEMPDIR+"/"+pdfFileName;
+        String docName=file.getOriginalFilename();
+        String docPath=TEMPDIR+"/"+docName;//Word保存路径,Document加载此路径
+        File dest = new File(docPath);
+        file.transferTo(dest); // 保存文件
+        String pdfPath=fileTemp()+".pdf";
+        FileOutputStream os=null;
+        if (!getLicense()) {          // 验证License 若不验证则转化出的pdf文档会有水印产生
+            return null;
+        }
         try {
-            //将文件先保存再将路径传给doc
-            docFilePath=TempDir.makeTempDir(file);
-            app = new ActiveXComponent("Word.Application");
-            app.setProperty("Visible", new Variant(false));
-            Dispatch docs = app.getProperty("Documents").toDispatch();
-            //获取文件路径
-            doc = Dispatch.call(docs, "Open", docFilePath).toDispatch();
-            //转换为PDF文件,保存文件到tempDir文件夹
-            Dispatch.call(doc, "SaveAs", pdfPath, // FileName
-                    17);//17是pdf格式
-        } catch (IOException e) {
-            throw new IOException("word转换PDF IO异常：" + e);
-        } finally {
-            Dispatch.call(doc, "Close", new Variant(false));
-            if (app != null){
-                app.invoke("Quit", new Variant[]{});
+            File pdfFile = new File(pdfPath);  //新建一个空白pdf文档
+            os = new FileOutputStream(pdfFile);
+            Document doc = new Document(docPath);                    //Address是将要被转化的word文档
+            doc.save(os, SaveFormat.PDF);//全面支持DOC, DOCX, OOXML, RTF HTML, OpenDocument, PDF, EPUB, XPS, SWF 相互转换
+        } catch (Exception e) {
+            logger.error( e.toString() );
+        }finally {
+            if(null != os){
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    logger.error( e.toString() );
+                }
             }
         }
-        // 如果没有这句话,winword.exe进程将不会关闭
-        ComThread.Release();
         return pdfPath;
     }
+    public static boolean getLicense() {
+        boolean result = false;
+        try {
+            InputStream is =new FileInputStream(new File(LICENSE)); //
+            License aposeLic = new License();
+            aposeLic.setLicense(is);
+            result = true;
+        } catch (Exception e) {
+            logger.error( e.toString() );
+        }
+        return result;
+    }
+
 
 
     static {
@@ -94,7 +104,7 @@ public class ChangeFile {
                 piList.add(pimg);
             }
             TIFFEncodeParam param = new TIFFEncodeParam();// 创建tiff编码参数类
-            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_1D);// 压缩参数
+            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_2D);// 压缩参数
             param.setT4PadEOLs( false );
             param.setReverseFillOrder( false );
             param.setT4Encode2D( false );
@@ -147,7 +157,7 @@ public class ChangeFile {
                 piList.add(pimg);
             }
             TIFFEncodeParam param = new TIFFEncodeParam();// 创建tiff编码参数类
-            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_1D);// 压缩参数
+            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_2D);// 压缩参数
             param.setT4PadEOLs( false );
             param.setReverseFillOrder( false );
             param.setT4Encode2D( false );
@@ -247,7 +257,7 @@ public class ChangeFile {
             PDFRenderer renderer = new PDFRenderer(doc); // 根据PDDocument对象创建pdf渲染器
             List<PlanarImage> piList = new ArrayList<PlanarImage>();
             for (int i = 0+1; i < pageCount; i++) {
-                BufferedImage image = renderer.renderImageWithDPI(i, DPI3,
+                BufferedImage image = renderer.renderImageWithDPI(i, DPI2,
                         ImageType.BINARY);
                 PlanarImage pimg = JAI.create("mosaic", image);
                 piList.add(pimg);
@@ -266,7 +276,7 @@ public class ChangeFile {
                     TIFFField.TIFF_RATIONAL, 1, (Object) new long[][] {{ (long) 392, 2 } });
             param.setExtraFields(extras);
             param.setExtraImages(piList.iterator());// 设置图片的迭代器
-            BufferedImage fimg = renderer.renderImageWithDPI(0, DPI3,ImageType.BINARY);
+            BufferedImage fimg = renderer.renderImageWithDPI(0, DPI2,ImageType.BINARY);
             PlanarImage fpi = JAI.create("mosaic",fimg); // 通过JAI的create()方法实例化jai的图片对象
             ImageEncoder enc = ImageCodec.createImageEncoder(IMG_FORMAT, os,
                     param);

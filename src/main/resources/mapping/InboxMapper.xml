@@ -8,7 +8,7 @@
         <result property="create_time" column="create_time"/>
         <result property="senderunit" column="senderunit"/>
         <result property="isreceipt" column="Isreceipt"/>
-        <result property="sendernumber" column="sendernumber"/>
+        <result property="sendnumber" column="sendnumber"/>
         <result property="filsavepath" column="filsavepath"/>
         <result property="isLink" column="isLink"/>
         <result property="barCode" column="barCode"/>
@@ -56,8 +56,8 @@
     <select id="queryALLMail" parameterType="java.util.Map" resultType="com.hx.modle.Inbox">
         SELECT * FROM inbox where 1 = 1
 
-        <if  test="params.sendernumber!=null and params.sendernumber!=''">
-            and  sendernumber  LIKE CONCAT('%',#{params.sendernumber},'%')
+        <if  test="params.sendnumber!=null and params.sendnumber!=''">
+            and  sendnumber  LIKE CONCAT('%',#{params.sendnumber},'%')
         </if>
         <if  test="params.senderunit!=null and params.senderunit!=''">
             and  senderunit  LIKE CONCAT('%',#{params.senderunit},'%')
@@ -85,7 +85,7 @@
 
     <select id="getById" resultType="com.hx.modle.Inbox">
       select
-        id, sendernumber, senderunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt
+        id, sendnumber, senderunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt
         from inbox where id = #{id}
         </select>
 
@@ -96,9 +96,9 @@
 
 
     <insert id="insert" parameterType="com.hx.modle.Inbox">
-        INSERT INTO inbox(id, sendernumber, senderunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt) VALUES (
+        INSERT INTO inbox(id, sendnumber, senderunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt) VALUES (
           #{inbox.id},
-          #{inbox.sendernumber},
+          #{inbox.sendnumber},
           #{inbox.senderunit},
           #{inbox.receivenumber},
           #{inbox.filsavepath},
@@ -112,8 +112,8 @@
     <insert id="insertInbox" parameterType="com.hx.modle.Inbox">
         INSERT INTO inbox
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="sendernumber != null and sendernumber != ''">
-                sendernumber,
+            <if test="sendnumber != null and sendnumber != ''">
+                sendnumber,
             </if>
             <if test="receivenumber != null and receivenumber != ''">
                 receivenumber,
@@ -138,8 +138,8 @@
             </if>
         </trim>
         <trim prefix=" values (" suffix=")" suffixOverrides=",">
-            <if test="sendernumber != null and sendernumber != ''">
-                #{sendernumber,jdbcType=VARCHAR},
+            <if test="sendnumber != null and sendnumber != ''">
+                #{sendnumber,jdbcType=VARCHAR},
             </if>
             <if test="receivenumber != null and receivenumber != ''">
                 #{receivenumber,jdbcType=VARCHAR},
@@ -176,8 +176,8 @@
       UPDATE inbox SET isLink=1 WHERE id=#{id,jdbcType=INTEGER}
     </update>
     <!--查询一次正文路径,改成已关联:1-->
-    <select id="selectTifPath" resultType="java.lang.String" parameterType="java.lang.Integer">
-      SELECT filsavepath FROM inbox WHERE id=#{id,jdbcType=INTEGER}
+    <select id="selectBarAndTifPath" resultType="com.hx.modle.Inbox" parameterType="java.lang.Integer">
+      SELECT filsavepath,barCode FROM inbox WHERE id=#{id,jdbcType=INTEGER}
     </select>
     <!--张立恒end-->
 </mapper>

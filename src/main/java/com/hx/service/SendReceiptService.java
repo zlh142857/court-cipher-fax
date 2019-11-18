@@ -4,7 +4,6 @@ import com.hx.modle.Send_Receipt;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -21,15 +20,13 @@ public interface SendReceiptService {
 
     int queryTotalCount(Map<String, Object> searchMap);
 
-    List<Send_Receipt> queryALLMail(Map<String, Object> searchMap, Integer pageNo, Integer pageSize);
+    List<Send_Receipt> queryALLMail(Map<String,Object> searchMap, Integer pageNo, Integer pageSize);
 
     List<Send_Receipt> queryALLMailList();
 
     int deinbox(Integer readerId);
 
-    Map<String,Object> selectReceiptNoLink(Integer pageNow, Integer pageSize);
-
-    boolean updateIsLink(String inBoxId, String receiptId);
+    boolean updateIsLink(String inBoxId);
 
     String checkText(String tifPath) throws IOException;
 }

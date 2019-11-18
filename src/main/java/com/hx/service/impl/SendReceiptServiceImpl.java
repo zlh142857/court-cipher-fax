@@ -2,7 +2,7 @@ package com.hx.service.impl;
 
 import com.hx.dao.InboxMapper;
 import com.hx.dao.SendReceiptMapper;
-import com.hx.modle.Sch_Task;
+import com.hx.modle.Inbox;
 import com.hx.modle.Send_Receipt;
 import com.hx.service.RecycleBinService;
 import com.hx.service.SendReceiptService;
@@ -13,10 +13,8 @@ import sun.misc.BASE64Encoder;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -78,31 +76,30 @@ public class SendReceiptServiceImpl implements SendReceiptService {
                 send_receipt.getCreate_time(),
                 "",
                 0,
-                send_receipt.getSendline(),send_receipt.getMessage());
+                send_receipt.getSendline(),
+                send_receipt.getMessage(),
+                send_receipt.getIsLink(),
+
+                send_receipt.getTifPath(),
+                send_receipt.getBarCode());
+
         return sendReceiptMapper.deinbox(readerId);
 
     }
-
+    //点击关联回执,然后获取收件箱的id,然后根据id,查询收件箱barCode和tifpath ,
+    //根据barCode去发回执箱查找相同条形码的数据,更改状态为1已关联,并且tifPath=tifPath
+    //根据收件箱的intBoxId,查询一次正文的路径,吧正文的路径赋值给发回执箱的tifPath
     @Override
-    public Map<String, Object> selectReceiptNoLink(Integer pageNow, Integer pageSize) {
-        Map<String,Object> map=new HashMap<>(  );
-        int page=pageNow-1;
-        List<Sch_Task> list=sendReceiptMapper.selectReceiptNoLink(page,pageSize);
-        Long total=sendReceiptMapper.selectCountNoLink();
-        map.put( "list",list);
-        map.put( "total",total );
-        return map;
-    }
-
-    @Override
-    public boolean updateIsLink(String intBoxId, String receiptId) {
-        inboxMapper.updateIsLink(Integer.valueOf( intBoxId ));
-        //根据收件箱的intBoxId,查询一次正文的路径,吧正文的路径赋值给发回执箱的tifPath
-        String tifPath=inboxMapper.selectTifPath(Integer.valueOf( intBoxId ));
-        if(tifPath!=null || tifPath!=""){
-            sendReceiptMapper.updateIsLink(Integer.valueOf( receiptId ),tifPath);
+    public boolean updateIsLink(String inBoxId) {
+        boolean flag=true;
+        Inbox inbox=inboxMapper.selectBarAndTifPath(Integer.valueOf( inBoxId ));
+        if(null != inbox){
+            sendReceiptMapper.updateIsLinkByBar(inbox.getBarCode(),inbox.getFilsavepath());
+            inboxMapper.updateIsLink(Integer.valueOf( inBoxId ));
+        }else{
+            flag=false;
         }
-        return true;
+        return flag;
     }
     //file转换成jpg,然后获取第一页jpg,颜色转换之后,获取最新的路径,然后转换成base64
     @Override
