@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import uk.co.mmscomputing.device.scanner.ScannerIOException;
 
 import java.util.Map;
-
 @Controller
 public class PrintFileController{
     private static Logger logger=Logger.getLogger( PrintFileController.class );

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="court-cipher-fax">
+    <output-path>D:/</output-path>
+    <root id="archive" name="court-cipher-fax.jar">
+      <element id="module-output" name="court-cipher-fax" />
+    </root>
+  </artifact>
+</component>

@@ -16,8 +16,8 @@ public class ChStop1 implements Runnable{
     @Override
     public void run(){
         try{
-            int ch=0;
-            int i=8;
+            int ch=1;
+            int i=9;
             int state=Fax.INSTANCE.SsmGetChState(ch);
             int stateFax=Fax.INSTANCE.SsmGetChState(i);
             if(state==7){

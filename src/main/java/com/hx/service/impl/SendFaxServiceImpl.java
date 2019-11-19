@@ -86,12 +86,6 @@ public class SendFaxServiceImpl implements SendFaxService {
                 tifPath=null;
             }
             return tifPath;
-        } catch (FileNotFoundException e) {
-            logger.error( e.toString() );
-            return null;
-        } catch (IOException e) {
-            logger.error( e.toString() );
-            return null;
         } catch (Exception e){
             logger.error( e.toString() );
             return null;

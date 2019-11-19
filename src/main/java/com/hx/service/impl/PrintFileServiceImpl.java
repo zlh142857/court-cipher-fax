@@ -59,7 +59,7 @@ public class PrintFileServiceImpl implements PrintFileService {
     //扫描功能,返回文件保存路径
     @Override
     public String printScan() throws Exception{
-        String tifPath=schTask()+".tif";
+        String tifPath=schTask();
         String pdfPath=fileTemp()+".pdf";
         List<String> list=null;
         boolean flag=false;

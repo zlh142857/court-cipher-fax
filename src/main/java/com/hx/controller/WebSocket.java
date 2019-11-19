@@ -52,6 +52,7 @@ public class WebSocket {
                 webModelCount=0;
                 webModels=new ArrayList<>(  );
                 Thread.sleep( 200 );
+                System.out.println(msg+System.currentTimeMillis());
             }
             if(1==inboxCount){
                 String msg=JSONObject.toJSONStringWithDateFormat( inboxModels,"yyyy-MM-dd HH:mm:ss" );
@@ -59,6 +60,7 @@ public class WebSocket {
                 inboxCount=0;
                 inboxModels=new ArrayList<>(  );
                 Thread.sleep( 200 );
+                System.out.println(msg+System.currentTimeMillis());
             }
             if(1==outboxCount){
                 String msg=JSONObject.toJSONStringWithDateFormat( outboxModels,"yyyy-MM-dd HH:mm:ss" );
@@ -66,13 +68,14 @@ public class WebSocket {
                 outboxCount=0;
                 outboxModels=new ArrayList<>(  );
                 Thread.sleep( 200 );
+                System.out.println(msg+System.currentTimeMillis());
             }
             if(1==sendCount){
                 String msg=JSONObject.toJSONStringWithDateFormat( sendModels,"yyyy-MM-dd HH:mm:ss" );
                 sendMessageAll(msg);
                 sendCount=0;
                 sendModels=new ArrayList<>(  );
-                Thread.sleep( 200 );
+                System.out.println(msg+System.currentTimeMillis());
             }
             Thread.sleep( 1000 );
         }

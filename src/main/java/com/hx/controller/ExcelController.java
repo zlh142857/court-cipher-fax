@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,20 +50,19 @@ public class ExcelController {
     }
 
     @RequestMapping(value = "/InputExcel.do")
-            @ResponseBody
-                public String InputExcel(@RequestParam("file") MultipartFile file,
-                        HttpServletRequest request ,String typeid){
-                    String flag = "Import Fail";// 上传标志
-                    if (!file.isEmpty()) {
-                        try {
+    @ResponseBody
+    public String InputExcel(@RequestParam("file") MultipartFile file,
+             HttpServletRequest request ,String typeid){
+        String flag = "Import Fail";// 上传标志
+        if (!file.isEmpty()) {
+            try {
                 String originalFilename = file.getOriginalFilename();// 原文件名字
-                log.info("文件名：" + originalFilename);
 
                 InputStream is = file.getInputStream();// 获取输入流
                 flag = excelService.InputExcel(is, originalFilename,typeid);
             } catch (Exception e) { log.error("方法异常");
                 flag = "Import Exception";// 上传出错
-                e.printStackTrace();
+                log.error( e.toString() );
             }
         }
         return flag;
@@ -90,10 +88,8 @@ public class ExcelController {
 //    }
 
     @RequestMapping(value = "/OutputExcel2.do", produces = "application/form-data; charset=utf-8")
-    public void OutputExcel2(String ids, HttpServletRequest request, HttpServletResponse response){
-        try {
-            request.setCharacterEncoding("UTF-8");
-
+    public void OutputExcel2(String ids, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        request.setCharacterEncoding("UTF-8");
         response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html,charset=utf-8");
 
@@ -120,9 +116,6 @@ public class ExcelController {
         headers.add("联系人名称");
         ExcelHelper.exportExcel(headers, data, "downloadFile","xlsx", response);       //downloadFile为文件名称,可以自定义,建议用英文,中文在部分浏览器会乱码
         log.info("导出成功");
-        } catch (UnsupportedEncodingException e) {
-            log.error( e.toString() );
-        }
     }
 
 

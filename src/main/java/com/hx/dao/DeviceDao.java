@@ -22,5 +22,4 @@ public interface DeviceDao {
 
     Device_Setting selectPrefixByCh(int ch);
 
-    List<Integer> selectCh();
 }

@@ -22,7 +22,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/recycle")
-    public class RecycleBinController {
+public class RecycleBinController {
 
     private static Logger log = Logger.getLogger(ExcelController.class);// 日志文件
 

@@ -16,12 +16,10 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.*;
 import java.util.*;
-
 @Controller
 public class SendFaxController {
     private static Logger logger=Logger.getLogger(SendFaxController.class);
@@ -86,7 +84,7 @@ public class SendFaxController {
      */
     @RequestMapping("baseToTif")
     @ResponseBody
-    public String baseToTif(@RequestParam("base64") String base64){
+    public String baseToTif(String base64){
         String receiptPath=sendFaxService.baseToTif(base64);
         return JSONObject.toJSONString( receiptPath );
     }

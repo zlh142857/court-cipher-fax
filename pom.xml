@@ -15,7 +15,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <spring.version>4.0.2.RELEASE</spring.version>
+    <spring.version>4.2.3.RELEASE</spring.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
@@ -246,9 +246,9 @@
 <!--张立恒 start-->
     <!--Word转PDF  直接打印PDF    start-->
     <dependency>
-      <groupId>com.jacob</groupId>
-      <artifactId>jacob</artifactId>
-      <version>1.19</version>
+      <groupId>aspose</groupId>
+      <artifactId>aspose-words</artifactId>
+      <version>15.8.0-jdk16</version>
     </dependency>
     <!--Word转PDF  直接打印PDF    end-->
     <!-- itext 多页tif合并为PDF文件 start -->
@@ -328,12 +328,7 @@
       <version>7.0</version>
       <scope>provided</scope>
     </dependency>
-    <!-- webSocket 结束-->
-    <dependency>
-      <groupId>aspose</groupId>
-      <artifactId>aspose-words</artifactId>
-      <version>15.8.0-jdk16</version>
-    </dependency>
+      <!-- webSocket 结束-->
     <!--张立恒 end-->
 
 

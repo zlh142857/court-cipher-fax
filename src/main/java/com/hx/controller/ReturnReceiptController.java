@@ -25,7 +25,7 @@ import java.util.Map;
 public class ReturnReceiptController {
     @Resource
     private ReturnReceiptService returnReceiptService;
-    private static Logger log = Logger.getLogger(Controller.class);// 日志文件
+    private static Logger log = Logger.getLogger(ReturnReceiptController.class);// 日志文件
 
     //收回执查询
     @RequestMapping(value = "/ReturnReceiptlist", method = RequestMethod.GET)

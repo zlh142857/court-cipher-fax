@@ -30,7 +30,7 @@
     function clickBtn3() {
         $.ajax({
             type: "GET",
-            url: "http://localhost:8080/printScan.do",
+            url: "http://localhost:8080/baseToTif.do",
             success: function (str) {
                 console.log(str);
             },

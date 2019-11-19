@@ -56,7 +56,7 @@ public class TwainExample implements ScannerListener {
                 count=1;
             }
         } else if (var1.equals(ScannerIOMetadata.EXCEPTION)) {
-            var2.getException().printStackTrace();
+            logger.error(var2.getException());
         }
 
     }

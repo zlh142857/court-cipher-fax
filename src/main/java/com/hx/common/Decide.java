@@ -147,6 +147,7 @@ public class Decide {
                                 map.put( "tifPath",tifPath );
                                 map.put( "callerId",callerId );
                                 logger.info("接收成功");
+                                stopAndHungUp(ch,i);
                             }
                         }else{
                             message="接收失败";
