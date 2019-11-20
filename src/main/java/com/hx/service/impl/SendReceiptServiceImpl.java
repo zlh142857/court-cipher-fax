@@ -35,8 +35,6 @@ public class SendReceiptServiceImpl implements SendReceiptService {
     RecycleBinService recycleBinService;
     @Autowired
     private InboxMapper inboxMapper;
-
-
     @Override
     public int insert(Send_Receipt send_receipt) {
         return sendReceiptMapper.insert(send_receipt);
@@ -84,6 +82,13 @@ public class SendReceiptServiceImpl implements SendReceiptService {
                 send_receipt.getBarCode());
 
         return sendReceiptMapper.deinbox(readerId);
+
+    }
+
+    @Override
+    public List<Send_Receipt> getAll(String[] ids) {
+        return sendReceiptMapper.getAll(ids);
+
 
     }
     //点击关联回执,然后获取收件箱的id,然后根据id,查询收件箱barCode和tifpath ,

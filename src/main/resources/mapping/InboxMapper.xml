@@ -13,7 +13,6 @@
         <result property="isLink" column="isLink"/>
         <result property="barCode" column="barCode"/>
     </resultMap>
-
     <delete id="deinbox">
        DELETE FROM inbox WHERE id = #{id}
     </delete>
@@ -29,7 +28,7 @@
         SELECT * FROM inbox WHERE
         create_time BETWEEN date_format(#{beginDate},'%Y-%m-%d') AND date_format(#{endDate},'%Y-%m-%d')
         <if test="mailListId!=null">
-        AND senderunit LIKE '% ${mailListId}%'
+            AND senderunit LIKE '% ${mailListId}%'
         </if>
     </select>
 
@@ -74,20 +73,17 @@
         <if test="params.Isreceipt!=null">
             and  Isreceipt   = #{params.Isreceipt}
         </if>
+        order by create_time desc
         LIMIT ${params.start}, ${params.offset}
     </select>
 
     <select id="queryALLMailList" resultType="com.hx.modle.Inbox">
         select  * from inbox
     </select>
-
-
-
     <select id="getById" resultType="com.hx.modle.Inbox">
-      select
-        id, sendnumber, senderunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt
+     select id, sendnumber, senderunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt,barCode,isLink
         from inbox where id = #{id}
-        </select>
+      </select>
 
     <select id="queryinboxCount" resultType="java.lang.Integer">
       select * from table limit (start-1)*limit
@@ -96,15 +92,26 @@
 
 
     <insert id="insert" parameterType="com.hx.modle.Inbox">
-        INSERT INTO inbox(id, sendnumber, senderunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt) VALUES (
-          #{inbox.id},
-          #{inbox.sendnumber},
-          #{inbox.senderunit},
-          #{inbox.receivenumber},
-          #{inbox.filsavepath},
-          #{inbox.create_time},
-          #{inbox.receiptpath},
-          #{inbox.isreceipt}
+        INSERT INTO inbox(id,
+        sendnumber,
+        senderunit,
+        receivenumber,
+        filsavepath,
+        create_time,
+        receiptpath,
+        Isreceipt,
+        barCode,
+        isLink) VALUES (
+        #{inbox.id},
+        #{inbox.sendnumber},
+        #{inbox.senderunit},
+        #{inbox.receivenumber},
+        #{inbox.filsavepath},
+        #{inbox.create_time},
+        #{inbox.receiptpath},
+        #{inbox.isreceipt},
+        #{inbox.barCode},
+        #{inbox.isLink}
         )
     </insert>
     <!--张立恒start-->

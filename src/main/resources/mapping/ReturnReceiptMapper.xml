@@ -87,15 +87,17 @@
         <if  test="params.endDate!=null and params.endDate!=''">
             and create_time &lt;=  #{params.endDate}
         </if>
+        order by create_time desc
         LIMIT ${params.start}, ${params.offset}
     </select>
 
     <select id="queryALLMailList" resultType="com.hx.modle.Return_Receipt">
-        select  * from return_receipt where state = 1
+        select  * from return_receipt
     </select>
 
+
     <delete id="deinbox">
-       delete from return_receipt  where  id  = #{id}
+       DELETE FROM return_receipt WHERE id = #{id}
     </delete>
 
     <select id="getById" resultType="com.hx.modle.Return_Receipt">
@@ -103,9 +105,17 @@
         id, senderunit, sendnumber, receivenumber, create_time, filsavepath
         from return_receipt where id = #{id}
         </select>
+    <select id="getAll" resultType="com.hx.modle.Return_Receipt">
+        SELECT*
+        FROM return_receipt
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 
     <!--<select id="queryList" resultType="com.hx.modle.Return_Receipt">-->
-      <!--select * from table limit (start-1)*limit-->
+    <!--select * from table limit (start-1)*limit-->
     <!--</select>-->
 
     <insert id="insert" parameterType="com.hx.modle.Return_Receipt">

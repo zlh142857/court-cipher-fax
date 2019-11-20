@@ -25,11 +25,4 @@ public interface InBoxService {
     boolean delinbox(String ids);
 
     int insert(Inbox inbox);
-
-
-
-
-//    List<Inbox> queryALLMail(String mailListId, String beginDate, String endDate);
-
-//    List<Inbox> queryALLMail(String mailListId,String);
 }

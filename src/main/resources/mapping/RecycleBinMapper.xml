@@ -29,7 +29,7 @@
         <if test="params.receivenumber != null and params.receivenumber != ''">
             AND t.receivenumber LIKE CONCAT('%', #{params.receivenumber}, '%')
         </if>
-        <if test="params.sendnumber != null and params.sendnumber != ''">
+        <if test="params.sendernumber != null and params.sendernumber != ''">
             AND t.sendnumber LIKE CONCAT('%', #{params.sendnumber}, '%')
         </if>
         <if test="params.sendline != null and params.sendline != ''">
@@ -49,7 +49,8 @@
         <if  test="params.endDate!=null and params.endDate!=''">
             and create_time &lt;=  #{params.endDate}
         </if>
-           LIMIT ${params.start}, ${params.offset}
+        order by recoverytime desc
+          LIMIT ${params.start}, ${params.offset}
     </select>
 
     <select id="getTotal" resultType="int">
@@ -66,7 +67,7 @@
         <if test="params.receivenumber != null and params.receivenumber != ''">
             AND t.receivenumber LIKE CONCAT('%', #{params.receivenumber}, '%')
         </if>
-        <if test="params.sendnumber != null and params.sendnumber != ''">
+        <if test="params.sendernumber != null and params.sendernumber != ''">
             AND t.sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
         </if>
         <if test="params.sendline != null and params.sendline != ''">
@@ -103,7 +104,10 @@
             t.Isreceipt,
             t.create_time,
             t.relate_type,
-            t.message
+            t.message,
+            t.isLink,
+            t.barCode,
+            t.tifPath
         FROM recycle_bin t
         WHERE t.id = #{id}
     </select>
@@ -119,10 +123,37 @@
     </delete>
 
     <insert id="insert" parameterType="com.hx.modle.RecycleBin">
-        INSERT INTO recycle_bin(recoverytime,sendnumber, senderunit,receivingunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt,
-         relate_type, sendline, message) VALUES (
-          #{ recycleBin.recoverytime},#{ recycleBin.sendnumber}, #{recycleBin.senderunit}, #{recycleBin.receivingunit}, #{recycleBin.receivenumber}, #{recycleBin.filsavepath},
-          #{recycleBin.create_time},#{recycleBin.receiptpath},#{recycleBin.Isreceipt},#{recycleBin.relate_type},#{recycleBin.sendline},#{recycleBin.message}
+        INSERT INTO recycle_bin(
+        recoverytime,
+        sendnumber,
+        senderunit,
+        receivingunit,
+        receivenumber,
+        filsavepath,
+        create_time,
+        receiptpath,
+        Isreceipt,
+        relate_type,
+        sendline,
+        message,
+        isLink,
+        barCode,
+        tifPath) VALUES (
+        #{ recycleBin.recoverytime},
+        #{ recycleBin.sendnumber},
+        #{recycleBin.senderunit},
+        #{recycleBin.receivingunit},
+        #{recycleBin.receivenumber},
+        #{recycleBin.filsavepath},
+        #{recycleBin.create_time},
+        #{recycleBin.receiptpath},
+        #{recycleBin.Isreceipt},
+        #{recycleBin.relate_type},
+        #{recycleBin.sendline},
+        #{recycleBin.message},
+        #{recycleBin.isLink},
+        #{recycleBin.barCode},
+        #{recycleBin.tifPath}
         )
     </insert>
 </mapper>

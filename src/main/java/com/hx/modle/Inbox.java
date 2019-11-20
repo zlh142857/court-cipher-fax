@@ -1,5 +1,7 @@
 package com.hx.modle;
 
+import com.hx.util.TimeHelper;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -10,6 +12,7 @@ import java.util.Date;
  */
 public class Inbox implements Serializable {
     private static final long serialVersionUID = 1670857753595889875L;
+
     private int id;//id
     private String sendnumber;//发送方号码
     private String senderunit;//发送方单位
@@ -18,88 +21,8 @@ public class Inbox implements Serializable {
     private Date create_time;//接收时间
     private String receiptpath;//回执文件保存路径
     private int isreceipt;//是否已回执
-    private int isLink; //是否已关联
     private String barCode;//条形码的值
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getSendnumber() {
-        return sendnumber;
-    }
-
-    public void setSendnumber(String sendnumber) {
-        this.sendnumber = sendnumber;
-    }
-
-    public String getSenderunit() {
-        return senderunit;
-    }
-
-    public void setSenderunit(String senderunit) {
-        this.senderunit = senderunit;
-    }
-
-    public String getReceivenumber() {
-        return receivenumber;
-    }
-
-    public void setReceivenumber(String receivenumber) {
-        this.receivenumber = receivenumber;
-    }
-
-    public String getFilsavepath() {
-        return filsavepath;
-    }
-
-    public void setFilsavepath(String filsavepath) {
-        this.filsavepath = filsavepath;
-    }
-
-    public Date getCreate_time() {
-        return create_time;
-    }
-
-    public void setCreate_time(Date create_time) {
-        this.create_time = create_time;
-    }
-
-    public String getReceiptpath() {
-        return receiptpath;
-    }
-
-    public void setReceiptpath(String receiptpath) {
-        this.receiptpath = receiptpath;
-    }
-
-    public int getIsreceipt() {
-        return isreceipt;
-    }
-
-    public void setIsreceipt(int isreceipt) {
-        this.isreceipt = isreceipt;
-    }
-
-    public int getIsLink() {
-        return isLink;
-    }
-
-    public void setIsLink(int isLink) {
-        this.isLink = isLink;
-    }
-
-    public String getBarCode() {
-        return barCode;
-    }
-
-    public void setBarCode(String barCode) {
-        this.barCode = barCode;
-    }
+    private int isLink;//是否已关联
 
     @Override
     public String toString() {
@@ -112,8 +35,97 @@ public class Inbox implements Serializable {
                 ", create_time=" + create_time +
                 ", receiptpath='" + receiptpath + '\'' +
                 ", isreceipt=" + isreceipt +
-                ", isLink=" + isLink +
                 ", barCode='" + barCode + '\'' +
+                ", isLink=" + isLink +
                 '}';
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setSendnumber(String sendnumber) {
+        this.sendnumber = sendnumber;
+    }
+
+    public void setSenderunit(String senderunit) {
+        this.senderunit = senderunit;
+    }
+
+    public void setReceivenumber(String receivenumber) {
+        this.receivenumber = receivenumber;
+    }
+
+    public void setFilsavepath(String filsavepath) {
+        this.filsavepath = filsavepath;
+    }
+
+    public void setCreate_time(Date create_time) {
+        this.create_time = create_time;
+    }
+
+    public void setReceiptpath(String receiptpath) {
+        this.receiptpath = receiptpath;
+    }
+
+    public void setIsreceipt(int isreceipt) {
+        this.isreceipt = isreceipt;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
+    }
+
+    public void setIsLink(int isLink) {
+        this.isLink = isLink;
+    }
+
+    public static long getSerialVersionUID() {
+
+        return serialVersionUID;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getSendnumber() {
+        return sendnumber;
+    }
+
+    public String getSenderunit() {
+        return senderunit;
+    }
+
+    public String getReceivenumber() {
+        return receivenumber;
+    }
+
+    public String getFilsavepath() {
+        return filsavepath;
+    }
+
+    public Date getCreate_time() {
+        return create_time;
+    }
+
+    public String getCreateTimeFormat() {
+        return TimeHelper.formatDateTime(create_time);
+    }
+
+    public String getReceiptpath() {
+        return receiptpath;
+    }
+
+    public int getIsreceipt() {
+        return isreceipt;
+    }
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public int getIsLink() {
+        return isLink;
     }
 }

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 /**
@@ -25,43 +24,33 @@ import java.util.*;
 @Controller
 @RequestMapping("/inbox")
 public class InBoxController {
-
     @Resource
     private InBoxService inBoxService;
     private static Logger log = Logger.getLogger(InBoxController.class);// 日志文件
-
     /**
      * 收件箱导出
      */
-    @RequestMapping(value = "/export.do", produces = "application/form-data; charset=utf-8")
-    public void OutputExcel2(String ids ,HttpServletRequest request, HttpServletResponse response){
-        try {
-            request.setCharacterEncoding("UTF-8");
-            response.setCharacterEncoding("UTF-8");
-            response.setContentType("text/html,charset=utf-8");
-
-            //查询需要导出的数据
-            List<Inbox> list = inBoxService.getAll(ids.split(","));
+        @RequestMapping(value = "/export.do", produces = "application/form-data; charset=utf-8")
+            public void OutputExcel2(String ids ,HttpServletRequest request, HttpServletResponse response) throws Exception {
+                request.setCharacterEncoding("UTF-8");
+                response.setCharacterEncoding("UTF-8");
+                response.setContentType("text/html,charset=utf-8");
+        //查询需要导出的数据
+        List<Inbox> list = inBoxService.getAll(ids.split(","));
                 List<Object[]> data = new ArrayList<>();    //转换数据
                 Iterator<Inbox> it = list.iterator();
                 while (it.hasNext()) {
                     Inbox m = it.next();
-                data.add(new Object[]{m.getId(), m.getSendnumber(), m.getFilsavepath(), m.getReceivenumber()});
+                data.add(new Object[]{ m.getSendnumber(), m.getReceivenumber(), m.getReceivenumber()});
                 // data.add(new Object[]{  m.getSendname(), m.getAccepttime(), m.getFileaddress()});
             }
-            //构建Excel表头,此处需与data中数据一一对应
-            List<String> headers = new ArrayList<String>();
-            headers.add("sendnumber");
-            headers.add("senderunit");
-            headers.add("Fileaddress");
-            ExcelHelper.exportExcel(headers, data, "downloadFile", "xlsx", response);       //downloadFile为文件名称,可以自定义,建议用英文,中文在部分浏览器会乱码
-            log.info("导出成功");
-        } catch (UnsupportedEncodingException e) {
-            log.error( e.toString());
-        }
-    }
-
-
+        //构建Excel表头,此处需与data中数据一一对应
+        List<String> headers = new ArrayList<String>();
+        headers.add("发送方号码");
+        headers.add("发送方单位");
+        headers.add("接收号码");
+        ExcelHelper.exportExcel(headers, data, "收件箱", "xlsx", response);//downloadFile为文件名称,可以自定义,建议用英文,中文在部分浏览器会乱码
+}
    //收件箱查询
    @RequestMapping(value = "/queryinbox", method = RequestMethod.GET)
    @ResponseBody
@@ -69,7 +58,6 @@ public class InBoxController {
         //mailListId="m";
        Map<String, Object> result = new HashMap<>();
        result.put("state", 0); //0代表失败，1代表成功
-
        if ( StringUtils.isNotEmpty(beginDate) ) {
            beginDate=beginDate.trim();  //2019-12-01 12:00:00
        }
@@ -83,7 +71,6 @@ public class InBoxController {
        searchMap.put("Isreceipt",Isreceipt);
        searchMap.put("beginDate",beginDate);
        searchMap.put("endDate",endDate);
-
        int count = inBoxService.queryTotalCount(searchMap);
         if ( count > 0 ) {
             List<Inbox> mails = inBoxService.queryALLMail(searchMap, pageNo, pageSize);
@@ -91,12 +78,10 @@ public class InBoxController {
             result.put("totalCount", count);
         }
        result.put("state", 1); //0代表失败，1代表成功
-       log.info("查询成功");
        return result;
    }
-
-   @RequestMapping(value = "/inboxList", method = RequestMethod.GET)
-   @ResponseBody
+       @RequestMapping(value = "/inboxList", method = RequestMethod.GET)
+       @ResponseBody
     public Map<String, Object> mailLists() {
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
@@ -106,7 +91,6 @@ public class InBoxController {
         result.put("state", 1); //0代表失败，1代表成功
         return result;
     }
-
     //TODO 删除记录
     @RequestMapping(value = "/deinbox", method = RequestMethod.GET)
     @ResponseBody
@@ -123,16 +107,12 @@ public class InBoxController {
             for (int i = 0; i < split.length; i++) {
                 inBoxService.deinbox(Integer.parseInt(split[i]));
             }
-            log.info("删除成功");
             result.put("state", 1); //0代表失败，1代表成功
         } catch (Exception e) {
             e.printStackTrace();
             result.put("msg", e.getMessage());
         }
         return result;
-
     }
-
-
     }
 

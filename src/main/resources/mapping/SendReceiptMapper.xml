@@ -69,7 +69,6 @@
       UPDATE send_receipt SET isLink=1,tifPath=#{tifPath,jdbcType=VARCHAR} WHERE barCode=#{barCode,jdbcType=VARCHAR}
   </update>
   <!--张立恒end-->
-
   <select id="queryALLMail" parameterType="java.util.Map" resultType="com.hx.modle.Send_Receipt">
     SELECT * FROM send_receipt where 1 = 1
     <if  test="params.receivingunit!=null and params.receivingunit!=''">
@@ -93,11 +92,12 @@
     <if  test="params.sendnumber!=null and params.sendnumber!=''">
       and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
     </if>
+    order by create_time desc
     LIMIT ${params.start}, ${params.offset}
   </select>
 
   <select id="queryTotalCount" resultType="java.lang.Integer">
-        select  COUNT(*) from send_receipt where 1 = 1
+    select  COUNT(*) from send_receipt where 1 = 1
     <if  test="params.receivingunit!=null and params.receivingunit!=''">
       and receivingunit LIKE CONCAT('%',#{params.receivingunit},'%')
     </if>
@@ -116,10 +116,11 @@
     <if  test="params.message!=null and params.message!=''">
       and message LIKE CONCAT('%',#{params.message},'%')
     </if>
-    <if  test="params.sendnumber!=null and params.sendnumber!=''">
+    <if  test="params.sendernumber!=null and params.sendernumber!=''">
       and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
     </if>
-    </select>
+
+  </select>
 
   <select id="queryALLMailList" resultType="com.hx.modle.Send_Receipt">
         select  * from send_receipt
@@ -131,25 +132,40 @@
 
   <select id="getById" resultType="com.hx.modle.Send_Receipt">
       select
-        id, receivingunit, receivenumber, create_time, sendline, message,sendnumber
+        id, receivingunit, receivenumber, create_time, sendline, message,sendnumber,isLink,tifPath,barCode
         from send_receipt where id = #{id}
         </select>
-
-  <!--<select id="queryList" resultType="com.hx.modle.Send_Receipt">-->
-      <!--select * from table limit (start-1)*limit-->
-    <!--</select>-->
+  <select id="getAll" resultType="com.hx.modle.Send_Receipt">
+    SELECT*
+    FROM send_receipt
+    where id in
+    <foreach collection="ids" item="id" open="(" close=")" separator=",">
+      #{id}
+    </foreach>
+  </select>
 
   <insert id="insert" parameterType="com.hx.modle.Send_Receipt">
-        INSERT INTO send_receipt(id, receivingunit, receivenumber, create_time, sendline, message,sendnumber) VALUES (
-          #{send_receipt.id},
-          #{send_receipt.receivingunit},
-          #{send_receipt.receivenumber},
-          #{send_receipt.create_time},
-          #{send_receipt.sendline},
-          #{send_receipt.message},
-          #{send_receipt.sendnumber}
+        INSERT INTO send_receipt(id,
+        receivingunit,
+        receivenumber,
+        create_time,
+        sendline,
+        message,
+        sendnumber,
+        isLink,
+        tifPath,
+        barCode) VALUES (
+        #{send_receipt.id},
+        #{send_receipt.receivingunit},
+        #{send_receipt.receivenumber},
+        #{send_receipt.create_time},
+        #{send_receipt.sendline},
+        #{send_receipt.message},
+        #{send_receipt.sendnumber},
+        #{send_receipt.isLink},
+        #{send_receipt.tifPath},
+        #{send_receipt.barCode}
         )
     </insert>
-
 
 </mapper>

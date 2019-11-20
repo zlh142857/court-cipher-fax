@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -113,10 +114,10 @@ public class ExcelHelper {
 	 */
 	public static void exportExcel(List<String> headers, List<Object[]> bodyContent, String fileName, String fileType, HttpServletResponse response){
 		try {
-			Workbook workbook;
-			if ("xlsx".equals(fileType)) {
+			Workbook workbook = null;
+			if ("xls".equals(fileType)) {
 				workbook = new XSSFWorkbook();
-			} else {
+			}else if ("xlsx".equals(fileType)){
 				workbook = new HSSFWorkbook();
 			}
 			// 产生工作表对象

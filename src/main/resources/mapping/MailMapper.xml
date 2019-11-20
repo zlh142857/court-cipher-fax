@@ -11,6 +11,9 @@
 
   <select id="queryALLMail" resultType="com.hx.modle.Mail" parameterType="java.util.Map">
       select * from mail where 1 = 1
+      <if test="params.mailListId != null">
+          and  typeid  = #{params.mailListId}
+      </if>
       <if test="params.typeid != null">
           and  typeid  = #{params.typeid}
       </if>
@@ -20,7 +23,7 @@
       <if test="params.linknumber != null">
           and  linknumber LIKE CONCAT('%', #{params.linknumber}, '%')
       </if>
-      LIMIT ${params.start}, ${params.offset}
+
   </select>
 
     <delete id="deleteUserById" parameterType="java.lang.Integer">
@@ -54,14 +57,21 @@
 		where typename=#{typename}
 	</select>
 
-    <delete id="delmaillist" parameterType="java.lang.Integer">
+    <delete id="delmaillist" parameterType="java.lang.Integer" >
     delete
-    from mail_ist
+    from mail_list
     where id = #{id}
+    </delete>
+
+    <delete id="deletemail" parameterType="java.lang.Integer" >
+    delete
+    from mail
+    where typeid = #{id}
     </delete>
     <!--张立恒-->
     <select id="selectCourtName" resultType="java.lang.String" parameterType="java.lang.String">
       SELECT linkname FROM mail WHERE linknumber=#{callerId,jdbcType=VARCHAR}
     </select>
     <!--张立恒-->
+
 </mapper>

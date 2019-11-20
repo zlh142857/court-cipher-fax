@@ -45,7 +45,7 @@
     </select>
 
     <select id="queryALLMailList" resultType="com.hx.modle.Outbox">
-      select  * from outbox where 1 = 1
+        select * from outbox where 1 = 1
         <if  test="params.sendnumber!=null and params.sendnumber!=''">
             and  sendnumber  LIKE CONCAT('%',#{params.sendnumber},'%')
         </if>
@@ -67,15 +67,15 @@
         <if  test="params.endDate!=null and params.endDate!=''">
             and create_time &lt;=  #{params.endDate}
         </if>
-      LIMIT ${params.start}, ${params.offset}
-     </select>
+        order by create_time desc
+        LIMIT ${params.start}, ${params.offset}
+    </select>
 
     <delete id="deloutbox">
         DELETE FROM outbox WHERE id = #{id}
-
     </delete>
 
-  <select id="getById" resultType="com.hx.modle.Outbox">
+    <select id="getById" resultType="com.hx.modle.Outbox">
       SELECT
       t.id,t.sendnumber,t.receivenumber,t.receivingunit,t.create_time,t.sendline,t.message
       FROM outbox  t where id = #{id}
@@ -92,9 +92,6 @@
           #{outbox.message}
         )
     </insert>
-
-
-
     <!--张立恒start-->
     <insert id="insertNewMessage" parameterType="com.hx.modle.Outbox">
         INSERT INTO outbox

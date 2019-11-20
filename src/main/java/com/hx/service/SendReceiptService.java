@@ -26,6 +26,8 @@ public interface SendReceiptService {
 
     int deinbox(Integer readerId);
 
+    List<Send_Receipt> getAll(String[] ids);
+
     boolean updateIsLink(String inBoxId);
 
     String checkText(String tifPath) throws IOException;

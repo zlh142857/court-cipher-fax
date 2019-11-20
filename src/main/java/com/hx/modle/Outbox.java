@@ -1,6 +1,9 @@
 package com.hx.modle;
 
+import com.hx.util.TimeHelper;
+
 import java.io.Serializable;
+import java.sql.Time;
 import java.util.Date;
 
 /**
@@ -82,6 +85,10 @@ public class Outbox implements Serializable {
 
     public Date getCreate_time() {
         return create_time;
+    }
+
+    public String getCreateTimeFormat() {
+        return TimeHelper.formatDateTime(create_time);
     }
 
     public String getSendline() {

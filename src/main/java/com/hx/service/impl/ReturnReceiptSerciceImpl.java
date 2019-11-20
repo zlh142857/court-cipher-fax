@@ -24,13 +24,6 @@ public class ReturnReceiptSerciceImpl implements ReturnReceiptService {
 
     @Autowired
     RecycleBinService recycleBinService;
-
-
-    @Override
-    public List<Return_Receipt> getAll() {
-        return null;
-    }
-
     @Override
     public int queryTotalCount(Map<String, Object> searchMap) {
         return returnReceiptMapperr.queryTotalCount(searchMap);
@@ -69,6 +62,11 @@ public class ReturnReceiptSerciceImpl implements ReturnReceiptService {
                 0, "","", 0,
                 "","");
         return returnReceiptMapperr.deinbox(readerId);
+    }
+
+    @Override
+    public List<Return_Receipt> getAll(String[] ids) {
+        return returnReceiptMapperr.getAll(ids);
     }
 
     @Override

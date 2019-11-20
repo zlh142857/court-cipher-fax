@@ -1,5 +1,7 @@
 package com.hx.modle;
 
+import com.hx.util.TimeHelper;
+import org.omg.CORBA.DATA_CONVERSION;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -10,150 +12,172 @@ import java.util.Date;
  * @desc 回收站
  */
 public class RecycleBin implements Serializable {
-    private static final long serialVersionUID = 2584724251504684816L;
-    private int id;
-    private Date recoverytime;
-    private String senderunit;
-    private String receivingunit;
-    private String receivenumber;
-    private String sendnumber;
-    private String sendline;
-    private String filsavepath;
-    private String receiptpath;
-    private int Isreceipt;
-    private Date create_time;
-    private String relate_type;
-    private String message;
-    private int isLink;
-    private String barCode;
-    private String tifPath;
 
-    public int getId() {
-        return id;
-    }
+    private int id;
+
+    private Date recoverytime;
+
+    private String senderunit;
+
+    private String receivingunit;
+
+    private String receivenumber;
+
+    private String sendnumber;
+
+    private String sendline;
+
+    private int Isreceipt;
+
+    private Date create_time;
+
+    private String relate_type;
+
+    private String message;
+
+    private String barCode;//条形码的值
+
+    private int isLink;//是否已关联
+
+    private String tifPath;
+    private String Receiptpath;
+    private String filsavepath;
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public Date getRecoverytime() {
-        return recoverytime;
     }
 
     public void setRecoverytime(Date recoverytime) {
         this.recoverytime = recoverytime;
     }
 
-    public String getSenderunit() {
-        return senderunit;
-    }
-
     public void setSenderunit(String senderunit) {
         this.senderunit = senderunit;
-    }
-
-    public String getReceivingunit() {
-        return receivingunit;
     }
 
     public void setReceivingunit(String receivingunit) {
         this.receivingunit = receivingunit;
     }
 
-    public String getReceivenumber() {
-        return receivenumber;
-    }
-
     public void setReceivenumber(String receivenumber) {
         this.receivenumber = receivenumber;
-    }
-
-    public String getSendnumber() {
-        return sendnumber;
     }
 
     public void setSendnumber(String sendnumber) {
         this.sendnumber = sendnumber;
     }
 
-    public String getSendline() {
-        return sendline;
-    }
-
     public void setSendline(String sendline) {
         this.sendline = sendline;
-    }
-
-    public String getFilsavepath() {
-        return filsavepath;
-    }
-
-    public void setFilsavepath(String filsavepath) {
-        this.filsavepath = filsavepath;
-    }
-
-    public String getReceiptpath() {
-        return receiptpath;
-    }
-
-    public void setReceiptpath(String receiptpath) {
-        this.receiptpath = receiptpath;
-    }
-
-    public int getIsreceipt() {
-        return Isreceipt;
     }
 
     public void setIsreceipt(int isreceipt) {
         Isreceipt = isreceipt;
     }
 
-    public Date getCreate_time() {
-        return create_time;
-    }
-
     public void setCreate_time(Date create_time) {
         this.create_time = create_time;
-    }
-
-    public String getRelate_type() {
-        return relate_type;
     }
 
     public void setRelate_type(String relate_type) {
         this.relate_type = relate_type;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public int getIsLink() {
-        return isLink;
-    }
-
-    public void setIsLink(int isLink) {
-        this.isLink = isLink;
-    }
-
-    public String getBarCode() {
-        return barCode;
     }
 
     public void setBarCode(String barCode) {
         this.barCode = barCode;
     }
 
-    public String getTifPath() {
-        return tifPath;
+    public void setIsLink(int isLink) {
+        this.isLink = isLink;
     }
 
     public void setTifPath(String tifPath) {
         this.tifPath = tifPath;
+    }
+
+    public void setReceiptpath(String receiptpath) {
+        Receiptpath = receiptpath;
+    }
+
+    public void setFilsavepath(String filsavepath) {
+        this.filsavepath = filsavepath;
+    }
+
+    public int getId() {
+
+        return id;
+    }
+
+    public Date getRecoverytime() {
+        return recoverytime;
+    }
+
+    public String getRecoverytimeFormat() {
+        return TimeHelper.formatDateTime(recoverytime);
+    }
+
+    public String getSenderunit() {
+        return senderunit;
+    }
+
+    public String getReceivingunit() {
+        return receivingunit;
+    }
+
+    public String getReceivenumber() {
+        return receivenumber;
+    }
+
+    public String getSendnumber() {
+        return sendnumber;
+    }
+
+    public String getSendline() {
+        return sendline;
+    }
+
+    public int getIsreceipt() {
+        return Isreceipt;
+    }
+
+    public Date getCreate_time() {
+        return create_time;
+    }
+
+    public String getCreateTimeFormat() {
+        return TimeHelper.formatDateTime(create_time);
+    }
+
+    public String getRelate_type() {
+        return relate_type;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public int getIsLink() {
+        return isLink;
+    }
+
+    public String getTifPath() {
+        return tifPath;
+    }
+
+    public String getReceiptpath() {
+        return Receiptpath;
+    }
+
+    public String getFilsavepath() {
+        return filsavepath;
     }
 
     @Override
@@ -166,15 +190,15 @@ public class RecycleBin implements Serializable {
                 ", receivenumber='" + receivenumber + '\'' +
                 ", sendnumber='" + sendnumber + '\'' +
                 ", sendline='" + sendline + '\'' +
-                ", filsavepath='" + filsavepath + '\'' +
-                ", receiptpath='" + receiptpath + '\'' +
                 ", Isreceipt=" + Isreceipt +
                 ", create_time=" + create_time +
                 ", relate_type='" + relate_type + '\'' +
                 ", message='" + message + '\'' +
-                ", isLink=" + isLink +
                 ", barCode='" + barCode + '\'' +
+                ", isLink=" + isLink +
                 ", tifPath='" + tifPath + '\'' +
+                ", Receiptpath='" + Receiptpath + '\'' +
+                ", filsavepath='" + filsavepath + '\'' +
                 '}';
     }
 }

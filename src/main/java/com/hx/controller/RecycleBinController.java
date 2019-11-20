@@ -8,8 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.List;
@@ -22,13 +20,10 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/recycle")
-public class RecycleBinController {
-
-    private static Logger log = Logger.getLogger(ExcelController.class);// 日志文件
-
+    public class RecycleBinController {
+    private static Logger log = Logger.getLogger(RecycleBinController.class);// 日志文件
     @Resource
     private RecycleBinService recycleBinService;
-
     /**
      * 分页查询列表
      */
@@ -38,7 +33,6 @@ public class RecycleBinController {
                                          String receivingunit,String receivenumber,String sendnumber,
                                          String sendline, String recoveryBeginDate,String recoveryEndDate, String beginDate,String endDate ) {
         Map<String, Object> result = new HashMap<>();
-
         result.put("state", 0); //0代表失败，1代表成功
         if ( StringUtils.isNotEmpty(beginDate) ) {
             beginDate=beginDate.trim();  //2019-12-01 12:00:00
@@ -64,7 +58,6 @@ public class RecycleBinController {
         result.put("state", 1); //0代表失败，1代表成功
         return result;
     }
-
     /**
      * 还原,批量操作,多个id之间英文逗号分隔
      */
@@ -74,7 +67,6 @@ public class RecycleBinController {
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
         if ( StringUtils.isEmpty(ids) ) {
-
             result.put("msg", "参数错误");
             log.error("参数错误"+ids);
             return result;
@@ -83,10 +75,8 @@ public class RecycleBinController {
         if ( b ) {
             result.put("state", 1); //0代表失败，1代表成功
         }
-        log.info("还原成功");
         return result;
     }
-
     /**
      * 删除
      */
@@ -104,7 +94,6 @@ public class RecycleBinController {
         if ( b ) {
             result.put("state", 1); //0代表失败，1代表成功
         }
-        log.info("删除成功");
         return result;
     }
 }

@@ -15,7 +15,6 @@
 	<sql id="WithDept_Column_List">
 		e.id, e.linkname, e.linknumber, e.typeid
 	</sql>
-
 	<sql id="Example_Where_Clause">
 		<where>
 			<foreach collection="oredCriteria" item="criteria" separator="or">

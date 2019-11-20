@@ -25,6 +25,8 @@ public interface ReturnReceiptMapper {
 
         int insert(@Param("return_receipt") Return_Receipt return_receipt);
 
+        List<Return_Receipt> getAll(@Param("ids") String[] ids);
+
         void insertReceipt(Return_Receipt returnReceipt);
 
 }

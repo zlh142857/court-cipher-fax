@@ -18,8 +18,6 @@ public interface MailMapper {
 
     List<Mail_List> queryALLMailList();
 
-    int queryTotalCount(@Param("params") Map<String, Object> searchMap);
-
     List<Mail_List> queryALLMail(@Param("params") Map<String, Object> searchMap);
 
     int deleteUserById(int id);
@@ -35,6 +33,8 @@ public interface MailMapper {
     int delmaillist(Integer id);
 
     int deletemail(Integer id);
+
+    int queryTotalCount(@Param("params") Map<String, Object> searchMap);
 
     String selectCourtName(String callerId);
 }
