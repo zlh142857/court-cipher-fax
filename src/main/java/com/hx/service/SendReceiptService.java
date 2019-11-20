@@ -30,5 +30,5 @@ public interface SendReceiptService {
 
     boolean updateIsLink(String inBoxId);
 
-    String checkText(String tifPath) throws IOException;
+    String checkText(String tifPath) throws Exception;
 }

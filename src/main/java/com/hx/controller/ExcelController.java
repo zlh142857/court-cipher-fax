@@ -13,7 +13,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -71,7 +70,7 @@ public class ExcelController {
             Iterator<Mail> it = list.iterator();
             while (it.hasNext()) {
                 Mail m = it.next();//data.add(new Object[]{m.getId(), m.getLinknumber(), m.getTypeid(), m.getLinkname()});
-                data.add(new Object[]{  m.getLinknumber(), m.getLinkname()});
+                data.add(new Object[]{  m.getLinknumber(), m.getTypename()});
             }
             //构建Excel表头,此处需与data中数据一一对应
             List<String> headers = new ArrayList<String>();

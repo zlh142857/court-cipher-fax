@@ -28,5 +28,7 @@ public interface MailService {
 
     List<Mail_List> queryALLMail(Map<String, Object> searchMap);
 
-   // int queryTotalCount(Map<String, Object> searchMap);
+    List<Mail_List> sendViewMail() throws Exception;
+
+    // int queryTotalCount(Map<String, Object> searchMap);
 }

@@ -145,7 +145,7 @@ public class SendReceiptController {
     }
     /**
      *
-     * 功能描述: 查看关联原件
+     * 功能描述: 查看关联原件,收件箱预览
      *
      * 业务逻辑:
      *

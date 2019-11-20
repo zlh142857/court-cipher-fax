@@ -10,51 +10,55 @@ import java.io.Serializable;
  */
 
 public class Mail extends Mail_List implements Serializable  {
-
+    private static final long serialVersionUID = -6869552118543251831L;
     private int id;
-    private String linkname;
     private String linknumber;
     private String typeid;
+    private String typename;
 
     @Override
-    public String toString() {
-        return "Mail{" +
-                "id=" + id +
-                ", linkname='" + linkname + '\'' +
-                ", linknumber='" + linknumber + '\'' +
-                ", typeid=" + typeid +
-                '}';
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setLinkname(String linkname) {
-        this.linkname = linkname;
-    }
-
-    public void setLinknumber(String linknumber) {
-        this.linknumber = linknumber;
-    }
-
-    public void setTypeid(String typeid) {
-        this.typeid = typeid;
-    }
-
     public int getId() {
         return id;
     }
 
-    public String getLinkname() {
-        return linkname;
+    @Override
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getLinknumber() {
         return linknumber;
     }
 
+    public void setLinknumber(String linknumber) {
+        this.linknumber = linknumber;
+    }
+
     public String getTypeid() {
         return typeid;
+    }
+
+    public void setTypeid(String typeid) {
+        this.typeid = typeid;
+    }
+
+    @Override
+    public String getTypename() {
+        return typename;
+    }
+
+    @Override
+    public void setTypename(String typename) {
+        this.typename = typename;
+    }
+
+    @Override
+    public String toString() {
+        return "Mail{" +
+                "id=" + id +
+                ", linknumber='" + linknumber + '\'' +
+                ", typeid='" + typeid + '\'' +
+                ", typename='" + typename + '\'' +
+                '}';
     }
 }

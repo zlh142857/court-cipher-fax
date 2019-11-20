@@ -1,5 +1,6 @@
 package com.hx.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.hx.modle.Mail_List;
 import com.hx.service.MailService;
 import org.apache.log4j.Logger;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +52,7 @@ public class MailController {
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
         Map<String,Object> searchMap=new HashMap();
-        searchMap.put("linkname", linkname);
+        searchMap.put("typename", linkname);
         searchMap.put("linknumber", linknumber);
         searchMap.put("typeid", typeid);
         searchMap.put("mailListId", mailListId);
@@ -166,6 +169,20 @@ public class MailController {
             result.put("msg", e.getMessage());
         }
         return result;
+    }
+
+
+
+    @RequestMapping("/sendViewMail")
+    @ResponseBody
+    public String sendViewMail(){
+        List<Mail_List> msg=null;
+        try{
+            msg=mailService.sendViewMail();
+        }catch (Exception e){
+            log.error( e.toString() );
+        }
+        return JSONObject.toJSONString(msg);
     }
 
 }

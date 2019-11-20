@@ -33,6 +33,20 @@ public class ColorReverse {
         }
         return fileList;
     }
+    public static List<String> writeJpgTwo(List<String> pathList) {
+        List<String> fileList=new ArrayList<>(  );
+        if(pathList.size()>0){
+            for(int i=0;i<pathList.size();i++){
+                //文件与BufferedImage间的转换
+                BufferedImage bi=file2img(pathList.get( i ));  //读取图片
+                BufferedImage bii=img_inverse(bi);
+                String newFilePath=TEMPDIR+"/"+GetTimeToFileName.GetTimeToFileName()+i+".jpg";
+                img2file(bii,"jpg",newFilePath);  //生成图片
+                fileList.add( newFilePath );
+            }
+        }
+        return fileList;
+    }
     public static List<String> writeJpgView(List<String> pathList) {
         List<String> fileList=new ArrayList<>(  );
         if(pathList.size()>0){

@@ -7,6 +7,7 @@ import com.hx.service.MailService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public class MailServiceImpl implements MailService {
     @Override
     public void addMail(String linkname, String linknumber, String typeid) {
         Mail m = new Mail();
-        m.setLinkname(linkname);
+        m.setTypename(linkname);
         m.setLinknumber(linknumber);
         m.setTypeid(typeid);
         mailMapper.addMail(m);
@@ -81,8 +82,21 @@ public class MailServiceImpl implements MailService {
         return mailMapper.queryALLMail(searchMap);
     }
 
+
+
 //    @Override
 //    public int queryTotalCount(Map<String, Object> searchMap) {
 //        return mailMapper.queryTotalCount(searchMap);
 //    }
+
+    @Override
+    public List<Mail_List> sendViewMail() throws Exception{
+        List<Mail_List> mailLists=mailMapper.selectMailList();
+        int length=mailLists.size();
+        for(int i=0;i<length;i++){
+            List<Mail> mailList=mailMapper.selectMailById(mailLists.get( i ).getId());
+            mailLists.get( i ).setChildren( mailList );
+        }
+        return mailLists;
+    }
 }

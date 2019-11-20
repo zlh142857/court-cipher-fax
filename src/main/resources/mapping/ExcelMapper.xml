@@ -2,18 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hx.dao.ExcelMapper">
 	<resultMap id="BaseResultMap" type="com.hx.modle.Mail">
-		<result column="linkname" jdbcType="VARCHAR" property="linkname" />
+		<result column="typename" jdbcType="VARCHAR" property="typename" />
 		<result column="linknumber" jdbcType="VARCHAR" property="linknumber" />
 		<result column="typeid" jdbcType="INTEGER" property="typeid" />
 	</resultMap>
 	<insert id="InputExcel">
 		insert into mail
-		 (linkname,linknumber,typeid)
+		 (typename,linknumber,typeid)
 		 values
-		(#{params.linkname},#{params.linknumber},#{params.typeid})
+		(#{params.typename},#{params.linknumber},#{params.typeid})
 	</insert>
 	<sql id="WithDept_Column_List">
-		e.id, e.linkname, e.linknumber, e.typeid
+		e.id, e.typename, e.linknumber, e.typeid
 	</sql>
 	<sql id="Example_Where_Clause">
 		<where>

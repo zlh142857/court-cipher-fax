@@ -17,8 +17,8 @@
       <if test="params.typeid != null">
           and  typeid  = #{params.typeid}
       </if>
-      <if test="params.linkname != null">
-          and  linkname LIKE CONCAT('%', #{params.linkname}, '%')
+      <if test="params.typename != null">
+          and  typename LIKE CONCAT('%', #{params.typename}, '%')
       </if>
       <if test="params.linknumber != null">
           and  linknumber LIKE CONCAT('%', #{params.linknumber}, '%')
@@ -34,8 +34,8 @@
 
     <insert id="addMail" parameterType="com.hx.modle.Mail_List" useGeneratedKeys="true" keyProperty="id">
 		insert
-		into	mail (linkname,linknumber,typeid)
-		values(#{linkname},#{linknumber},#{typeid})
+		into	mail (typename,linknumber,typeid)
+		values(#{typename},#{linknumber},#{typeid})
     </insert>
 
     <select id="getMailByLinknumber" resultType="com.hx.modle.Mail_List">
@@ -70,7 +70,13 @@
     </delete>
     <!--张立恒-->
     <select id="selectCourtName" resultType="java.lang.String" parameterType="java.lang.String">
-      SELECT linkname FROM mail WHERE linknumber=#{callerId,jdbcType=VARCHAR}
+      SELECT typename FROM mail WHERE linknumber=#{callerId,jdbcType=VARCHAR}
+    </select>
+    <select id="selectMailList" resultType="com.hx.modle.Mail_List">
+      SELECT * FROM mail_list;
+    </select>
+    <select id="selectMailById" resultType="com.hx.modle.Mail" parameterType="java.lang.Integer">
+      SELECT * FROM mail WHERE typeid=#{id,jdbcType=INTEGER};
     </select>
     <!--张立恒-->
 

@@ -37,4 +37,8 @@ public interface MailMapper {
     int queryTotalCount(@Param("params") Map<String, Object> searchMap);
 
     String selectCourtName(String callerId);
+
+    List<Mail_List> selectMailList();
+
+    List<Mail> selectMailById(int id);
 }

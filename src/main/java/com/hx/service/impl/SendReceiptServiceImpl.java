@@ -18,7 +18,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static com.hx.change.ImgToPdf.imgToPdf;
 import static com.hx.util.ColorReverse.writeJpgOne;
+import static com.hx.util.ColorReverse.writeJpgTwo;
+import static com.hx.util.TempDir.fileTemp;
+import static com.hx.util.TiffToJPEG.readerTiff;
 import static com.hx.util.TiffToJPEG.readerTiffOne;
 
 /**
@@ -106,12 +110,14 @@ public class SendReceiptServiceImpl implements SendReceiptService {
         }
         return flag;
     }
-    //file转换成jpg,然后获取第一页jpg,颜色转换之后,获取最新的路径,然后转换成base64
+    //file转换成jpg,颜色转换之后,获取最新的路径,转换为PDF,然后转换成base64
     @Override
-    public String checkText(String tifPath) throws IOException {
-        String filePath=readerTiffOne(tifPath);
-        String newJpg=writeJpgOne(filePath);
-        File file = new File(newJpg);
+    public String checkText(String tifPath) throws Exception {
+        List<String> filePath=readerTiff(tifPath);
+        List<String> newJpg=writeJpgTwo(filePath);
+        String pdfPath=fileTemp()+".pdf";
+        imgToPdf(newJpg,pdfPath);
+        File file = new File(pdfPath);
         FileInputStream fileInputStream=null;
         byte[] buffer=null;
         if(file.exists()){
