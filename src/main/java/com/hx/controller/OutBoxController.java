@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -23,6 +24,7 @@ import java.util.*;
  * @date 2019/9/11 22:17
  * @desc
  */
+
 @Controller
 @RequestMapping("/Outbox")
 public class OutBoxController {
@@ -63,7 +65,6 @@ public class OutBoxController {
     public Map<String, Object> outboxLists(Integer pageNo, Integer pageSize, String  sendnumber, String receivenumber, String receivingunit,
                                            String sendline, String message,String beginDate ,String endDate) {
         Map<String, Object> result = new HashMap<>();
-        result.put("state", 0); //0代表失败，1代表成功
         Map<String,Object> searchMap=new HashMap();
         if ( StringUtils.isNotEmpty(beginDate) ) {
             beginDate=beginDate.trim();  //2019-12-01 12:00:00
@@ -79,12 +80,16 @@ public class OutBoxController {
         searchMap.put("beginDate",beginDate);
         searchMap.put("endDate",endDate);
         int count = outBoxService.queryTotalCount(searchMap);
+        List<Outbox> outboxLists=null;
         if ( count > 0 ) {
-            List<Outbox> outboxLists = outBoxService.queryoutBox(searchMap, pageNo, pageSize);
-            result.put("outboxLists", outboxLists);
+            outboxLists = outBoxService.queryoutBox(searchMap, pageNo, pageSize);
+            result.put("state", 1);
             result.put("totalCount", count);
+            result.put("outboxLists", outboxLists);
+        }else{
+            result.put("outboxLists", new ArrayList<Outbox>(  ));
+            result.put("state", 0);
         }
-        result.put("state", 1); //0代表失败，1代表成功
         return result;
     }
     //TODO 删除记录
@@ -108,6 +113,24 @@ public class OutBoxController {
             log.error("删除失败");
             result.put("msg", e.getMessage());
         }
+        return result;
+    }
+    @RequestMapping(value = "/modify", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String, Object> modifyoutbox(String sendline , String id) {
+        Map<String, Object> result = new HashMap<>();
+        //TODO 验证标题不能为空
+        if(null == sendline || "".equals(sendline)) {
+            result.put("msg", "参数错误");
+            log.error("标题为空"+sendline);
+            return result;
+        }
+        Map<String,Object> searchMap=new HashMap();
+        searchMap.put("id",id);
+        searchMap.put("sendline",sendline);
+        //TODO 修改标题
+        outBoxService.modifyoutBox(searchMap);
+        result.put("state", 1); //0代表失败，1代表成功
         return result;
     }
 }

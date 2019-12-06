@@ -91,10 +91,6 @@
         LIMIT ${params.start}, ${params.offset}
     </select>
 
-    <select id="queryALLMailList" resultType="com.hx.modle.Return_Receipt">
-        select  * from return_receipt
-    </select>
-
 
     <delete id="deinbox">
        DELETE FROM return_receipt WHERE id = #{id}
@@ -113,10 +109,6 @@
             #{id}
         </foreach>
     </select>
-
-    <!--<select id="queryList" resultType="com.hx.modle.Return_Receipt">-->
-    <!--select * from table limit (start-1)*limit-->
-    <!--</select>-->
 
     <insert id="insert" parameterType="com.hx.modle.Return_Receipt">
         INSERT INTO return_receipt(id, senderunit, sendnumber, receivenumber, create_time, filsavepath) VALUES (

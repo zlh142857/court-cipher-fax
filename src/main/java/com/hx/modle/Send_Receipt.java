@@ -19,7 +19,7 @@ public class Send_Receipt {
     private String message;//是否已经成功
     private String sendnumber;//发送方号码
     private int isLink;//是否已关联
-    private String tifPath;//关联的正文原件路径
+    private String filsavepath;//关联的正文原件路径
     private String barCode;
 
     @Override
@@ -33,7 +33,7 @@ public class Send_Receipt {
                 ", message='" + message + '\'' +
                 ", sendnumber='" + sendnumber + '\'' +
                 ", isLink=" + isLink +
-                ", tifPath='" + tifPath + '\'' +
+                ", filsavepath='" + filsavepath + '\'' +
                 ", barCode='" + barCode + '\'' +
                 '}';
     }
@@ -78,8 +78,8 @@ public class Send_Receipt {
         this.isLink = isLink;
     }
 
-    public void setTifPath(String tifPath) {
-        this.tifPath = tifPath;
+    public void setFilsavepath(String filsavepath) {
+        this.filsavepath = filsavepath;
     }
 
     public static long getSerialVersionUID() {
@@ -123,8 +123,8 @@ public class Send_Receipt {
         return isLink;
     }
 
-    public String getTifPath() {
-        return tifPath;
+    public String getFilsavepath() {
+        return filsavepath;
     }
 }
 

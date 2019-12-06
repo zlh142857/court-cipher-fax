@@ -26,11 +26,6 @@ public class ExcelServiceImpl implements ExcelService {
 	@Override
 	public String InputExcel(InputStream is, String originalFilename ,String typeid) {
 		ArrayList<ArrayList<String>> list;
-//		if (originalFilename.endsWith(".xls")) {
-//			list = Mail_List.readExcel2003(is);
-//		} else {
-//			list = Mail_List.readExcel2007(is);
-//		}
 		//此处建议直接提供模板,就不需要再去兼容2003和2007,模板是多少就是多少
 		String fileType = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
 		list = ExcelHelper.readExcel(is, fileType);//从第二行开始读取,第一行index为0是表头部分  这种excel转集合的方式不妥当
@@ -46,21 +41,6 @@ public class ExcelServiceImpl implements ExcelService {
 	        excelMapper.InputExcel(ginsengMap);
 		}
 		return "Import Success";
-	}
-
-	@Override
-	public List<Mail> OutputExcel() {
-		return excelMapper.getAll();
-	}
-
-	@Override
-	public List<Mail> getAll() {
-		return excelMapper.getAll();
-	}
-
-	public Integer deleteMany(int[] id_arr) {
-		// TODO 自动生成的方法存根
-		return excelMapper.deleteMany(id_arr);
 	}
 
 	@Override

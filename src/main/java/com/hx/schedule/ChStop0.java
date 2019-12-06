@@ -29,6 +29,8 @@ public class ChStop0 implements Runnable{
                 Fax.INSTANCE.SsmHangup(ch);
             }else if(state==3){
                 if(faxCh==ch && faxResult.equals( "发送失败" )){
+                    Fax.INSTANCE.SsmFaxStop( i );
+                    Fax.INSTANCE.SsmStopTalkWith( ch,i );
                     Fax.INSTANCE.SsmHangup(ch);
                     faxResult="";
                 }

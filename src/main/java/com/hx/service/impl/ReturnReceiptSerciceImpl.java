@@ -40,11 +40,6 @@ public class ReturnReceiptSerciceImpl implements ReturnReceiptService {
     }
 
     @Override
-    public List<Return_Receipt> queryALLMailList() {
-        return returnReceiptMapperr.queryALLMailList();
-    }
-
-    @Override
     public int deinbox(Integer readerId) {
         Return_Receipt return_receipt = returnReceiptMapperr.getById(readerId);
         if ( null == return_receipt  ) {

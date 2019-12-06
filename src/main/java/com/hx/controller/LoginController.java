@@ -16,6 +16,7 @@ import java.util.Map;
  * @date 2019/9/20 10:21
  * @desc
  */
+
 @Controller
 @RequestMapping("/signin")
 public class LoginController {
@@ -55,8 +56,6 @@ public class LoginController {
 
         //程序走到此处代表用户名和密码验证通过
         result.put("state", 1); //0代表失败，1代表成功
-        log.error("");
-        log.info("");
         return result;
     }
 
@@ -79,8 +78,6 @@ public class LoginController {
         //TODO 保存账号密码到数据库
         loginService.addUser(user, password);
         result.put("state", 1); //0代表失败，1代表成功
-        log.error("");
-        log.info("");
         return result;
     }
 
@@ -122,8 +119,6 @@ public class LoginController {
         //TODO 更新用户密码为新密码
         loginService.modifyPasswordByUsername(user, newpassword);
         result.put("state", 1); //0代表失败，1代表成功
-        log.error("");
-        log.info("");
         return result;
     }
 

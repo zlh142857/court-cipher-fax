@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import sun.misc.BASE64Encoder;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -30,18 +32,18 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
-import static com.hx.change.ChangeFile.baseToPdf;
-import static com.hx.change.ChangeFile.pdfToTiffByWord;
+import static com.hx.change.ChangeFile.*;
 import static com.hx.change.ImgToPdf.imgToPdf;
 import static com.hx.common.ChStateCode.getStateMsgBy7;
 import static com.hx.common.ChStateCode.getStateMsgByFaxCh;
 import static com.hx.common.ChStateCode.getStateMsgByNot7;
 import static com.hx.common.Speed.getSpeed;
-import static com.hx.controller.WebSocket.*;
+import static com.hx.controller.AlertController.*;
 import static com.hx.util.ColorReverse.writeJpgView;
 import static com.hx.util.TempDir.fileTemp;
 import static com.hx.util.TempDir.schTask;
 import static com.hx.util.TiffToJPEG.readerTiff;
+import static com.hx.util.TiffToJPEG.readerTiffOne;
 
 
 @Service("sendFaxService")
@@ -75,13 +77,14 @@ public class SendFaxServiceImpl implements SendFaxService {
     @Override
     public String baseToTif(String base64) {
         String tifPath="";
-        OutputStream os=null;
+        ImageOutputStream os=null;
         try {
             tifPath=schTask();
             String pdfPath=baseToPdf(base64);
             File file=new File( pdfPath );
-            os=new FileOutputStream( new File( tifPath ) );
-            boolean flag=pdfToTiffByWord(file,os);
+            InputStream is=new FileInputStream( file );
+            os=new FileImageOutputStream( new File( tifPath ) );
+            boolean flag=PdfToTiff(is,os);
             if(!flag){
                 tifPath=null;
             }
@@ -129,18 +132,30 @@ public class SendFaxServiceImpl implements SendFaxService {
 
     @Override
     public String sendFax(String tifPath, String base64, String courtName, String receiveNumber,
-                          String sendNumber, String isBack,String filename,String id,String ch) throws Exception {
+                          String sendNumber, String isBack,String filename,String id,String ch)throws Exception{
+        int newCh=0;
+        if(null != ch){
+            if(!"".equals( ch )){
+                newCh=Integer.parseInt( ch );
+            }
+        }
+        int back=0;
+        if(null != isBack){
+            if(!"".equals( isBack )){
+                back=Integer.parseInt( isBack );
+            }
+        }
         String message="失败";
-        if(sendNumber!=null || sendNumber != ""){
-            receiveNumber=getReceiveNumber(Integer.parseInt( ch ),sendNumber,receiveNumber);
+        if(null != sendNumber){
+            receiveNumber=getReceiveNumber(newCh,sendNumber,receiveNumber);
             //通过指定号码发送,然后查询通道是否空闲
-            int isFree=Fax.INSTANCE.SsmGetChState( Integer.parseInt( ch ) );
+            int isFree=Fax.INSTANCE.SsmGetChState( newCh);
             if(isFree==7){
-                Fax.INSTANCE.SsmHangup( Integer.parseInt( ch ) );
-                isFree=Fax.INSTANCE.SsmGetChState( Integer.parseInt( ch ) );
+                Fax.INSTANCE.SsmHangup( newCh);
+                isFree=Fax.INSTANCE.SsmGetChState(newCh);
             }
             if(isFree==0){
-                message=getMessage( receiveNumber, Integer.parseInt( ch ), tifPath, base64, Integer.parseInt( isBack ), filename, sendNumber, courtName,id );
+                message=getMessage( receiveNumber, newCh, tifPath, base64, back, filename, sendNumber, courtName,id );
             }else{
                 message="线路繁忙,请稍后发送";
                 logger.error( "模拟中继线通道不为空闲状态state:"+isFree );
@@ -159,7 +174,7 @@ public class SendFaxServiceImpl implements SendFaxService {
                     receiveNumber=getReceiveNumber(i,sendNumber,receiveNumber);
                     count++;
                     sendNumber=deviceDao.selectSeatNumberByCh(i);
-                    message=getMessage( receiveNumber,i, tifPath, base64, Integer.parseInt( isBack ), filename, sendNumber, courtName,id);
+                    message=getMessage( receiveNumber,i, tifPath, base64,back, filename, sendNumber, courtName,id);
                     break;
                 }
             }
@@ -170,7 +185,7 @@ public class SendFaxServiceImpl implements SendFaxService {
         }
         return message;
     }
-    public String getMessage(String receiveNumber,int ch,String tifPath,String base64,int isBack,String filename,String sendNumber,String courtName,String id) throws Exception {
+    public String getMessage(String receiveNumber,int ch,String tifPath,String base64,int isBack,String filename,String sendNumber,String courtName,String id)throws Exception{
         String message="";
         //进行发送
         String Msg=sendFreeCh(receiveNumber,ch);
@@ -178,8 +193,11 @@ public class SendFaxServiceImpl implements SendFaxService {
             message=faxSendStart(ch,tifPath,base64,isBack);
             if(isBack==2){
                 //只有回执页,新增进发回执箱,修改已回执状态
-                if(id.length()>0){
-                    inboxMapper.updateIsReceiptById(Integer.valueOf( id ));
+                if(null != id){
+                    if(!"".equals( id )){
+                        int newid=Integer.valueOf( id );
+                        inboxMapper.updateIsReceiptById(newid);
+                    }
                 }
                 try{
                     String[] datas = BarcodeScanner.scan( tifPath, BarCodeType.Code_128);
@@ -193,14 +211,14 @@ public class SendFaxServiceImpl implements SendFaxService {
                     logger.error( e );
                 }
             }else{
-                insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
+                insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName,tifPath );
             }
         }else{
             message=Msg;
             if(isBack==2){
                 insertDataReceipt( message,receiveNumber,filename,sendNumber,courtName,null);
             }else{
-                insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName );
+                insertDataOutBox( message,receiveNumber,filename,sendNumber,courtName,tifPath );
             }
         }
         return message;
@@ -209,10 +227,10 @@ public class SendFaxServiceImpl implements SendFaxService {
     public String getReceiveNumber(int ch,String sendNumber,String receiveNumber){
         Device_Setting deviceSetting=null;
         //查看有没有前缀
-        if(sendNumber.length()>0){
-            deviceSetting=deviceDao.selectPrefix(sendNumber);
-        }else{
+        if(null == sendNumber || "".equals( sendNumber )){
             deviceSetting=deviceDao.selectPrefixByCh(ch);
+        }else{
+            deviceSetting=deviceDao.selectPrefix(sendNumber);
         }
         int prefixLength=deviceSetting.getPrefix().length();//前缀长度
         if(prefixLength!=0){
@@ -312,12 +330,12 @@ public class SendFaxServiceImpl implements SendFaxService {
                     sendFlag=Fax.INSTANCE.SsmFaxStartSend(j,tifPath);
                 }else{
                     //回执页
-                    if(null != tifPath){
-                        sendFlag=Fax.INSTANCE.SsmFaxStartSend(j,tifPath);
-                    }else{
+                    if(null == tifPath || "".equals( tifPath )){
                         errMsg="获取回执文件失败";
                         faxResult="发送失败";
                         faxCh=ch;
+                    }else{
+                        sendFlag=Fax.INSTANCE.SsmFaxStartSend(j,tifPath);
                     }
                 }
                 if(sendFlag==0){
@@ -378,24 +396,24 @@ public class SendFaxServiceImpl implements SendFaxService {
             logger.error("断开连接失败:"+errMsg);
         }
     }
-    public void insertDataOutBox(String message,String receiveNumber,String filename,String sendNumber,String courtName){
+    public void insertDataOutBox(String message,String receiveNumber,String filename,String sendNumber,String courtName,String tifPath){
         Outbox outbox=new Outbox();
         outbox.setReceivenumber( receiveNumber );
-        if(message.equals( "成功" )){
+        if("成功".equals( message )){
             outbox.setMessage( "成功" );
         }else{
             outbox.setMessage( "失败("+message+")" );
         }
         outbox.setSendline( filename );
+        outbox.setFilsavepath( tifPath );
         outbox.setSendnumber( sendNumber );
         Date date=new Date();
         outbox.setCreate_time(date);
         outbox.setReceivingunit( courtName );
         outboxMapper.insertNewMessage(outbox);
-        WebModel webModel=new WebModel();
-        webModel.setTime( date );
-        webModel.setMsg( "[发件箱]收到一个新消息" );
-        outboxModels.add( webModel );
+        outboxModels=new WebModel();
+        outboxModels.setTime( date );
+        outboxModels.setMsg( "[发件箱]收到一个新消息" );
         outboxCount=1;
     }
     public void insertDataReceipt(String message,String receiveNumber,String filename,String sendNumber,String courtName,String barCode){
@@ -413,10 +431,9 @@ public class SendFaxServiceImpl implements SendFaxService {
         sendReceipt.setCreate_time(date);
         sendReceipt.setReceivingunit( courtName );
         SendReceiptMapper.insertNewMessage(sendReceipt);
-        WebModel webModel=new WebModel();
-        webModel.setTime( date );
-        webModel.setMsg( "[发回执箱]收到一个新消息" );
-        sendModels.add( webModel );
+        sendModels=new WebModel();
+        sendModels.setTime( date );
+        sendModels.setMsg( "[发回执箱]收到一个新消息" );
         sendCount=1;
     }
     public static String getfileList(String tifPath,String base64){
@@ -468,7 +485,7 @@ public class SendFaxServiceImpl implements SendFaxService {
                 chMsg.setMessage(getStateMsgBy7(code));
             }else if(state==3){
                 String callerId=Fax.INSTANCE.SsmGetCallerIdA( ch );
-                if(callerId !=null || callerId != ""){
+                if(null !=callerId){
                     chMsg.setSendNumber(callerId);
                 }
                 int faxCh=Fax.INSTANCE.SsmGetChState(i);
@@ -525,14 +542,14 @@ public class SendFaxServiceImpl implements SendFaxService {
             }
             Sch_Task schTask=new Sch_Task();
             schTask.setCh( ch );
-            schTask.setCourtName( tempList.get( i ).getCourtName() );
+            schTask.setCourtName( tempList.get( i ).getTypename() );
             Date date=new Date(  );
             schTask.setCreateTime( date );
             schTask.setFilename( filename );
             schTask.setIsBack( isBack );
             schTask.setOutboxId( id );
             schTask.setReceiptPath( receiptNew );
-            schTask.setReceiveNumber( tempList.get( i ).getReceiveNumber() );
+            schTask.setReceiveNumber( tempList.get( i ).getLinknumber() );
             schTask.setTifPath( tifPath2 );
             schTask.setSendNumber( sendNumber );
             DateFormat format= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -556,8 +573,8 @@ public class SendFaxServiceImpl implements SendFaxService {
     @Override
     public boolean updateTaskDate(String id, String date) throws ParseException {
         boolean flag=false;
-        if(id!=null || id != ""){
-            if(date !=null || date !=""){
+        if(null != id){
+            if(null != date){
                 DateFormat format= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date sendDate=format.parse( date );
                 schMapper.updateTaskDate(Integer.valueOf( id ),sendDate);
@@ -579,13 +596,13 @@ public class SendFaxServiceImpl implements SendFaxService {
     }
 
     @Override
-    public String tifView(String tifPath) throws Exception {
-        //tif转换成jpg,进行颜色转换后,再转换成PDF,然后再转换成base64
+    public String tifView(String pdfPath,String tifPath) throws Exception {
+        //tif转换成jpg,再转换成PDF,然后再转换成base64
         List<String> jpgList=readerTiff(tifPath);
         List<String> whiteJpg=writeJpgView(jpgList);
-        String pdf=fileTemp()+".pdf";
-        imgToPdf(whiteJpg,pdf);
-        File file = new File(pdf);
+        imgToPdf(whiteJpg,pdfPath);
+        Thread.sleep( 300 );
+        File file = new File(pdfPath);
         byte[] buffer=null;
         if(file.exists()){
             FileInputStream inputFile = new FileInputStream(file);
@@ -618,6 +635,25 @@ public class SendFaxServiceImpl implements SendFaxService {
         }
         Fax.INSTANCE.SsmHangup( code );
         return true;
+    }
+
+    @Override
+    public String returnFaxGetPath(String tifPath) throws Exception {
+        String path=schTask();
+        List<String> whiteJpg=new ArrayList<>(  );
+        String jpgPath=readerTiffOne(tifPath);
+        whiteJpg.add( jpgPath );
+        String pdfPath=fileTemp()+".pdf";
+        imgToPdf(whiteJpg,pdfPath);
+        File file=new File(pdfPath);
+        if(file.isFile()){
+            ImageOutputStream outputStream= new FileImageOutputStream(new File( path ));
+            InputStream is=new FileInputStream( file );
+            PdfToTiff(is,outputStream);
+        }else{
+            path="";
+        }
+        return path;
     }
 
 

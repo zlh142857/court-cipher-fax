@@ -66,17 +66,16 @@ public class TiffToJPEG {
             fss = new FileSeekableStream(tiffPath);
             TIFFImageDecoder dec = new TIFFImageDecoder(fss,null);
             JPEGEncodeParam param = new JPEGEncodeParam();
-            for(int i = 0; i < 1; i++){
-                RenderedImage render = dec.decodeAsRenderedImage(i);
-                filePath=filePre+i+".jpg";
-                File file = new File(filePath);
-                ParameterBlock pb = new ParameterBlock();
-                pb.addSource(render);
-                pb.add(file.toString());
-                pb.add("JPEG");
-                pb.add(param);
-                op = JAI.create("filestore", pb);
-            }
+            int page = dec.getNumPages();
+            RenderedImage render = dec.decodeAsRenderedImage(page-1);
+            filePath=filePre+".jpg";
+            File file = new File(filePath);
+            ParameterBlock pb = new ParameterBlock();
+            pb.addSource(render);
+            pb.add(file.toString());
+            pb.add("JPEG");
+            pb.add(param);
+            op = JAI.create("filestore", pb);
         }catch(Exception e){
             logger.error( e.toString() );
         }finally{
@@ -89,4 +88,40 @@ public class TiffToJPEG {
         }
         return filePath;
     }
+    public static List<File> readerTiffToFileList(String tiffPath){
+        List<File> pathList = new ArrayList<>();
+        String filePre = TEMPDIR+"/"+GetTimeToFileName.GetTimeToFileName();
+        FileSeekableStream fss = null;
+        RenderedOp op = null;
+        String filePath="";
+        try{
+            fss = new FileSeekableStream(tiffPath);
+            TIFFImageDecoder dec = new TIFFImageDecoder(fss,null);
+            JPEGEncodeParam param = new JPEGEncodeParam();
+            int page = dec.getNumPages();
+            for(int i = 0; i < page; i++){
+                RenderedImage render = dec.decodeAsRenderedImage(i);
+                filePath=filePre+i+".jpg";
+                File file = new File(filePath);
+                ParameterBlock pb = new ParameterBlock();
+                pb.addSource(render);
+                pb.add(file.toString());
+                pb.add("JPEG");
+                pb.add(param);
+                op = JAI.create("filestore", pb);
+                pathList.add(file);
+            }
+        }catch(Exception e){
+            logger.error( e.toString() );
+        }finally{
+            try {
+                op.dispose();
+                fss.close();
+            } catch (IOException e) {
+                logger.error( e.toString() );
+            }
+        }
+        return pathList;
+    }
+
 }

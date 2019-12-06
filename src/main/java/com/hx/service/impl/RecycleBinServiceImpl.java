@@ -88,6 +88,7 @@ public class RecycleBinServiceImpl implements RecycleBinService {
                 outbox.setCreate_time(recycleBin.getCreate_time());
                 outbox.setSendline(recycleBin.getSendline());
                 outbox.setMessage(recycleBin.getMessage());
+                outbox.setFilsavepath(recycleBin.getFilsavepath());
                 rows = outBoxService.insert(outbox);
 
             } else if ( "Return_Receipt".equals(relateType) ) {
@@ -112,7 +113,7 @@ public class RecycleBinServiceImpl implements RecycleBinService {
                 send_receipt.setMessage(recycleBin.getMessage());
                 send_receipt.setSendnumber(recycleBin.getSendnumber());
                 send_receipt.setIsLink(recycleBin.getIsLink());
-                send_receipt.setTifPath(recycleBin.getTifPath());
+                send_receipt.setFilsavepath(recycleBin.getTifPath());
                 send_receipt.setBarCode(recycleBin.getBarCode());
                 rows = sendReceiptService.insert(send_receipt);
             } else {

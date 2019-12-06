@@ -35,5 +35,7 @@ public interface SendReceiptMapper {
 
     List<Send_Receipt> getAll(@Param("ids") String[] ids);
 
-    void updateIsLinkByBar(@Param( "barCode" )String barCode,@Param( "tifPath" )String tifPath);
+    void updateIsLinkByBar(@Param( "barCode" )String barCode,@Param( "filsavepath" )String tifPath);
+
+    void modifysendReceipt(Map<String,Object> searchMap);
 }

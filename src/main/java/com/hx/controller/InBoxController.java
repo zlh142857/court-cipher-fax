@@ -6,6 +6,7 @@ import com.hx.util.ExcelHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -21,6 +22,7 @@ import java.util.*;
  * @date 2019/9/11 22:17
  * @desc
  */
+
 @Controller
 @RequestMapping("/inbox")
 public class InBoxController {
@@ -57,7 +59,6 @@ public class InBoxController {
    public Map<String, Object> inboxs(Integer pageNo, Integer pageSize, String sendnumber, String senderunit, String receivenumber, String Isreceipt,String beginDate ,String endDate) {
         //mailListId="m";
        Map<String, Object> result = new HashMap<>();
-       result.put("state", 0); //0代表失败，1代表成功
        if ( StringUtils.isNotEmpty(beginDate) ) {
            beginDate=beginDate.trim();  //2019-12-01 12:00:00
        }
@@ -72,23 +73,26 @@ public class InBoxController {
        searchMap.put("beginDate",beginDate);
        searchMap.put("endDate",endDate);
        int count = inBoxService.queryTotalCount(searchMap);
+       List<Inbox> mails=null;
         if ( count > 0 ) {
-            List<Inbox> mails = inBoxService.queryALLMail(searchMap, pageNo, pageSize);
-            result.put("mails", mails);
+            mails = inBoxService.queryALLMail(searchMap, pageNo, pageSize);
             result.put("totalCount", count);
+            result.put("state", 1);
+            result.put("mails",mails);
+        }else{
+            result.put("mails",new ArrayList<Inbox>(  ));
+            result.put("state", 0);
         }
-       result.put("state", 1); //0代表失败，1代表成功
+
        return result;
    }
        @RequestMapping(value = "/inboxList", method = RequestMethod.GET)
        @ResponseBody
     public Map<String, Object> mailLists() {
         Map<String, Object> result = new HashMap<>();
-        result.put("state", 0); //0代表失败，1代表成功
         //TODO 查询全部
         List<Inbox> mailLists = inBoxService.queryALLMailList();
         result.put("mailLists", mailLists); //
-        result.put("state", 1); //0代表失败，1代表成功
         return result;
     }
     //TODO 删除记录
@@ -109,7 +113,6 @@ public class InBoxController {
             }
             result.put("state", 1); //0代表失败，1代表成功
         } catch (Exception e) {
-            e.printStackTrace();
             result.put("msg", e.getMessage());
         }
         return result;

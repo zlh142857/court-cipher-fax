@@ -36,7 +36,9 @@ public interface SendFaxService {
 
     Map<String,Object> selectTaskLimit(Integer pageNow, Integer pageSize);
 
-    String tifView(String tifPath) throws Exception;
+    String tifView(String pdfPath,String tifPath) throws Exception;
 
     boolean undoSend(String ch);
+
+    String returnFaxGetPath(String tifPath) throws Exception;
 }

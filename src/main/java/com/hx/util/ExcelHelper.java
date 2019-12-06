@@ -5,7 +5,6 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,88 +20,6 @@ import java.util.List;
  *
  */
 public class ExcelHelper {
-
-	/**
-	 * 复制一个单元格样式到目的单元格样式
-	 * @param fromStyle
-	 * @param toStyle
-	 */
-	/*public static void copyCellStyle(CellStyle fromStyle,
-									 CellStyle toStyle) {
-		//边框和边框颜色
-		toStyle.setTopBorderColor(fromStyle.getTopBorderColor());
-		toStyle.setBottomBorderColor(fromStyle.getBottomBorderColor());
-		toStyle.setRightBorderColor(fromStyle.getRightBorderColor());
-		toStyle.setLeftBorderColor(fromStyle.getLeftBorderColor());
-
-		//背景和前景
-		toStyle.setFillBackgroundColor(fromStyle.getFillBackgroundColor());
-		toStyle.setFillForegroundColor(fromStyle.getFillForegroundColor());
-
-		toStyle.setDataFormat(fromStyle.getDataFormat());
-		toStyle.setHidden(fromStyle.getHidden());
-		toStyle.setIndention(fromStyle.getIndention());//首行缩进
-		toStyle.setLocked(fromStyle.getLocked());
-		toStyle.setRotation(fromStyle.getRotation());//旋转
-		toStyle.setWrapText(fromStyle.getWrapText());
-
-	}*/
-
-	/**
-	 * 复制单元格
-	 *
-	 * @param srcCell
-	 * @param distCell
-	 * @param copyValueFlag
-	 *            true则连同cell的内容一起复制
-	 */
-	/*public static void copyCell(Workbook wb,Cell srcCell, Cell distCell,
-								boolean copyValueFlag) {
-		//样式
-		distCell.setCellStyle(srcCell.getCellStyle());
-		//评论
-		if (srcCell.getCellComment() != null) {
-			distCell.setCellComment(srcCell.getCellComment());
-		}
-		// 不同数据类型处理
-		int srcCellType = srcCell.getCellType();
-		distCell.setCellType(srcCellType);
-		if (copyValueFlag) {
-			if (srcCellType == Cell.CELL_TYPE_NUMERIC) {
-				if (DateUtil.isCellDateFormatted(srcCell)) {
-					distCell.setCellValue(srcCell.getDateCellValue());
-				} else {
-					distCell.setCellValue(srcCell.getNumericCellValue());
-				}
-			} else if (srcCellType == Cell.CELL_TYPE_STRING) {
-				distCell.setCellValue(srcCell.getRichStringCellValue());
-			} else if (srcCellType == Cell.CELL_TYPE_BLANK) {
-				// nothing21
-			} else if (srcCellType == Cell.CELL_TYPE_BOOLEAN) {
-				distCell.setCellValue(srcCell.getBooleanCellValue());
-			} else if (srcCellType == Cell.CELL_TYPE_ERROR) {
-				distCell.setCellErrorValue(srcCell.getErrorCellValue());
-			} else if (srcCellType == Cell.CELL_TYPE_FORMULA) {
-				distCell.setCellFormula(srcCell.getCellFormula());
-			} else { // nothing29
-			}
-		}
-	}*/
-
-	/**
-	 * 行复制功能
-	 * @param fromRow
-	 * @param toRow
-	 */
-	/*public static void copyRow(Workbook wb,Row fromRow,Row toRow,boolean copyValueFlag){
-
-		toRow.setHeight(fromRow.getHeight());
-		for (Iterator<Cell> cellIt = fromRow.cellIterator(); cellIt.hasNext();) {
-			Cell tmpCell = cellIt.next();
-			Cell newCell = toRow.createCell(tmpCell.getColumnIndex());
-			copyCell(wb,tmpCell, newCell, copyValueFlag);
-		}
-	}*/
 
 	/**
 	 * 导出excel
@@ -243,102 +160,10 @@ public class ExcelHelper {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
 			return null;
 		}
 		return Row;
 	}
-
-	/**
-	 * 读取excel文件
-	 * @return 单元格字符数组
-	 */
-	/*public static ArrayList<ArrayList<String>> readExcel(InputStream is, String fileType, int sheetNum) {
-		ArrayList<ArrayList<String>> rowData = new ArrayList<ArrayList<String>>();
-		try {
-			Workbook workBook;
-			if ("xlsx".equals(fileType)) {
-				workBook = new XSSFWorkbook(is);
-			} else {
-				workBook = new HSSFWorkbook(is);
-			}
-
-			Sheet sheet = workBook.getSheetAt(sheetNum);
-			if (sheet == null) {
-				return null;
-			}
-			// 循环行Row
-			for (int rowNum = 0; rowNum <= sheet.getLastRowNum(); rowNum++) {
-				Row row = sheet.getRow(rowNum);
-				if (row == null) {
-					continue;
-				}
-
-				// 循环列Cell
-				ArrayList<String> arrCell = new ArrayList<String>();
-				for (int cellNum = 0; cellNum <= row.getLastCellNum(); cellNum++) {
-					Cell cell = row.getCell(cellNum);
-					if (cell == null) {
-						continue;
-					}
-					arrCell.add(getValue(cell));
-				}
-				rowData.add(arrCell);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-		return rowData;
-	}
-*/
-	/**
-	 * 读取excel文件
-	 *
-	 * @param
-	 *
-	 * @return
-	 */
-	/*public static ArrayList<ArrayList<String>> readExcel(String path) {
-		ArrayList<ArrayList<String>> Row = new ArrayList<ArrayList<String>>();
-		try {
-			Workbook workBook = null;
-			try {
-				workBook = new XSSFWorkbook(path);
-			} catch (Exception ex) {
-				workBook = new HSSFWorkbook(new FileInputStream(path));
-			}
-
-			for (int numSheet = 0; numSheet < workBook.getNumberOfSheets(); numSheet++) {
-				Sheet sheet = workBook.getSheetAt(numSheet);
-				if (sheet == null) {
-					continue;
-				}
-				// 循环行Row
-				for (int rowNum = 0; rowNum <= sheet.getLastRowNum(); rowNum++) {
-					Row row = sheet.getRow(rowNum);
-					if (row == null) {
-						continue;
-					}
-
-					// 循环列Cell
-					ArrayList<String> arrCell = new ArrayList<String>();
-					for (int cellNum = 0; cellNum <= row.getLastCellNum(); cellNum++) {
-						Cell cell = row.getCell(cellNum);
-						if (cell == null) {
-							continue;
-						}
-						arrCell.add(getValue(cell));
-					}
-					Row.add(arrCell);
-				}
-			}
-		} catch (IOException e) {
-			//System.out.println("e:" + e);
-			return null;
-		}
-		return Row;
-	}*/
 
 	// 读取excel文件辅助
 	private static String getValue(Cell cell) {

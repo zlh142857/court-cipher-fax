@@ -20,6 +20,15 @@ public class Outbox implements Serializable {
     private Date create_time;//发送时间
     private String sendline;//文件标题
     private String message;
+    private String filsavepath;
+
+    public String getFilsavepath() {
+        return filsavepath;
+    }
+
+    public void setFilsavepath(String filsavepath) {
+        this.filsavepath = filsavepath;
+    }
 
     @Override
     public String toString() {
@@ -31,6 +40,7 @@ public class Outbox implements Serializable {
                 ", create_time=" + create_time +
                 ", sendline='" + sendline + '\'' +
                 ", message='" + message + '\'' +
+                ", filsavepath='" + filsavepath + '\'' +
                 '}';
     }
 
@@ -62,10 +72,6 @@ public class Outbox implements Serializable {
         this.message = message;
     }
 
-    public static long getSerialVersionUID() {
-
-        return serialVersionUID;
-    }
 
     public int getId() {
         return id;
@@ -98,4 +104,6 @@ public class Outbox implements Serializable {
     public String getMessage() {
         return message;
     }
+
+
 }

@@ -27,4 +27,5 @@ public interface OutboxMapper {
     void insertNewMessage(Outbox outbox);
 
 
+    void modifyoutBox(Map<String,Object> searchMap);
 }

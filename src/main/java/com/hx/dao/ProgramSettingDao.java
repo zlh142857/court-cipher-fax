@@ -6,10 +6,15 @@ package com.hx.dao;/*
  */
 
 import com.hx.modle.Program_Setting;
+import org.apache.ibatis.annotations.Param;
 
 public interface ProgramSettingDao {
 
     Program_Setting selectProgramSetting();
 
     void updatePrintService(Program_Setting programSetting);
+
+    void updateServerWindowsName(@Param( "address" ) String address,@Param( "ip" ) String ip);
+
+    Program_Setting selectProgramSettingAll();
 }

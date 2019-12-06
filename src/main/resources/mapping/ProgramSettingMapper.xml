@@ -6,14 +6,61 @@
     <result property="courtName" column="courtName"/>
     <result property="isPrint" column="isPrint"/>
     <result property="printService" column="printService"/>
+    <result property="startTime" column="startTime"/>
+    <result property="endTime" column="endTime"/>
+    <result property="courtAddress" column="courtAddress"/>
+    <result property="courtNumber" column="courtNumber"/>
+    <result property="countryCode" column="countryCode"/>
+    <result property="nationCode" column="nationCode"/>
+    <result property="serverComName" column="serverComName"/>
+    <result property="serverName" column="serverName"/>
+    <result property="ipAddress" column="ipAddress"/>
+    <result property="ipPort" column="ipPort"/>
+    <result property="isLoginWindows" column="isLoginWindows"/>
+    <result property="isLogin" column="isLogin"/>
+    <result property="isServer" column="isServer"/>
+    <result property="choiceCh" column="choiceCh"/>
+    <result property="insideNum" column="insideNum"/>
+    <result property="isAgain" column="isAgain"/>
+    <result property="timeTen" column="timeTen"/>
+    <result property="openHeader" column="openHeader"/>
+    <result property="maxNum" column="maxNum"/>
+    <result property="autoAgain" column="autoAgain"/>
+    <result property="getFileType" column="getFileType"/>
+    <result property="voiceMaxTime" column="voiceMaxTime"/>
+    <result property="setGetFileDate" column="setGetFileDate"/>
+    <result property="isAutoClose" column="isAutoClose"/>
+    <result property="autoCloseDate" column="autoCloseDate"/>
+    <result property="isToAdmin" column="isToAdmin"/>
+    <result property="adminPhone" column="adminPhone"/>
   </resultMap>
   <!--查询是否立即打印-->
   <select id="selectProgramSetting" resultMap="Program_Setting">
-    SELECT id,courtName,isPrint,printService FROM Program_Setting;
+    SELECT isPrint,printService,startTime,endTime,isAutoClose,autoCloseDate FROM Program_Setting;
+  </select>
+  <!--查询全部程序设置信息-->
+  <select id="selectProgramSettingAll" resultMap="Program_Setting">
+    SELECT * FROM Program_Setting;
   </select>
   <!--修改程序信息-->
   <update id="updatePrintService" parameterType="com.hx.modle.Program_Setting">
-    UPDATE program_setting SET courtName=#{courtName,jdbcType=VARCHAR},isPrint=#{isPrint,jdbcType=INTEGER},printService=#{printService,jdbcType=VARCHAR}
+    UPDATE program_setting SET courtName=#{courtName,jdbcType=VARCHAR},isPrint=#{isPrint,jdbcType=INTEGER},printService=#{printService,jdbcType=VARCHAR},
+    startTime=#{startTime,jdbcType=INTEGER},endTime=#{endTime,jdbcType=INTEGER}
+    ,courtAddress=#{courtAddress,jdbcType=VARCHAR},courtNumber=#{courtNumber,jdbcType=VARCHAR},countryCode=#{countryCode,jdbcType=VARCHAR}
+    ,nationCode=#{nationCode,jdbcType=VARCHAR},serverComName=#{serverComName,jdbcType=VARCHAR},serverName=#{serverName,jdbcType=VARCHAR}
+    ,ipAddress=#{ipAddress,jdbcType=VARCHAR},ipPort=#{ipPort,jdbcType=VARCHAR},isLoginWindows=#{isLoginWindows,jdbcType=BOOLEAN}
+    ,isLogin=#{isLogin,jdbcType=BOOLEAN},isServer=#{isServer,jdbcType=BOOLEAN},choiceCh=#{choiceCh,jdbcType=INTEGER}
+    ,insideNum=#{insideNum,jdbcType=VARCHAR},isAgain=#{isAgain,jdbcType=BOOLEAN},timeTen=#{timeTen,jdbcType=VARCHAR}
+    ,openHeader=#{openHeader,jdbcType=BOOLEAN},maxNum=#{maxNum,jdbcType=VARCHAR},autoAgain=#{autoAgain,jdbcType=BOOLEAN},
+    getFileType=#{getFileType,jdbcType=VARCHAR},voiceMaxTime=#{voiceMaxTime,jdbcType=VARCHAR},setGetFileDate=#{setGetFileDate,jdbcType=BOOLEAN},
+    isAutoClose=#{isAutoClose,jdbcType=BOOLEAN},autoCloseDate=#{autoCloseDate,jdbcType=TIMESTAMP},
+    isToAdmin=#{isToAdmin,jdbcType=BOOLEAN},adminPhone=#{adminPhone,jdbcType=VARCHAR}
     WHERE id=#{id,jdbcType=INTEGER}
   </update>
+  <!--修改计算机名称-->
+  <update id="updateServerWindowsName">
+    UPDATE program_setting SET serverComName=#{address,jdbcType=VARCHAR},ipAddress=#{ip,jdbcType=VARCHAR}
+    WHERE id=1
+  </update>
+
 </mapper>

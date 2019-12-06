@@ -22,4 +22,5 @@ public interface OutBoxService {
     int insert(Outbox outbox);
 
 
+    void modifyoutBox(Map<String,Object> searchMap);
 }

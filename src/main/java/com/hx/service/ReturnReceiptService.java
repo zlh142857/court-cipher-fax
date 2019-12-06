@@ -18,8 +18,6 @@ public interface ReturnReceiptService {
 
    List<Return_Receipt> queryALLMail(Map<String,Object> searchMap, Integer pageNo, Integer pageSize);
 
-   List<Return_Receipt> queryALLMailList();
-
    int deinbox(Integer readerId);
 
    List<Return_Receipt> getAll(String[] split);

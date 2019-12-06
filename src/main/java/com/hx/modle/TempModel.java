@@ -9,9 +9,25 @@ import java.io.Serializable;
 
 public class TempModel implements Serializable {
     private static final long serialVersionUID = -922290095790271279L;
-    private String courtName;
-    private String receiveNumber;
+    private String typename;
+    private String linknumber;
     private String tifPath;
+
+    public String getTypename() {
+        return typename;
+    }
+
+    public void setTypename(String typename) {
+        this.typename = typename;
+    }
+
+    public String getLinknumber() {
+        return linknumber;
+    }
+
+    public void setLinknumber(String linknumber) {
+        this.linknumber = linknumber;
+    }
 
     public String getTifPath() {
         return tifPath;
@@ -21,27 +37,11 @@ public class TempModel implements Serializable {
         this.tifPath = tifPath;
     }
 
-    public String getCourtName() {
-        return courtName;
-    }
-
-    public void setCourtName(String courtName) {
-        this.courtName = courtName;
-    }
-
-    public String getReceiveNumber() {
-        return receiveNumber;
-    }
-
-    public void setReceiveNumber(String receiveNumber) {
-        this.receiveNumber = receiveNumber;
-    }
-
     @Override
     public String toString() {
         return "TempModel{" +
-                "courtName='" + courtName + '\'' +
-                ", receiveNumber='" + receiveNumber + '\'' +
+                "typename='" + typename + '\'' +
+                ", linknumber='" + linknumber + '\'' +
                 ", tifPath='" + tifPath + '\'' +
                 '}';
     }

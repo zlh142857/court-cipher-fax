@@ -17,8 +17,6 @@ public interface ReturnReceiptMapper {
 
         List<Return_Receipt> queryALLMail(@Param("params") Map<String, Object> searchMap);
 
-        List<Return_Receipt> queryALLMailList();
-
         Return_Receipt getById(int id);
 
         int deinbox(Integer id);

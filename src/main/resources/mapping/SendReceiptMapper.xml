@@ -10,7 +10,7 @@
     <result property="message" column="message"/>
     <result property="sendnumber" column="sendnumber"/>
     <result property="isLink" column="isLink"/>
-    <result property="tifPath" column="tifPath"/>
+    <result property="filsavepath" column="filsavepath"/>
     <result property="barCode" column="barCode"/>
   </resultMap>
   <!--张立恒start-->
@@ -66,7 +66,7 @@
   </insert>
   <!--修改是否已关联,改成已关联:1-->
   <update id="updateIsLinkByBar">
-      UPDATE send_receipt SET isLink=1,tifPath=#{tifPath,jdbcType=VARCHAR} WHERE barCode=#{barCode,jdbcType=VARCHAR}
+      UPDATE send_receipt SET isLink=1,filsavepath=#{filsavepath,jdbcType=VARCHAR} WHERE barCode=#{barCode,jdbcType=VARCHAR}
   </update>
   <!--张立恒end-->
   <select id="queryALLMail" parameterType="java.util.Map" resultType="com.hx.modle.Send_Receipt">
@@ -132,7 +132,7 @@
 
   <select id="getById" resultType="com.hx.modle.Send_Receipt">
       select
-        id, receivingunit, receivenumber, create_time, sendline, message,sendnumber,isLink,tifPath,barCode
+        id, receivingunit, receivenumber, create_time, sendline, message,sendnumber,isLink,filsavepath,barCode
         from send_receipt where id = #{id}
         </select>
   <select id="getAll" resultType="com.hx.modle.Send_Receipt">
@@ -153,7 +153,7 @@
         message,
         sendnumber,
         isLink,
-        tifPath,
+        filsavepath,
         barCode) VALUES (
         #{send_receipt.id},
         #{send_receipt.receivingunit},
@@ -163,9 +163,14 @@
         #{send_receipt.message},
         #{send_receipt.sendnumber},
         #{send_receipt.isLink},
-        #{send_receipt.tifPath},
+        #{send_receipt.filsavepath},
         #{send_receipt.barCode}
         )
     </insert>
-
+  <update id="modifysendReceipt" parameterType="com.hx.modle.Send_Receipt" >
+        update send_receipt set
+		sendline=#{sendline}
+		where
+		id=#{id}
+    </update>
 </mapper>

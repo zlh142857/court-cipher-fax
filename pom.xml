@@ -15,7 +15,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <spring.version>4.2.3.RELEASE</spring.version>
+    <spring.version>4.2.0.RELEASE</spring.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
@@ -292,11 +292,7 @@
       <artifactId>pdfbox</artifactId>
       <version>2.0.7</version>
     </dependency>
-    <dependency>
-      <groupId>javax.media</groupId>
-      <artifactId>jai_imageio</artifactId>
-      <version>1.1-alpha</version>
-    </dependency>
+
     <dependency>
       <groupId>org.icepdf.os</groupId>
       <artifactId>icepdf-core</artifactId>
@@ -315,23 +311,13 @@
       <artifactId>thumbnailator</artifactId>
       <version>0.4.8</version>
     </dependency>
-    <!-- webSocket 开始-->
+
     <dependency>
-      <groupId>javax.websocket</groupId>
-      <artifactId>javax.websocket-api</artifactId>
-      <version>1.1</version>
-      <scope>provided</scope>
+      <groupId>com.github.jai-imageio</groupId>
+      <artifactId>jai-imageio-core</artifactId>
+      <version>1.3.1</version>
     </dependency>
-    <dependency>
-      <groupId>javax</groupId>
-      <artifactId>javaee-api</artifactId>
-      <version>7.0</version>
-      <scope>provided</scope>
-    </dependency>
-      <!-- webSocket 结束-->
     <!--张立恒 end-->
-
-
   </dependencies>
 
 

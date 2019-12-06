@@ -13,6 +13,8 @@ import com.hx.util.TwainExample;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageOutputStream;
 import javax.print.DocFlavor;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
@@ -24,13 +26,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.hx.change.ChangeFile.pdfToTiffByWordScan;
+import static com.hx.change.ChangeFile.tiffMerge;
 import static com.hx.change.ImgToPdf.imgToPdf;
-import static com.hx.util.ColorReverse.writeJpg;
 import static com.hx.util.TempDir.fileTemp;
 import static com.hx.util.TempDir.schTask;
 import static com.hx.util.TiffToJPEG.readerTiff;
-
 
 @Service("printService")
 public class PrintFileServiceImpl implements PrintFileService {
@@ -43,14 +43,21 @@ public class PrintFileServiceImpl implements PrintFileService {
         if(fileLength==0){
             return "文件路径丢失";
         }
+        File getFile=new File(tifPath);
+        if(!getFile.isFile()){
+            return "文件不存在";
+        }
         if(fileLength>0){
             //查询打印服务名称
             Program_Setting programSetting=programSettingDao.selectProgramSetting();
             String printService=programSetting.getPrintService();
             //先把tif转换为jpg的list集合,然后进行染色反转,再打印
             List<String> jpgList=readerTiff(tifPath);
-            //颜色反转
-            List<File> newList=writeJpg(jpgList);
+            List<File> newList=new ArrayList<>(  );
+            for(int i=0;i<jpgList.size();i++){
+                File file=new File( jpgList.get( i ) );
+                newList.add( file );
+            }
             //打印
             PrintImage.printImageWhenReceive(newList,printService);
         }
@@ -58,9 +65,9 @@ public class PrintFileServiceImpl implements PrintFileService {
     }
     //扫描功能,返回文件保存路径
     @Override
-    public String printScan() throws Exception{
+    public Map<String,Object> printScan() throws Exception{
+        Map<String,Object> map=new HashMap<>(  );
         String tifPath=schTask();
-        String pdfPath=fileTemp()+".pdf";
         List<String> list=null;
         boolean flag=false;
         TwainExample.app=new TwainExample();
@@ -70,10 +77,9 @@ public class PrintFileServiceImpl implements PrintFileService {
             if(count==1){
                 list=TwainExample.list;
                 if(list.size()>0){
-                    imgToPdf(list,pdfPath);
-                    File file=new File(pdfPath);
-                    OutputStream os=new FileOutputStream( new File( tifPath ) );
-                    flag=pdfToTiffByWordScan( file, os );
+                    File file=new File( tifPath );
+                    ImageOutputStream os=new FileImageOutputStream( file);
+                    flag=tiffMerge( list, os );
                 }
                 TwainExample.list=new ArrayList<>(  );
                 TwainExample.count=0;
@@ -82,8 +88,13 @@ public class PrintFileServiceImpl implements PrintFileService {
         }
         if(!flag){
             tifPath="";
+            map.put( "tifPath",tifPath );
+            return map;
+        }else{
+            map.put( "tifPath",tifPath );
+            map.put( "pathList",list );
+            return map;
         }
-        return tifPath;
     }
     //程序管理下拉列表查询
     @Override
@@ -91,7 +102,8 @@ public class PrintFileServiceImpl implements PrintFileService {
         Map<String,Object> map=new HashMap<>(  );
         List<String> list=new ArrayList<>(  );
         //查询数据库存入的服务名称
-        Program_Setting programSetting=programSettingDao.selectProgramSetting();
+        Program_Setting programSetting=programSettingDao.selectProgramSettingAll();
+        System.out.println(programSetting.toString());
         //查询所有的服务名称
         PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
         DocFlavor flavor = DocFlavor.BYTE_ARRAY.AUTOSENSE;
@@ -110,5 +122,18 @@ public class PrintFileServiceImpl implements PrintFileService {
     @Override
     public void updatePrintService(Program_Setting programSetting) {
         programSettingDao.updatePrintService(programSetting);
+    }
+
+
+    @Override
+    public String downFileSend(String tifPath) throws Exception {
+        File getFile=new File(tifPath);
+        if(!getFile.isFile()){
+            return "文件不存在";
+        }
+        String pdfPath=fileTemp()+".pdf";
+        List<String> filePath=readerTiff(tifPath);
+        imgToPdf(filePath,pdfPath);
+        return pdfPath;
     }
 }

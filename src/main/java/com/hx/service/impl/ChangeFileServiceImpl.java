@@ -10,12 +10,15 @@ import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageOutputStream;
 import java.io.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static com.hx.change.ChangeFile.pdfToTiff;
-import static com.hx.change.ChangeFile.pdfToTiffByWord;
+import static com.hx.change.ChangeFile.PdfToTiff;
+import static com.hx.change.ChangeFile.makeSingleTif;
 import static com.hx.change.ChangeFile.wordToPDF;
 import static com.hx.common.StaticFinal.SCHTASK;
 import static com.hx.util.TempDir.schTask;
@@ -61,11 +64,13 @@ public class ChangeFileServiceImpl implements ChangeFileService {
         map.put( "flag",flag );
         return map;
     }
+
+
     //进行存放tiff文件目录创建,然后判断文件为word还是PDF转换方式
     public static boolean mkdirDir(MultipartFile file,int fileType,String tifPath){
         boolean resultBack=false;
         InputStream inputStream=null;
-        OutputStream outputStream=null;
+        ImageOutputStream outputStream=null;
         String pdfPath="";
         try {
             inputStream=file.getInputStream();
@@ -74,16 +79,18 @@ public class ChangeFileServiceImpl implements ChangeFileService {
             if (!fileDir.exists()) {
                 fileDir.mkdir();
             }
-            outputStream= new FileOutputStream(tifPath);
+            outputStream= new FileImageOutputStream(new File( tifPath ));
             if(fileType==0){
                 //进行Word文档转换
                 pdfPath=wordToPDF(file);
                 //再进行PDF文档转换为tiff文件
                 File pdfFile=new File(pdfPath);
-                resultBack=pdfToTiffByWord(pdfFile,outputStream);
+                InputStream is=new FileInputStream( pdfFile );
+                resultBack=PdfToTiff(is,outputStream);
             }else{
+                InputStream is=file.getInputStream();
                 //进行PDF文档转换
-                resultBack=pdfToTiff(file,outputStream);
+                resultBack=PdfToTiff(is,outputStream);
             }
         } catch (IOException e) {
             logger.error("IO关闭异常:"+e);
@@ -99,10 +106,24 @@ public class ChangeFileServiceImpl implements ChangeFileService {
                 logger.error("IO关闭异常:"+e);
             }
         }
-        File pdfFile=new File(pdfPath);
-        if(pdfFile.isFile()){
-            pdfFile.delete();
-        }
         return resultBack;
+    }
+
+    @Override
+    public Map<String,Object> getFileList(String tifPath) {
+        Map<String,Object> map=new HashMap<>(  );
+        File file=new File( tifPath);
+        if(!file.exists()){
+            map.put( "message","文件不存在" );
+        }else{
+            List<String> pathList=makeSingleTif(file);
+            if(null==pathList){
+                map.put( "message","文件预览失败" );
+            }else{
+                map.put( "message","成功" );
+                map.put( "pathList",pathList );
+            }
+        }
+        return map;
     }
 }

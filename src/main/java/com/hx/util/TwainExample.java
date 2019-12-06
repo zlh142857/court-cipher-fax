@@ -38,15 +38,11 @@ public class TwainExample implements ScannerListener {
     public void update(Type var1, ScannerIOMetadata var2) {
         if (var1.equals(ScannerIOMetadata.ACQUIRED)) {
             BufferedImage var3 = var2.getImage();
+            tifPath=fileTemp()+".tif";
+            list.add( tifPath );
             try {
-                tifPath=fileTemp()+".tif";
-                list.add( tifPath );
-                try {
-                    ImageIO.write(var3, "tif", new File(tifPath));
-                } catch (Exception e) {
-                    logger.error( e.toString() );
-                }
-            } catch (IOException e) {
+                ImageIO.write(var3, "tif", new File(tifPath));
+            } catch (Exception e) {
                 logger.error( e.toString() );
             }
         } else if (var1.equals(ScannerIOMetadata.NEGOTIATE)) {

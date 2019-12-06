@@ -9,6 +9,7 @@
         <result property="sendline" column="sendline"/>
         <result property="message" column="message"/>
         <result property="sendnumber" column="sendnumber"/>
+        <result property="filsavepath" column="filsavepath"/>
     </resultMap>
     <select id="getAll" resultType="com.hx.modle.Outbox">
         SELECT*
@@ -77,21 +78,28 @@
 
     <select id="getById" resultType="com.hx.modle.Outbox">
       SELECT
-      t.id,t.sendnumber,t.receivenumber,t.receivingunit,t.create_time,t.sendline,t.message
+      t.id,t.sendnumber,t.receivenumber,t.receivingunit,t.create_time,t.sendline,t.message,t.filsavepath
       FROM outbox  t where id = #{id}
   </select>
 
     <insert id="insert" parameterType="com.hx.modle.Outbox">
-        INSERT INTO outbox(id,sendnumber,receivenumber,receivingunit,create_time,sendline,message) VALUES (
+        INSERT INTO outbox(id,sendnumber,receivenumber,receivingunit,create_time,sendline,message,filsavepath) VALUES (
           #{outbox.id},
           #{outbox.sendnumber},
           #{outbox.receivenumber},
           #{outbox.receivingunit},
           #{outbox.create_time},
           #{outbox.sendline},
-          #{outbox.message}
+          #{outbox.message},
+          #{outbox.filsavepath},
         )
     </insert>
+    <update id="modifyoutBox" parameterType="com.hx.modle.Outbox">
+        update outbox set
+		sendline=#{sendline}
+		where
+		id=#{id}
+    </update>
     <!--张立恒start-->
     <insert id="insertNewMessage" parameterType="com.hx.modle.Outbox">
         INSERT INTO outbox
@@ -114,6 +122,9 @@
             <if test="message != null and message != ''">
                 message,
             </if>
+            <if test="filsavepath != null and filsavepath != ''">
+                filsavepath,
+            </if>
         </trim>
         <trim prefix=" values (" suffix=")" suffixOverrides=",">
             <if test="sendnumber != null and sendnumber != ''">
@@ -133,6 +144,9 @@
             </if>
             <if test="message != null and message != ''">
                 #{message,jdbcType=VARCHAR},
+            </if>
+            <if test="filsavepath != null and filsavepath != ''">
+                #{filsavepath,jdbcType=VARCHAR},
             </if>
         </trim>
     </insert>

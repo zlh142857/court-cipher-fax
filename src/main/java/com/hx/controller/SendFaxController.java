@@ -12,14 +12,20 @@ import com.hx.modle.ChMsg;
 import com.hx.modle.Device_Setting;
 import com.hx.modle.TempModel;
 import com.hx.service.SendFaxService;
+import com.hx.util.GetTimeToFileName;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.*;
+
+import static com.hx.common.StaticFinal.TEMPDIR;
+
 @Controller
 public class SendFaxController {
     private static Logger logger=Logger.getLogger(SendFaxController.class);
@@ -60,12 +66,20 @@ public class SendFaxController {
         String mes="";
         ObjectMapper mapper = new ObjectMapper();
         JavaType jt = mapper.getTypeFactory().constructParametricType(ArrayList.class, TempModel.class);
+        List<TempModel> tempList = null;
         try {
-            List<TempModel> tempList =  (List<TempModel>)mapper.readValue(tempModels, jt);
-            for(int i=0;i<tempList.size();i++){
-                mes=sendFaxService.sendFax(tifPath,receiptPath,tempList.get( i ).getCourtName(),tempList.get(i).getReceiveNumber(),sendNumber,isBack,filename,id,ch);
-                Thread.sleep( 3000 );
+            tempList = (List<TempModel>)mapper.readValue(tempModels, jt);
+            int size=tempList.size();
+            for(int i=0;i<size;i++){
+                mes=sendFaxService.sendFax(tifPath,receiptPath,tempList.get( i ).getTypename(),tempList.get(i).getLinknumber(),sendNumber,isBack,filename,id,ch);
+                try {
+                    Thread.sleep( 3000 );
+                } catch (InterruptedException e) {
+                    logger.error( e.toString() );
+                }
             }
+        } catch (IOException e) {
+            logger.error( e.toString() );
         } catch (Exception e) {
             logger.error( e.toString() );
         }
@@ -152,7 +166,7 @@ public class SendFaxController {
     public boolean deleteSchTask(String id){
         boolean flag=false;
         try {
-            if(null !=id || ""!=id){
+            if(null !=id){
                 flag=sendFaxService.deleteSchTask(Integer.valueOf( id ));
             }else{
                 logger.error( "id为空" );
@@ -178,7 +192,7 @@ public class SendFaxController {
     public String selectTaskLimit(String pageNow,String pageSize){
         Map<String,Object> map=null;
         try {
-            if(null!=pageNow||""!=pageSize){
+            if(null!=pageNow&&null!=pageSize){
                 map=sendFaxService.selectTaskLimit(Integer.valueOf( pageNow ),Integer.valueOf( pageSize ));
             }else{
                 logger.error( "分页参数为空" );
@@ -198,22 +212,44 @@ public class SendFaxController {
      * @return:
      * @auther: 张立恒
      * @date: 2019/11/15 14:42
-     */
+     *//*
     @RequestMapping("tifView")
     @ResponseBody
-    public String tifView(String tifPath){
+    public String tifView(String tifPath, HttpServletResponse response){
         String map="";
+        String filename=GetTimeToFileName.GetTimeToFileName();
+        String pdfPath=TEMPDIR+"/"+filename+".pdf";
         try {
-            if(null!=tifPath||""!=tifPath){
-                map=sendFaxService.tifView(tifPath);
+            if(null!=tifPath){
+                map=sendFaxService.tifView(pdfPath,tifPath);
             }else{
                 logger.error( "参数为空" );
             }
         } catch (Exception e) {
             logger.error( e );
         }
+        BufferedInputStream br = null;
+        try {
+            br = new BufferedInputStream(new FileInputStream("pdfPath"));
+            byte[] buf = new byte[1024];
+            int len = 0;
+            response.reset(); // 非常重要
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition",
+                    "inline; filename="+filename);
+
+            OutputStream out = response.getOutputStream();
+            while ((len = br.read(buf)) != -1)
+                out.write(buf, 0, len);
+            br.close();
+            out.close();
+        } catch (FileNotFoundException e) {
+            logger.error( e.toString() );
+        } catch (IOException e) {
+            logger.error( e.toString() );
+        }
         return JSONObject.toJSONString( map);
-    }
+    }*/
     /**
      *
      * 功能描述:取消发送
@@ -230,7 +266,7 @@ public class SendFaxController {
     public boolean undoSend(String ch){
         boolean flag=false;
         try {
-            if(null!=ch||""!=ch){
+            if(null!=ch){
                 flag=sendFaxService.undoSend(ch);
             }else{
                 logger.error( "参数为空" );
@@ -240,4 +276,31 @@ public class SendFaxController {
         }
         return flag;
     }
+    /**
+     *
+     * 功能描述: 右键发送回执,然后拆分文件,反转颜色,返回文件路径
+     *
+     * 业务逻辑:
+     *
+     * @param:
+     * @return:
+     * @auther: 张立恒
+     * @date: 2019/11/22 10:54
+     */
+    @RequestMapping("returnFaxGetPath")
+    @ResponseBody
+    public String returnFaxGetPath(String tifPath){
+        String path="";
+        try {
+            if(null!=tifPath){
+                path=sendFaxService.returnFaxGetPath(tifPath);
+            }else{
+                logger.error( "参数为空" );
+            }
+        } catch (Exception e) {
+            logger.error( e );
+        }
+        return JSONObject.toJSONString( path );
+    }
+
 }

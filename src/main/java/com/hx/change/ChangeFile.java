@@ -8,25 +8,31 @@ package com.hx.change;/*
 import com.aspose.words.Document;
 import com.aspose.words.License;
 import com.aspose.words.SaveFormat;
-import com.sun.media.jai.codec.ImageCodec;
-import com.sun.media.jai.codec.ImageEncoder;
-import com.sun.media.jai.codec.TIFFEncodeParam;
-import com.sun.media.jai.codecimpl.TIFFImageDecoder;
+import com.github.jaiimageio.impl.plugins.tiff.TIFFImageReader;
+import com.github.jaiimageio.impl.plugins.tiff.TIFFImageReaderSpi;
+import com.github.jaiimageio.impl.plugins.tiff.TIFFImageWriter;
+import com.github.jaiimageio.impl.plugins.tiff.TIFFImageWriterSpi;
+import com.github.jaiimageio.plugins.tiff.BaselineTIFFTagSet;
+import com.github.jaiimageio.plugins.tiff.TIFFDirectory;
+import com.github.jaiimageio.plugins.tiff.TIFFField;
+import com.github.jaiimageio.plugins.tiff.TIFFTag;
 import org.apache.log4j.Logger;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.media.jai.JAI;
-import javax.media.jai.PlanarImage;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.sun.media.jai.codec.TIFFField;
 import sun.misc.BASE64Decoder;
+
+import javax.imageio.*;
+import javax.imageio.metadata.IIOInvalidTreeException;
+import javax.imageio.metadata.IIOMetadata;
+import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.FileImageOutputStream;
+import javax.imageio.stream.ImageOutputStream;
 
 import static com.hx.common.StaticFinal.LICENSE;
 import static com.hx.common.StaticFinal.TEMPDIR;
@@ -76,230 +82,6 @@ public class ChangeFile {
         return result;
     }
 
-
-
-    static {
-        System.setProperty("com.sun.media.jai.disableMediaLib", "true");
-    }
-    /** 图片格式 */
-    public static final String IMG_FORMAT = "TIFF";
-
-    /** 打印精度设置 */
-    public static final float DPI = 209f; //图片的像素
-    public static final float DPI2 = 210.9f;
-    public static final float DPI3 = 209.1f;
-    public static boolean pdfToTiff(MultipartFile file,OutputStream os) throws IOException {
-        boolean back=false;
-        InputStream is=file.getInputStream();
-        PDDocument doc = null;
-        try {
-            doc = PDDocument.load(is);
-            int pageCount = doc.getNumberOfPages();
-            PDFRenderer renderer = new PDFRenderer(doc); // 根据PDDocument对象创建pdf渲染器
-            List<PlanarImage> piList = new ArrayList<PlanarImage>();
-            for (int i = 0+1; i < pageCount; i++) {
-                BufferedImage image = renderer.renderImageWithDPI(i, DPI,
-                        ImageType.BINARY);
-                PlanarImage pimg = JAI.create("mosaic", image);
-                piList.add(pimg);
-            }
-            TIFFEncodeParam param = new TIFFEncodeParam();// 创建tiff编码参数类
-            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_2D);// 压缩参数
-            param.setT4PadEOLs( false );
-            param.setReverseFillOrder( false );
-            param.setT4Encode2D( false );
-            param.setWriteTiled( false );
-            param.setLittleEndian( false );
-            TIFFField[] extras = new TIFFField[2];
-            extras[0] = new TIFFField(TIFFImageDecoder.TIFF_X_RESOLUTION,
-                    TIFFField.TIFF_RATIONAL, 1, (Object) new long[][] {{ (long) 408, 2 } });
-            extras[1] = new TIFFField(TIFFImageDecoder.TIFF_Y_RESOLUTION,
-                    TIFFField.TIFF_RATIONAL, 1, (Object) new long[][] {{ (long) 392, 2 } });
-            param.setExtraFields(extras);
-            param.setExtraImages(piList.iterator());// 设置图片的迭代器
-            BufferedImage fimg = renderer.renderImageWithDPI(0, DPI,ImageType.BINARY);
-            PlanarImage fpi = JAI.create("mosaic",fimg); // 通过JAI的create()方法实例化jai的图片对象
-            ImageEncoder enc = ImageCodec.createImageEncoder(IMG_FORMAT, os,
-                    param);
-            enc.encode(fpi);// 指定第一个进行编码的jai图片对象,并将输出写入到与此
-            back=true;
-        } catch (IOException e) {
-            throw new IOException( e );
-        } finally {
-            try {
-                if (doc != null)
-                    doc.close();
-                if (os != null){
-                    os.close();
-                }
-                if (is != null){
-                    is.close();
-                }
-            } catch (IOException e) {
-                throw new IOException( e );
-            }
-        }
-        return back;
-    }
-    public static boolean pdfToTiffByWord(File file,OutputStream os) throws IOException {
-        boolean back=false;
-        InputStream is=new FileInputStream( file );
-        PDDocument doc = null;
-        try {
-            doc = PDDocument.load(is);
-            int pageCount = doc.getNumberOfPages();
-            PDFRenderer renderer = new PDFRenderer(doc); // 根据PDDocument对象创建pdf渲染器
-            List<PlanarImage> piList = new ArrayList<PlanarImage>();
-            for (int i = 0+1; i < pageCount; i++) {
-                BufferedImage image = renderer.renderImageWithDPI(i, DPI,
-                        ImageType.BINARY);
-                PlanarImage pimg = JAI.create("mosaic", image);
-                piList.add(pimg);
-            }
-            TIFFEncodeParam param = new TIFFEncodeParam();// 创建tiff编码参数类
-            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_2D);// 压缩参数
-            param.setT4PadEOLs( false );
-            param.setReverseFillOrder( false );
-            param.setT4Encode2D( false );
-            param.setWriteTiled( false );
-            param.setLittleEndian( false );
-            TIFFField[] extras = new TIFFField[2];
-            extras[0] = new TIFFField(TIFFImageDecoder.TIFF_X_RESOLUTION,
-                    TIFFField.TIFF_RATIONAL, 1, (Object) new long[][] {{ (long) 408, 2 } });
-            extras[1] = new TIFFField(TIFFImageDecoder.TIFF_Y_RESOLUTION,
-                    TIFFField.TIFF_RATIONAL, 1, (Object) new long[][] {{ (long) 392, 2 } });
-            param.setExtraFields(extras);
-            param.setExtraImages(piList.iterator());// 设置图片的迭代器
-            BufferedImage fimg = renderer.renderImageWithDPI(0, DPI,ImageType.BINARY);
-            PlanarImage fpi = JAI.create("mosaic",fimg); // 通过JAI的create()方法实例化jai的图片对象
-            ImageEncoder enc = ImageCodec.createImageEncoder(IMG_FORMAT, os,
-                    param);
-            enc.encode(fpi);// 指定第一个进行编码的jai图片对象,并将输出写入到与此
-            back=true;
-        } catch (IOException e) {
-            throw new IOException( e );
-        } finally {
-            try {
-                if (doc != null)
-                    doc.close();
-                if (os != null){
-                    os.close();
-                }
-                if (is != null){
-                    is.close();
-                }
-            } catch (IOException e) {
-                throw new IOException( e );
-            }
-        }
-        return back;
-    }
-    public static boolean pdfToTiffByWordScan(File file,OutputStream os) throws IOException {
-        boolean back=false;
-        InputStream is=new FileInputStream( file );
-        PDDocument doc = null;
-        try {
-            doc = PDDocument.load(is);
-            int pageCount = doc.getNumberOfPages();
-            PDFRenderer renderer = new PDFRenderer(doc); // 根据PDDocument对象创建pdf渲染器
-            List<PlanarImage> piList = new ArrayList<PlanarImage>();
-            for (int i = 0+1; i < pageCount; i++) {
-                BufferedImage image = renderer.renderImageWithDPI(i, DPI2,
-                        ImageType.BINARY);
-                PlanarImage pimg = JAI.create("mosaic", image);
-                piList.add(pimg);
-            }
-            TIFFEncodeParam param = new TIFFEncodeParam();// 创建tiff编码参数类
-            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_1D);// 压缩参数
-            param.setT4PadEOLs( false );
-            param.setReverseFillOrder( false );
-            param.setT4Encode2D( false );
-            param.setWriteTiled( false );
-            param.setLittleEndian( false );
-            TIFFField[] extras = new TIFFField[2];
-            extras[0] = new TIFFField(TIFFImageDecoder.TIFF_X_RESOLUTION,
-                    TIFFField.TIFF_RATIONAL, 1, (Object) new long[][] {{ (long) 408, 2 } });
-            extras[1] = new TIFFField(TIFFImageDecoder.TIFF_Y_RESOLUTION,
-                    TIFFField.TIFF_RATIONAL, 1, (Object) new long[][] {{ (long) 392, 2 } });
-            param.setExtraFields(extras);
-            param.setExtraImages(piList.iterator());// 设置图片的迭代器
-            BufferedImage fimg = renderer.renderImageWithDPI(0, DPI2,ImageType.BINARY);
-            PlanarImage fpi = JAI.create("mosaic",fimg); // 通过JAI的create()方法实例化jai的图片对象
-            ImageEncoder enc = ImageCodec.createImageEncoder(IMG_FORMAT, os,
-                    param);
-            enc.encode(fpi);// 指定第一个进行编码的jai图片对象,并将输出写入到与此
-            back=true;
-        } catch (IOException e) {
-            throw new IOException( e );
-        } finally {
-            try {
-                if (doc != null)
-                    doc.close();
-                if (os != null){
-                    os.close();
-                }
-                if (is != null){
-                    is.close();
-                }
-            } catch (IOException e) {
-                throw new IOException( e );
-            }
-        }
-        return back;
-    }
-    public static boolean pdfToTiffSendBack(File file,OutputStream os) throws IOException {
-        boolean back=false;
-        InputStream is=new FileInputStream( file );
-        PDDocument doc = null;
-        try {
-            doc = PDDocument.load(is);
-            int pageCount = doc.getNumberOfPages();
-            PDFRenderer renderer = new PDFRenderer(doc); // 根据PDDocument对象创建pdf渲染器
-            List<PlanarImage> piList = new ArrayList<PlanarImage>();
-            for (int i = 0+1; i < pageCount; i++) {
-                BufferedImage image = renderer.renderImageWithDPI(i, DPI2,
-                        ImageType.BINARY);
-                PlanarImage pimg = JAI.create("mosaic", image);
-                piList.add(pimg);
-            }
-            TIFFEncodeParam param = new TIFFEncodeParam();// 创建tiff编码参数类
-            param.setCompression(TIFFEncodeParam.COMPRESSION_GROUP3_1D);// 压缩参数
-            param.setT4PadEOLs( false );
-            param.setReverseFillOrder( false );
-            param.setT4Encode2D( false );
-            param.setWriteTiled( false );
-            param.setLittleEndian( false );
-            TIFFField[] extras = new TIFFField[2];
-            extras[0] = new TIFFField(TIFFImageDecoder.TIFF_X_RESOLUTION,
-                    TIFFField.TIFF_RATIONAL, 1, (Object) new long[][] {{ (long) 408, 2 } });
-            extras[1] = new TIFFField(TIFFImageDecoder.TIFF_Y_RESOLUTION,
-                    TIFFField.TIFF_RATIONAL, 1, (Object) new long[][] {{ (long) 392, 2 } });
-            param.setExtraFields(extras);
-            param.setExtraImages(piList.iterator());// 设置图片的迭代器
-            BufferedImage fimg = renderer.renderImageWithDPI(0, DPI2,ImageType.BINARY);
-            PlanarImage fpi = JAI.create("mosaic",fimg); // 通过JAI的create()方法实例化jai的图片对象
-            ImageEncoder enc = ImageCodec.createImageEncoder(IMG_FORMAT, os,
-                    param);
-            enc.encode(fpi);// 指定第一个进行编码的jai图片对象,并将输出写入到与此
-            back=true;
-        } catch (IOException e) {
-            throw new IOException( e );
-        } finally {
-            try {
-                if (doc != null)
-                    doc.close();
-                if (os != null){
-                    os.close();
-                }
-                if (is != null){
-                    is.close();
-                }
-            } catch (IOException e) {
-                throw new IOException( e );
-            }
-        }
-        return back;
-    }
     public static String baseToPdf(String base64){
         String pdfPath="";
         BASE64Decoder decoder = new sun.misc.BASE64Decoder();
@@ -347,6 +129,181 @@ public class ChangeFile {
         }
         return pdfPath;
     }
+    //将文件转换成BufferedImage,再将BufferedImage转换为tiff,转换为tiff时,设置metadata,像素设置,颜色设置是在生成BufferedImage的时候进行设置
+    public static final float DPI = 209f;
+    public static boolean PdfToTiff(InputStream is,ImageOutputStream os) throws IOException {
+        boolean bres = false;
+        PDDocument doc = null;
+        doc = PDDocument.load(is);
+        int pageCount = doc.getNumberOfPages();
+        PDFRenderer renderer = new PDFRenderer(doc); // 根据PDDocument对象创建pdf渲染器
+        List<BufferedImage> biList = new ArrayList<BufferedImage>();
+        for (int i = 0; i < pageCount; i++) {
+            BufferedImage image = renderer.renderImageWithDPI(i, DPI,ImageType.BINARY);
+            biList.add(image);
+        }
+        //tiff格式图片输出流
+        TIFFImageWriter tiffImageWriter = new TIFFImageWriter(new TIFFImageWriterSpi());
+        ImageWriteParam writerParams = tiffImageWriter.getDefaultWriteParam();
+        writerParams.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+        writerParams.setCompressionType("CCITT T.6");
+        IIOMetadata metadata=createMetadata(tiffImageWriter,writerParams);
+        try {
+            //先指定一个文件用于存储输出的数据
+            tiffImageWriter.setOutput(os);
+            //指定第一个tif文件写到指定的文件中
+            BufferedImage bufferedImage_0 = biList.get(0);
+            //IIOImage类是用于存储    图片/缩略图/元数据信息    的引用类
+            IIOImage iioImage_0 = new IIOImage(bufferedImage_0, null, metadata);
+            //write方法,将给定的IIOImage对象写到文件系统中;
+            tiffImageWriter.write(metadata,iioImage_0,writerParams);
+            for (int i = 1; i < biList.size(); i++) {
+                //判断该输出流是否可以插入新图片到文件系统中的
+                if(tiffImageWriter.canInsertImage(i)){
+                    //根据顺序获取缓冲中的图片;
+                    BufferedImage bufferedImage = biList.get(i);
+                    IIOImage iioImage = new IIOImage(bufferedImage, null, metadata);
+                    //将文件插入到输出的多图片文件中的指定的下标处
+                    tiffImageWriter.writeInsert(i, iioImage,writerParams);
+                }
+            }
+            bres = true;
+        } catch (IOException e) {
+            logger.error( e.toString() );
+            bres = false;
+        }
+        return bres;
+    }
+    public static boolean tiffMerge(List<String> strList,ImageOutputStream os) throws IOException {
+        boolean bres = false;
+        List<File> fileList=new ArrayList<>(  );
+        for(int i=0;i<strList.size();i++){
+            File file=new File( strList.get( i ) );
+            fileList.add( file );
+        }
+        //tiff格式的图片读取器;
+        TIFFImageReader tiffImageReader = new TIFFImageReader(new TIFFImageReaderSpi());
+        FileImageInputStream fis = null;
+        List<BufferedImage> biList = new ArrayList<BufferedImage>();
+        for(File f: fileList) {
+            try {
+                fis = new FileImageInputStream(f);
+                tiffImageReader.setInput(fis);
+                biList.add(tiffImageReader.read(0));
+            }catch (Exception e) {
+                logger.error( e.toString() );
+            }finally {
+                if(tiffImageReader != null) {
+                    tiffImageReader.dispose();
+                }
+                if (fis != null) {
+                    try {
+                        fis.flush();
+                        fis.close();
+                    } catch (IOException e) {
+                        logger.error( e.toString() );
+                    }
+                }
+            }
+        }
+        //tiff格式图片输出流
+        TIFFImageWriter tiffImageWriter = new TIFFImageWriter(new TIFFImageWriterSpi());
+        ImageWriteParam writerParams = tiffImageWriter.getDefaultWriteParam();
+        writerParams.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+        writerParams.setCompressionType("CCITT T.6");
+        writerParams.setCompressionQuality( 1f );
+        IIOMetadata metadata=createMetadata(tiffImageWriter,writerParams);
+        try {
+            //先指定一个文件用于存储输出的数据
+            tiffImageWriter.setOutput(os);
+            //指定第一个tif文件写到指定的文件中
+            BufferedImage bufferedImage_0 = biList.get(0);
+            //IIOImage类是用于存储    图片/缩略图/元数据信息    的引用类
+            IIOImage iioImage_0 = new IIOImage(bufferedImage_0, null, metadata);
+            //write方法,将给定的IIOImage对象写到文件系统中;
+            tiffImageWriter.write(metadata,iioImage_0,writerParams);
+            for (int i = 1; i < biList.size(); i++) {
+                //判断该输出流是否可以插入新图片到文件系统中的
+                if(tiffImageWriter.canInsertImage(i)){
+                    //根据顺序获取缓冲中的图片;
+                    BufferedImage bufferedImage = biList.get(i);
+                    IIOImage iioImage = new IIOImage(bufferedImage, null, metadata);
+                    //将文件插入到输出的多图片文件中的指定的下标处
+                    tiffImageWriter.writeInsert(i, iioImage,writerParams);
+                }
+            }
+            bres = true;
+        } catch (IOException e) {
+            logger.error( e.toString() );
+            bres = false;
+        }
+        return bres;
+    }
+    private static IIOMetadata createMetadata(ImageWriter writer, ImageWriteParam writerParams)throws
+            IIOInvalidTreeException {
+        ImageTypeSpecifier type = ImageTypeSpecifier.createFromBufferedImageType(BufferedImage.TYPE_BYTE_BINARY);
+        IIOMetadata meta = writer.getDefaultImageMetadata(type, writerParams);
+        TIFFDirectory dir = TIFFDirectory.createFromMetadata(meta);
+        BaselineTIFFTagSet base = BaselineTIFFTagSet.getInstance();
+        TIFFTag tagXRes = base.getTag(BaselineTIFFTagSet.TAG_X_RESOLUTION);
+        TIFFTag tagWidth = base.getTag(BaselineTIFFTagSet.TAG_IMAGE_WIDTH);
+        TIFFTag tagResu = base.getTag(BaselineTIFFTagSet.TAG_RESOLUTION_UNIT);
+        TIFFTag tagYRes = base.getTag(BaselineTIFFTagSet.TAG_Y_RESOLUTION);
+        TIFFTag tagRowsPS = base.getTag(BaselineTIFFTagSet.TAG_ROWS_PER_STRIP);
+        TIFFField fieldXRes = new TIFFField(tagXRes, TIFFTag.TIFF_RATIONAL, 1, new long[][] { { 408, 2 } });//设置纵向分辨率
+        TIFFField fieldYRes = new TIFFField(tagYRes, TIFFTag.TIFF_RATIONAL, 1, new long[][] { { 392, 2 } });//设置垂直分辨率
+        TIFFField fieldResu = new TIFFField(tagResu, TIFFTag.TIFF_BYTE, 1, new byte[] { 2 });//设置分辨率单位
+        TIFFField fieldRowsPS = new TIFFField(tagRowsPS, TIFFTag.TIFF_SSHORT, 1, new short[] { 2444});//设置RowsPerStrip,根据纵向像素进行设置
+        TIFFField fieldWidth = new TIFFField(tagWidth, TIFFTag.TIFF_LONG, 1, new long[][]{{1724}});//设置RowsPerStrip,根据纵向像素进行设置
+        dir.addTIFFField(fieldXRes);
+        dir.addTIFFField(fieldYRes);
+        dir.addTIFFField(fieldResu);
+        dir.addTIFFField(fieldRowsPS);
+        dir.addTIFFField(fieldWidth);
+        return dir.getAsMetadata();
+    }
 
+    //拆分多页tif为多个单页tif,返回单页文件路径的list集合
+    public static List<String> makeSingleTif(File fTiff) {
+        boolean bres = false;
+        FileImageInputStream fis = null;
+        List<String> list=new ArrayList<>(  );
+        try {
+            TIFFImageReaderSpi tiffImageReaderSpi = new TIFFImageReaderSpi();
+            TIFFImageReader tiffImageReader = new TIFFImageReader(tiffImageReaderSpi);
+            fis = new FileImageInputStream(fTiff);
+            tiffImageReader.setInput(fis);
+            int numPages = tiffImageReader.getNumImages(true);
+            for(int i=0; i<numPages; i++) {
+                BufferedImage bi = tiffImageReader.read(i);
+                String path=fileTemp()+".tif";
+                File tif = new File(path);
+                FileImageOutputStream fios = new FileImageOutputStream(tif);
+                TIFFImageWriterSpi tiffImageWriterSpi = new TIFFImageWriterSpi();
+                TIFFImageWriter tiffImageWriter = new TIFFImageWriter(tiffImageWriterSpi);
+                tiffImageWriter.setOutput(fios);
+                tiffImageWriter.write(bi);
+                list.add( path );
+            }
+            bres=true;
+        } catch (Exception e) {
+            logger.error( e.toString() );
+            bres = false;
+        }finally {
+            if (fis != null) {
+                try {
+                    fis.flush();
+                    fis.close();
+                } catch (IOException e) {
+                    logger.error( e.toString() );
+                }
+            }
+        }
+        if(bres){
+            return list;
+        }else{
+            return null;
+        }
+    }
 
 }

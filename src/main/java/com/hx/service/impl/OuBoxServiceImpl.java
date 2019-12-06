@@ -59,7 +59,7 @@ public class OuBoxServiceImpl implements OutBoxService {
                 String.valueOf(readerId),
                 outbox.getReceivingunit(),
                 outbox.getReceivenumber(),
-                "",
+                outbox.getFilsavepath(),
                 (Date) outbox.getCreate_time(),
                 "",
                 0,
@@ -72,5 +72,10 @@ public class OuBoxServiceImpl implements OutBoxService {
     @Override
     public int insert(Outbox outbox) {
         return outboxMapper.insert(outbox);
+    }
+
+    @Override
+    public void modifyoutBox(Map<String, Object> searchMap) {
+        outboxMapper.modifyoutBox(searchMap);
     }
 }

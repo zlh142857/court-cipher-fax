@@ -7,7 +7,6 @@ import com.hx.service.MailService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -73,21 +72,8 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public List<Mail_List> queryALLMail(Map<String, Object> searchMap) {
-
-        //mysql LIMIT语句 参数生成  LIMIT [start] [offset]
-//        int start = (pageNo - 1) * pageSize;
-//        int offset = pageSize;
-//        searchMap.put("start", start);
-//        searchMap.put("offset", offset);
         return mailMapper.queryALLMail(searchMap);
     }
-
-
-
-//    @Override
-//    public int queryTotalCount(Map<String, Object> searchMap) {
-//        return mailMapper.queryTotalCount(searchMap);
-//    }
 
     @Override
     public List<Mail_List> sendViewMail() throws Exception{

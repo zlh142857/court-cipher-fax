@@ -26,9 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-import static com.hx.controller.WebSocket.*;
-import static com.hx.util.ColorReverse.writeJpg;
-import static com.hx.util.ColorReverse.writeJpgOne;
+import static com.hx.controller.AlertController.*;
 import static com.hx.util.TempDir.tifDir;
 import static com.hx.util.TiffToJPEG.readerTiff;
 
@@ -66,43 +64,43 @@ public class Decide {
         decide.returnReceiptMapper=this.returnReceiptMapper;
         decide.mailMapper=this.mailMapper;
     }
-    public static void decideCh(int flag, int ch) throws Exception {
-        if(flag==2){
-            Map<String,String> map=chState_2(ch);
-            if(map.get( "message" ).equals( "成功" )){
-                //先存入数据库再打印,先获取tiff文件页数,==1,并扫描有条形码,说明是回执页
-                String tifPath=map.get( "tifPath" );
-                int pages=0;
-                if(tifPath.length()>0){
-                    pages=getTiffPages(tifPath);
-                    List<String> pathList=readerTiff(tifPath);
-                    String barCode=getFileType(pathList);//根据最后一页的jpg获取扫描结果
-                    if(pages==1){
-                        if(barCode.length()>0){
-                            //只有回执页
-                            insertMsgReceipt(ch,map.get( "callerId" ), tifPath);
-                        }else{
-                            //只有正文,设置是否回执状态为2:没有回执文件
-                            insertMsg(ch,map.get( "callerId" ), tifPath,barCode);
-                        }
-                    }else{
+    public static void decideCh(int ch){
+        Map<String,String> map=chState_2(ch);
+        if(map.get( "message" ).equals( "成功" )){
+            //先存入数据库再打印,先获取tiff文件页数,==1,并扫描有条形码,说明是回执页
+            String tifPath=map.get( "tifPath" );
+            int pages=0;
+            if(tifPath.length()>0){
+                pages=getTiffPages(tifPath);
+                List<String> pathList=readerTiff(tifPath);
+                String barCode=getFileType(pathList);//根据最后一页的jpg获取扫描结果
+                if(pages==1){
+                    if("".equals( barCode )){
+                        //只有正文,设置是否回执状态为2:没有回执文件
                         insertMsg(ch,map.get( "callerId" ), tifPath,barCode);
+                    }else{
+                        //只有回执页
+                        insertMsgReceipt(ch,map.get( "callerId" ), tifPath);
                     }
-                    //查询打印服务名称
-                    Program_Setting programSetting=decide.programSettingDao.selectProgramSetting();
-                    String printService=programSetting.getPrintService();
-                    if(programSetting.getIsPrint()==0){
-                        try {
-                            //进行颜色反转
-                            List<File> newList=writeJpg(pathList);
-                            PrintImage.printImageWhenReceive(newList,printService);
-                        } catch (Exception e) {
-                            logger.error( e.toString() );
-                        }
-
-                    }
+                }else{
+                    insertMsg(ch,map.get( "callerId" ), tifPath,barCode);
                 }
+                //查询打印服务名称
+                Program_Setting programSetting=decide.programSettingDao.selectProgramSetting();
+                String printService=programSetting.getPrintService();
+                if(programSetting.getIsPrint()==0){
+                    try {
+                        List<File> newList=new ArrayList<>(  );
+                        for(int i=0;i<pathList.size();i++){
+                            File file=new File( pathList.get( i ) );
+                            newList.add( file );
+                        }
+                        PrintImage.printImageWhenReceive(newList,printService);
+                    } catch (Exception e) {
+                        logger.error( e.toString() );
+                    }
 
+                }
             }
 
         }
@@ -222,7 +220,7 @@ public class Decide {
         //根据callerId查询通讯簿有没有相同号码的法院名称
         String courtName=decide.mailMapper.selectCourtName(callerId);
         Inbox inbox=new Inbox();
-        if(courtName.length()>0){
+        if(null != courtName){
             inbox.setSenderunit( courtName );
         }else{
             inbox.setSenderunit( callerId );
@@ -232,16 +230,15 @@ public class Decide {
         Date date=new Date();
         inbox.setCreate_time( date );
         inbox.setFilsavepath(tifPath);
-        if(barCode.length()>0){
-            inbox.setBarCode( barCode );
-        }else{
+        if("".equals( barCode )){
             inbox.setIsreceipt( 2 );
+        }else{
+            inbox.setBarCode( barCode );
         }
         decide.inboxMapper.insertInbox( inbox );
-        WebModel webModel=new WebModel();
-        webModel.setTime( date );
-        webModel.setMsg( "[收件箱]收到一个新消息" );
-        inboxModels.add( webModel );
+        inboxModels=new WebModel();
+        inboxModels.setTime( date );
+        inboxModels.setMsg( "[收件箱]收到一个新消息" );
         inboxCount=1;
     }
     public static void insertMsgReceipt(int ch, String callerId, String tifPathBack){
@@ -249,7 +246,7 @@ public class Decide {
         String receiveNumber=decide.deviceDao.selectNumberByCh( ch );
         String courtName=decide.mailMapper.selectCourtName(callerId);
         Return_Receipt returnReceipt=new Return_Receipt();
-        if(courtName.length()>0){
+        if(null != courtName){
             returnReceipt.setSenderunit( courtName );
         }else{
             returnReceipt.setSenderunit( callerId );
@@ -260,16 +257,19 @@ public class Decide {
         returnReceipt.setCreate_time( date );
         returnReceipt.setFilsavepath(tifPathBack);
         decide.returnReceiptMapper.insertReceipt( returnReceipt );
-        WebModel webModel=new WebModel();
-        webModel.setTime( date );
-        webModel.setMsg( "[收回执箱]收到一个新消息" );
-        webModels.add( webModel );
+        webModels=new WebModel();
+        webModels.setTime( date );
+        webModels.setMsg( "[收回执箱]收到一个新消息" );
         webModelCount=1;
     }
-    public static String scanJpg(String tifPath) throws Exception {
+    public static String scanJpg(String tifPath){
         //进行颜色反转,再扫描,有条形码就是回执
-        String filePath=writeJpgOne(tifPath);
-        String[] datas = BarcodeScanner.scan( filePath, BarCodeType.Code_128);
+        String[] datas = new String[0];
+        try {
+            datas = BarcodeScanner.scan( tifPath, BarCodeType.Code_128);
+        } catch (Exception e) {
+            logger.error( "条形码异常:"+e.toString() );
+        }
         String str=datas[0];
         if(null==str){
             return "";
@@ -292,21 +292,21 @@ public class Decide {
                 try {
                     seekableStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.error( e.toString() );
                 }
             }
         }
         return numPages;
     }
-    public static String getFileType(List<String> pathList)throws Exception{
+    public static String getFileType(List<String> pathList){
         String jpgPath=pathList.get(pathList.size()-1);//最后一页jpg
         String barCode=scanJpg(jpgPath);
-        if(barCode.length()>0){
-            //有条形码,回执页加正文
-            return barCode;
-        }else{
+        if("".equals( barCode )){
             //说明没有条形码,就是正文
             return "";
+        }else{
+            //有条形码,回执页加正文
+            return barCode;
         }
     }
 }

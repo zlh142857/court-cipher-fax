@@ -5,6 +5,7 @@ import com.hx.service.ExcelService;
 import com.hx.util.ExcelHelper;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -21,25 +22,13 @@ import java.util.List;
  * @date 2019/9/6 15:47
  * @desc 通讯簿管理
  */
+
 @Controller
 @RequestMapping("/excel")
 public class ExcelController {
     @Resource
     private ExcelService excelService;
     private static  Logger log = Logger.getLogger(ExcelController.class);// 日志文件
-    @RequestMapping("/getAll")
-    @ResponseBody
-    public String getAll(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            request.setCharacterEncoding("UTF-8");
-            response.setCharacterEncoding("UTF-8");
-            response.setContentType("text/html,charset=utf-8");
-            List<Mail> list = excelService.getAll();
-        } catch (Exception e) {
-            log.error("方法异常");
-        }
-        return null;
-    }
     @RequestMapping(value = "/InputExcel.do")
     @ResponseBody
     public String InputExcel(@RequestParam("file") MultipartFile file,

@@ -30,5 +30,7 @@ public interface SendReceiptService {
 
     boolean updateIsLink(String inBoxId);
 
-    String checkText(String tifPath) throws Exception;
+    String checkText(String pdfPath,String tifPath) throws Exception;
+
+    void modifysendReceipt(Map<String,Object> searchMap);
 }

@@ -5,10 +5,12 @@ import com.hx.service.RecycleBinService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ import java.util.Map;
  * @date 2019/10/18 17:42
  * @desc
  */
+
 @Controller
 @RequestMapping("/recycle")
     public class RecycleBinController {
@@ -33,7 +36,6 @@ import java.util.Map;
                                          String receivingunit,String receivenumber,String sendnumber,
                                          String sendline, String recoveryBeginDate,String recoveryEndDate, String beginDate,String endDate ) {
         Map<String, Object> result = new HashMap<>();
-        result.put("state", 0); //0代表失败，1代表成功
         if ( StringUtils.isNotEmpty(beginDate) ) {
             beginDate=beginDate.trim();  //2019-12-01 12:00:00
         }
@@ -51,11 +53,19 @@ import java.util.Map;
         searchMap.put("beginDate",beginDate);
         searchMap.put("endDate",endDate);
         int totalCount = recycleBinService.getTotal(searchMap);   //查询总条数
-        //查询全部回收站列表
-        List<RecycleBin> recycleBinList = recycleBinService.queryList(searchMap, pageNo, pageSize);     //查询指定页的数据
-        result.put("recycleBinList", recycleBinList);
-        result.put("totalCount", totalCount);
-        result.put("state", 1); //0代表失败，1代表成功
+        List<RecycleBin> recycleBinList=null;
+        if(totalCount>0){
+            //查询全部回收站列表
+            recycleBinList = recycleBinService.queryList(searchMap, pageNo, pageSize);     //查询指定页的数据
+            result.put("recycleBinList", recycleBinList);
+            result.put("totalCount", totalCount);
+            result.put("state", 1); //0代表失败，1代表成功
+        }else{
+            result.put("state", 0); //0代表失败，1代表成功
+            result.put("recycleBinList", new ArrayList<RecycleBin>(  ) );
+        }
+
+
         return result;
     }
     /**

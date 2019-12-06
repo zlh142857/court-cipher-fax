@@ -5,13 +5,13 @@ import com.hx.util.ExcelHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 /**
@@ -19,6 +19,7 @@ import java.util.*;
  * @date 2019/10/16 17:20
  * @desc
  */
+
 @Controller
 @RequestMapping("/ReturnReceipt")
 public class ReturnReceiptController {
@@ -37,7 +38,6 @@ public class ReturnReceiptController {
             endDate=endDate.trim();
         }
         Map<String, Object> result = new HashMap<>();
-        result.put("state", 0); //0代表失败，1代表成功
         Map<String,Object> searchMap=new HashMap();
         searchMap.put("senderunit",senderunit);
         searchMap.put("receivenumber",receivenumber);
@@ -45,25 +45,20 @@ public class ReturnReceiptController {
         searchMap.put("beginDate",beginDate);
         searchMap.put("endDate",endDate);
         int count = returnReceiptService.queryTotalCount(searchMap);
+        List<Return_Receipt> mails=null;
         if ( count > 0 ) {
-            List<Return_Receipt> mails = returnReceiptService.queryALLMail(searchMap, pageNo, pageSize);
-            result.put("mails", mails);
+            mails = returnReceiptService.queryALLMail(searchMap, pageNo, pageSize);
+            result.put("state", 1);
             result.put("totalCount", count);
+            result.put("mails", mails);
+        }else{
+            result.put("mails", new ArrayList<Return_Receipt>(  ));
+            result.put("state", 0);
         }
-        result.put("state", 1); //0代表失败，1代表成功
+
         return result;
     }
-    @RequestMapping(value = "/ReturnReceiptLists", method = RequestMethod.GET)
-    @ResponseBody
-    public Map<String, Object> mailLists() {
-        Map<String, Object> result = new HashMap<>();
-        result.put("state", 0); //0代表失败，1代表成功
-        //TODO 查询全部
-        List<Return_Receipt> mailLists = returnReceiptService.queryALLMailList();
-        result.put("mailLists", mailLists); //
-        result.put("state", 1); //0代表失败，1代表成功
-        return result;
-    }
+
     //TODO 删除记录
     @RequestMapping(value = "/delReturnReceipt", method = RequestMethod.GET)
     @ResponseBody
@@ -83,6 +78,7 @@ public class ReturnReceiptController {
             result.put("state", 1); //0代表失败，1代表成功
         } catch (Exception e) {
             result.put("msg", e.getMessage());
+            log.error( e.toString() );
         }
         return result;
     }

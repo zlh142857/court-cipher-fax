@@ -18,7 +18,7 @@ import static com.hx.common.StaticFinal.TEMPDIR;
 //对jpg文件进行颜色反转
 public class ColorReverse {
     private static Logger logger=Logger.getLogger( ColorReverse.class );
-    public static List<File> writeJpg(List<String> pathList) {
+   /* public static List<File> writeJpg(List<String> pathList) {
         List<File> fileList=new ArrayList<>(  );
         if(pathList.size()>0){
             for(int i=0;i<pathList.size();i++){
@@ -32,8 +32,8 @@ public class ColorReverse {
             }
         }
         return fileList;
-    }
-    public static List<String> writeJpgTwo(List<String> pathList) {
+    }*/
+    /*public static List<String> writeJpgTwo(List<String> pathList) {
         List<String> fileList=new ArrayList<>(  );
         if(pathList.size()>0){
             for(int i=0;i<pathList.size();i++){
@@ -46,7 +46,7 @@ public class ColorReverse {
             }
         }
         return fileList;
-    }
+    }*/
     public static List<String> writeJpgView(List<String> pathList) {
         List<String> fileList=new ArrayList<>(  );
         if(pathList.size()>0){
@@ -61,22 +61,7 @@ public class ColorReverse {
         }
         return fileList;
     }
-    public static List<File> writeJpgByBar(List<String> pathList) {
-        List<File> fileList=new ArrayList<>(  );
-        if(pathList.size()>0){
-            for(int i=0;i<pathList.size();i++){
-                //文件与BufferedImage间的转换
-                BufferedImage bi=file2img(pathList.get( i ));  //读取图片
-                /*BufferedImage bii=img_inverse(bi);*/
-                String newFilePath=TEMPDIR+"/"+GetTimeToFileName.GetTimeToFileName()+i+".jpg";
-                img2file(bi,"jpg",newFilePath);  //生成图片
-                File file=new File(newFilePath);
-                fileList.add( file );
-            }
-        }
-        return fileList;
-    }
-    public static String writeJpgOne(String tifPath) {
+    /*public static String writeJpgOne(String tifPath) {
         String newFilePath="";
         if(tifPath.length()>0){
             //文件与BufferedImage间的转换
@@ -86,20 +71,9 @@ public class ColorReverse {
             img2file(bii,"jpg",newFilePath);  //生成图片
         }
         return newFilePath;
-    }
-    public static String writeJpgOneDecide(String tifPath) {
-        String newFilePath="";
-        if(tifPath.length()>0){
-            //文件与BufferedImage间的转换
-            BufferedImage bi=file2img(tifPath);  //读取图片
-            //BufferedImage bii=img_inverse(bi);
-            newFilePath=TEMPDIR+"/"+GetTimeToFileName.GetTimeToFileName()+".jpg";
-            img2file(bi,"jpg",newFilePath);  //生成图片
-        }
-        return newFilePath;
-    }
+    }*/
     //图片反色
-    public static BufferedImage img_inverse(BufferedImage imgsrc) {
+    /*public static BufferedImage img_inverse(BufferedImage imgsrc) {
         try {
             //创建一个不带透明度的图片
             BufferedImage back=new BufferedImage(imgsrc.getWidth(), imgsrc.getHeight(),BufferedImage.TYPE_INT_RGB);
@@ -116,7 +90,7 @@ public class ColorReverse {
             logger.error( e.toString() );
             return null;
         }
-    }
+    }*/
     //读取图片
     public static BufferedImage file2img(String imgpath) {
         try {

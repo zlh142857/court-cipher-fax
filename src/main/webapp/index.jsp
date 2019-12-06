@@ -10,7 +10,10 @@
 </head>
 
 <body>
-    <button onclick="clickBtn3()">直接打开扫描</button>
+    <button onclick="clickBtn3()">inbox</button>
+    <button onclick="clickBtn7()">outbox</button>
+    <button onclick="clickBtn8()">send</button>
+    <button onclick="clickBtn9()">return</button>
     <button onclick="clickBtn()">测试发送和接收</button>
 
 
@@ -30,9 +33,39 @@
     function clickBtn3() {
         $.ajax({
             type: "GET",
-            url: "http://localhost:8080/mail/sendViewMail.do",
+            url: "http://localhost:8080/selectPrintService.do",
             success: function (str) {
                 console.log(str);
+            },
+            error: function(str){
+            }
+        });
+    }
+    function clickBtn7() {
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8080/outboxTest.do",
+            success: function (str) {
+            },
+            error: function(str){
+            }
+        });
+    }
+    function clickBtn8() {
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8080/sendTest.do",
+            success: function (str) {
+            },
+            error: function(str){
+            }
+        });
+    }
+    function clickBtn9() {
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8080/returnTest.do",
+            success: function (str) {
             },
             error: function(str){
             }

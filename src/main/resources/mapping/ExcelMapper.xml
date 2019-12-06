@@ -47,22 +47,6 @@
 		</where>
 	</sql>
 
-	<select id="getAll" resultMap="BaseResultMap">
-		select
-		<if test="distinct">
-			distinct
-		</if>
-		<include refid="WithDept_Column_List" />
-		FROM mail e
-	</select>
-
-	<delete id="deleteMany" parameterType="int">
-	delete from mail where id in
-	<foreach item="id" collection="array" open="(" separator="," close=")">
-		#{id}
-	</foreach>
-	</delete>
-
 	<select id="getById" resultType="com.hx.modle.Mail">
       select *
       from mail
