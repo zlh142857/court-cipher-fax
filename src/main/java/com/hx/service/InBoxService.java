@@ -20,9 +20,11 @@ public interface InBoxService {
 
     List<Inbox> queryALLMailList();
 
-    int deinbox(Integer readerId);
+    List<Inbox> RecoveryInbox(Map<String, Object> searchMap, Integer pageNo, Integer pageSize);
 
-    boolean delinbox(String ids);
+    void modifinbox(Integer id);
 
-    int insert(Inbox inbox);
+    boolean reductioninbox(String ids, String bs);
+
+    boolean delinbox(String ids, String bs);
 }

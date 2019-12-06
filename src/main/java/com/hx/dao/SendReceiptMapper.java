@@ -21,21 +21,25 @@ import java.util.Map;
 public interface SendReceiptMapper {
     void insertNewMessage(Send_Receipt sendReceipt);
 
+    void updateIsLinkByBar(@Param( "barCode" )String barCode,@Param( "filsavepath" )String tifPath);
+
     int queryTotalCount(@Param("params") Map<String, Object> searchMap);
 
-    List<Send_Receipt> queryALLMail(@Param("params") Map<String,Object> searchMap);
+    List<Send_Receipt> queryALLMail(@Param("params") Map<String, Object> searchMap);
 
     List<Send_Receipt> queryALLMailList();
 
-    Send_Receipt getById(Integer readerId);
-
-    int deinbox(Integer readerId);
-
-    int insert(@Param("send_receipt") Send_Receipt send_receipt);
+    Send_Receipt getById(Integer id);
 
     List<Send_Receipt> getAll(@Param("ids") String[] ids);
 
-    void updateIsLinkByBar(@Param( "barCode" )String barCode,@Param( "filsavepath" )String tifPath);
+    void modifysendReceipt(Map<String, Object> searchMap);
 
-    void modifysendReceipt(Map<String,Object> searchMap);
+    void modifSendReceipt(int id);
+
+    List<Send_Receipt> RecoveryoSendReceipt(@Param("params") Map<String, Object> searchMap);
+
+    void reductionSendReceipt(String id);
+
+    void deleteSendReceipt(String id);
 }

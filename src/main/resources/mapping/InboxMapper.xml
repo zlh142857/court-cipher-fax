@@ -13,9 +13,10 @@
         <result property="isLink" column="isLink"/>
         <result property="barCode" column="barCode"/>
     </resultMap>
-    <delete id="deinbox">
-       DELETE FROM inbox WHERE id = #{id}
+    <delete id="delinbox">
+      DELETE FROM inbox WHERE id = #{id}
     </delete>
+
     <select id="getAll" resultType="com.hx.modle.Inbox">
         SELECT*
         FROM inbox
@@ -34,44 +35,43 @@
 
     <select id="queryTotalCount" resultType="int">
         SELECT COUNT(*) FROM inbox where 1 = 1
-
-        <if  test="params.senderunit!=null and params.senderunit!=''">
-            and  senderunit  LIKE CONCAT('%',#{params.senderunit},'%')
+        <if test="params.senderunit!=null and params.senderunit!=''">
+            and senderunit LIKE CONCAT('%',#{params.senderunit},'%')
         </if>
-        <if  test="params.receivenumber!=null and params.receivenumber!=''">
-            and  receivenumber  LIKE CONCAT('%',#{params.receivenumber},'%')
+        <if test="params.receivenumber!=null and params.receivenumber!=''">
+            and receivenumber LIKE CONCAT('%',#{params.receivenumber},'%')
         </if>
-        <if  test="params.beginDate!=null and params.beginDate!=''">
-            and create_time &gt;=  #{params.beginDate}
+        <if test="params.beginDate!=null and params.beginDate!=''">
+            and create_time &gt;= #{params.beginDate}
         </if>
-        <if  test="params.endDate!=null and params.endDate!=''">
-            and create_time &lt;=  #{params.endDate}
+        <if test="params.endDate!=null and params.endDate!=''">
+            and create_time &lt;= #{params.endDate}
         </if>
         <if test="params.Isreceipt!=null">
-            and  Isreceipt   = #{params.Isreceipt}
+            and Isreceipt = #{params.Isreceipt}
         </if>
     </select>
 
     <select id="queryALLMail" parameterType="java.util.Map" resultType="com.hx.modle.Inbox">
-        SELECT * FROM inbox where 1 = 1
+        SELECT * FROM inbox where state = 1
 
-        <if  test="params.sendnumber!=null and params.sendnumber!=''">
-            and  sendnumber  LIKE CONCAT('%',#{params.sendnumber},'%')
+        <if test="params.sendnumber!=null and params.sendnumber!=''">
+            and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
         </if>
-        <if  test="params.senderunit!=null and params.senderunit!=''">
-            and  senderunit  LIKE CONCAT('%',#{params.senderunit},'%')
+        <if test="params.senderunit!=null and params.senderunit!=''">
+            and senderunit LIKE CONCAT('%',#{params.senderunit},'%')
         </if>
-        <if  test="params.receivenumber!=null and params.receivenumber!=''">
-            and  receivenumber  LIKE CONCAT('%',#{params.receivenumber},'%')
+        <if test="params.receivenumber!=null and params.receivenumber!=''">
+            and receivenumber LIKE CONCAT('%',#{params.receivenumber},'%')
         </if>
-        <if  test="params.beginDate!=null and params.beginDate!=''">
-            and create_time &gt;=  #{params.beginDate}
+        <if test="params.beginDate!=null and params.beginDate!=''">
+            and create_time &gt;= #{params.beginDate}
         </if>
-        <if  test="params.endDate!=null and params.endDate!=''">
-            and create_time &lt;=  #{params.endDate}
+        <if test="params.endDate!=null and params.endDate!=''">
+            and create_time &lt;= #{params.endDate}
         </if>
         <if test="params.Isreceipt!=null">
-            and  Isreceipt   = #{params.Isreceipt}
+            and Isreceipt = #{params.Isreceipt}
         </if>
         order by create_time desc
         LIMIT ${params.start}, ${params.offset}
@@ -81,7 +81,7 @@
         select  * from inbox
     </select>
     <select id="getById" resultType="com.hx.modle.Inbox">
-     select id, sendnumber, senderunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt,barCode,isLink
+     select id, sendnumber, senderunit, receivenumber, filsavepath, create_time, receiptpath, Isreceipt,barCode,isLink,pdfPath
         from inbox where id = #{id}
       </select>
 
@@ -90,30 +90,37 @@
     </select>
 
 
+    <update id="modifinbox" parameterType="com.hx.modle.Inbox">
+       UPDATE inbox SET state = '0' WHERE id =#{id}
+    </update>
 
-    <insert id="insert" parameterType="com.hx.modle.Inbox">
-        INSERT INTO inbox(id,
-        sendnumber,
-        senderunit,
-        receivenumber,
-        filsavepath,
-        create_time,
-        receiptpath,
-        Isreceipt,
-        barCode,
-        isLink) VALUES (
-        #{inbox.id},
-        #{inbox.sendnumber},
-        #{inbox.senderunit},
-        #{inbox.receivenumber},
-        #{inbox.filsavepath},
-        #{inbox.create_time},
-        #{inbox.receiptpath},
-        #{inbox.isreceipt},
-        #{inbox.barCode},
-        #{inbox.isLink}
-        )
-    </insert>
+    <update id="reductioninbox" parameterType="com.hx.modle.Inbox">
+         UPDATE inbox SET state = '1' WHERE id =#{id}
+    </update>
+
+    <select id="RecoveryInbox" parameterType="java.util.Map" resultType="com.hx.modle.Inbox">
+        SELECT * FROM inbox where state = 0
+        <if test="params.sendnumber!=null and params.sendnumber!=''">
+            and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
+        </if>
+        <if test="params.senderunit!=null and params.senderunit!=''">
+            and senderunit LIKE CONCAT('%',#{params.senderunit},'%')
+        </if>
+        <if test="params.receivenumber!=null and params.receivenumber!=''">
+            and receivenumber LIKE CONCAT('%',#{params.receivenumber},'%')
+        </if>
+        <if test="params.beginDate!=null and params.beginDate!=''">
+            and create_time &gt;= #{params.beginDate}
+        </if>
+        <if test="params.endDate!=null and params.endDate!=''">
+            and create_time &lt;= #{params.endDate}
+        </if>
+        <if test="params.Isreceipt!=null">
+            and Isreceipt = #{params.Isreceipt}
+        </if>
+        order by create_time desc
+        LIMIT ${params.start}, ${params.offset}
+    </select>
     <!--张立恒start-->
     <!--新增收件箱-->
     <insert id="insertInbox" parameterType="com.hx.modle.Inbox">

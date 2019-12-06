@@ -70,26 +70,26 @@
   </update>
   <!--张立恒end-->
   <select id="queryALLMail" parameterType="java.util.Map" resultType="com.hx.modle.Send_Receipt">
-    SELECT * FROM send_receipt where 1 = 1
-    <if  test="params.receivingunit!=null and params.receivingunit!=''">
+    SELECT * FROM send_receipt where state = 1
+    <if test="params.receivingunit!=null and params.receivingunit!=''">
       and receivingunit LIKE CONCAT('%',#{params.receivingunit},'%')
     </if>
-    <if  test="params.receivenumber!=null and params.receivenumber!=''">
+    <if test="params.receivenumber!=null and params.receivenumber!=''">
       and receivenumber LIKE CONCAT('%',#{params.receivenumber},'%')
     </if>
-    <if  test="params.beginDate!=null and params.beginDate!=''">
+    <if test="params.beginDate!=null and params.beginDate!=''">
       and create_time &gt;= #{params.beginDate}
     </if>
-    <if  test="params.endDate!=null and params.endDate!=''">
+    <if test="params.endDate!=null and params.endDate!=''">
       and create_time &lt;= #{params.endDate}
     </if>
-    <if  test="params.sendline!=null and params.sendline!=''">
+    <if test="params.sendline!=null and params.sendline!=''">
       and sendline LIKE CONCAT('%',#{params.sendline},'%')
     </if>
-    <if  test="params.message!=null and params.message!=''">
+    <if test="params.message!=null and params.message!=''">
       and message LIKE CONCAT('%',#{params.message},'%')
     </if>
-    <if  test="params.sendnumber!=null and params.sendnumber!=''">
+    <if test="params.sendnumber!=null and params.sendnumber!=''">
       and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
     </if>
     order by create_time desc
@@ -97,26 +97,26 @@
   </select>
 
   <select id="queryTotalCount" resultType="java.lang.Integer">
-    select  COUNT(*) from send_receipt where 1 = 1
-    <if  test="params.receivingunit!=null and params.receivingunit!=''">
+    select COUNT(*) from send_receipt where 1 = 1
+    <if test="params.receivingunit!=null and params.receivingunit!=''">
       and receivingunit LIKE CONCAT('%',#{params.receivingunit},'%')
     </if>
-    <if  test="params.receivenumber!=null and params.receivenumber!=''">
+    <if test="params.receivenumber!=null and params.receivenumber!=''">
       and receivenumber LIKE CONCAT('%',#{params.receivenumber},'%')
     </if>
-    <if  test="params.beginDate!=null and params.beginDate!=''">
+    <if test="params.beginDate!=null and params.beginDate!=''">
       and create_time &gt;= #{params.beginDate}
     </if>
-    <if  test="params.endDate!=null and params.endDate!=''">
+    <if test="params.endDate!=null and params.endDate!=''">
       and create_time &lt;= #{params.endDate}
     </if>
-    <if  test="params.sendline!=null and params.sendline!=''">
+    <if test="params.sendline!=null and params.sendline!=''">
       and sendline LIKE CONCAT('%',#{params.sendline},'%')
     </if>
-    <if  test="params.message!=null and params.message!=''">
+    <if test="params.message!=null and params.message!=''">
       and message LIKE CONCAT('%',#{params.message},'%')
     </if>
-    <if  test="params.sendernumber!=null and params.sendernumber!=''">
+    <if test="params.sendernumber!=null and params.sendernumber!=''">
       and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
     </if>
 
@@ -126,15 +126,11 @@
         select  * from send_receipt
     </select>
 
-  <delete id="deinbox">
-       delete from send_receipt  where  id  = #{id}
-    </delete>
-
   <select id="getById" resultType="com.hx.modle.Send_Receipt">
       select
-        id, receivingunit, receivenumber, create_time, sendline, message,sendnumber,isLink,filsavepath,barCode
+        id, receivingunit, receivenumber, create_time, sendline, message,sendnumber,isLink,barCode,pdfPath
         from send_receipt where id = #{id}
-        </select>
+  </select>
   <select id="getAll" resultType="com.hx.modle.Send_Receipt">
     SELECT*
     FROM send_receipt
@@ -143,34 +139,41 @@
       #{id}
     </foreach>
   </select>
-
-  <insert id="insert" parameterType="com.hx.modle.Send_Receipt">
-        INSERT INTO send_receipt(id,
-        receivingunit,
-        receivenumber,
-        create_time,
-        sendline,
-        message,
-        sendnumber,
-        isLink,
-        filsavepath,
-        barCode) VALUES (
-        #{send_receipt.id},
-        #{send_receipt.receivingunit},
-        #{send_receipt.receivenumber},
-        #{send_receipt.create_time},
-        #{send_receipt.sendline},
-        #{send_receipt.message},
-        #{send_receipt.sendnumber},
-        #{send_receipt.isLink},
-        #{send_receipt.filsavepath},
-        #{send_receipt.barCode}
-        )
-    </insert>
-  <update id="modifysendReceipt" parameterType="com.hx.modle.Send_Receipt" >
-        update send_receipt set
-		sendline=#{sendline}
-		where
-		id=#{id}
+  <update id="modifSendReceipt" parameterType="com.hx.modle.Outbox">
+       UPDATE send_receipt SET state = '0' WHERE id =#{id}
     </update>
+
+  <update id="reductionSendReceipt" parameterType="com.hx.modle.Outbox">
+         UPDATE send_receipt SET state = '1' WHERE id =#{id}
+    </update>
+
+  <select id="RecoveryoSendReceipt" resultType="com.hx.modle.Send_Receipt">
+    SELECT * FROM send_receipt where state = 0
+    <if test="params.receivingunit!=null and params.receivingunit!=''">
+      and receivingunit LIKE CONCAT('%',#{params.receivingunit},'%')
+    </if>
+    <if test="params.receivenumber!=null and params.receivenumber!=''">
+      and receivenumber LIKE CONCAT('%',#{params.receivenumber},'%')
+    </if>
+    <if test="params.beginDate!=null and params.beginDate!=''">
+      and create_time &gt;= #{params.beginDate}
+    </if>
+    <if test="params.endDate!=null and params.endDate!=''">
+      and create_time &lt;= #{params.endDate}
+    </if>
+    <if test="params.sendline!=null and params.sendline!=''">
+      and sendline LIKE CONCAT('%',#{params.sendline},'%')
+    </if>
+    <if test="params.message!=null and params.message!=''">
+      and message LIKE CONCAT('%',#{params.message},'%')
+    </if>
+    <if test="params.sendnumber!=null and params.sendnumber!=''">
+      and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
+    </if>
+    order by create_time desc
+    LIMIT ${params.start}, ${params.offset}
+  </select>
+  <delete id="deleteSendReceipt">
+        DELETE FROM send_receipt WHERE id = #{id}
+    </delete>
 </mapper>

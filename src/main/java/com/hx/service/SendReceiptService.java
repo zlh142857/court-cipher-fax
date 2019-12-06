@@ -15,22 +15,26 @@ import java.util.Map;
  */
 @Service
 public interface SendReceiptService {
-
-    int insert(@Param("send_receipt") Send_Receipt send_receipt);
-
     int queryTotalCount(Map<String, Object> searchMap);
 
     List<Send_Receipt> queryALLMail(Map<String,Object> searchMap, Integer pageNo, Integer pageSize);
 
     List<Send_Receipt> queryALLMailList();
 
-    int deinbox(Integer readerId);
-
     List<Send_Receipt> getAll(String[] ids);
+
+    void modifysendReceipt(Map<String,Object> searchMap);
+
+    void modifSendReceipt(int id);
+
+    List<Send_Receipt> RecoverySendReceipt(Map<String,Object> searchMap, Integer pageNo, Integer pageSize);
+
+    void reductionSendReceipt(String id);
+
+    boolean deleteSendReceipt(String id);
 
     boolean updateIsLink(String inBoxId);
 
     String checkText(String pdfPath,String tifPath) throws Exception;
 
-    void modifysendReceipt(Map<String,Object> searchMap);
 }

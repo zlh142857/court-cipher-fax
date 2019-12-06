@@ -12,18 +12,25 @@ import java.util.Map;
  * @desc
  */
 public interface ReturnReceiptMapper {
-
         int queryTotalCount(@Param("params") Map<String, Object> searchMap);
 
         List<Return_Receipt> queryALLMail(@Param("params") Map<String, Object> searchMap);
 
-        Return_Receipt getById(int id);
+        List<Return_Receipt> queryALLMailList();
 
-        int deinbox(Integer id);
+        Return_Receipt getById(int id);
 
         int insert(@Param("return_receipt") Return_Receipt return_receipt);
 
         List<Return_Receipt> getAll(@Param("ids") String[] ids);
+
+        void modifReturnReceipt(int id);
+
+        List<Return_Receipt> RecoveryoReturnReceipt(@Param("params") Map<String, Object> searchMap);
+
+        void reductionReturnReceipt(String id);
+
+        void deleteReturnReceipt(String ids);
 
         void insertReceipt(Return_Receipt returnReceipt);
 

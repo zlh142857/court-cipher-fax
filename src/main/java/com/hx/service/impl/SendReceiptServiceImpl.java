@@ -4,8 +4,8 @@ import com.hx.dao.InboxMapper;
 import com.hx.dao.SendReceiptMapper;
 import com.hx.modle.Inbox;
 import com.hx.modle.Send_Receipt;
-import com.hx.service.RecycleBinService;
 import com.hx.service.SendReceiptService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sun.misc.BASE64Encoder;
@@ -13,7 +13,6 @@ import sun.misc.BASE64Encoder;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -29,19 +28,11 @@ import static com.hx.util.TiffToJPEG.readerTiff;
 public class SendReceiptServiceImpl implements SendReceiptService {
     @Resource
     private SendReceiptMapper sendReceiptMapper;
-
-    @Autowired
-    RecycleBinService recycleBinService;
     @Autowired
     private InboxMapper inboxMapper;
     @Override
-    public int insert(Send_Receipt send_receipt) {
-        return sendReceiptMapper.insert(send_receipt);
-    }
-
-    @Override
     public int queryTotalCount(Map<String, Object> searchMap) {
-        return sendReceiptMapper.queryTotalCount(searchMap) ;
+        return sendReceiptMapper.queryTotalCount(searchMap);
     }
 
     @Override
@@ -51,7 +42,6 @@ public class SendReceiptServiceImpl implements SendReceiptService {
         int offset = pageSize;
         searchMap.put("start", start);
         searchMap.put("offset", offset);
-
         return sendReceiptMapper.queryALLMail(searchMap);
     }
 
@@ -61,34 +51,47 @@ public class SendReceiptServiceImpl implements SendReceiptService {
     }
 
     @Override
-    public int deinbox(Integer readerId) {
-        Send_Receipt send_receipt = sendReceiptMapper.getById(readerId);
-
-        recycleBinService.insertRecycleBin("Send_Receipt", new Date(),
-                send_receipt.getSendnumber(),
-                String.valueOf(readerId),
-                send_receipt.getReceivingunit(),
-                send_receipt.getReceivenumber(),
-                "",
-                send_receipt.getCreate_time(),
-                "",
-                0,
-                send_receipt.getSendline(),
-                send_receipt.getMessage(),
-                send_receipt.getIsLink(),
-
-                send_receipt.getFilsavepath(),
-                send_receipt.getBarCode());
-
-        return sendReceiptMapper.deinbox(readerId);
-
+    public List<Send_Receipt> getAll(String[] ids) {
+        return sendReceiptMapper.getAll(ids);
     }
 
     @Override
-    public List<Send_Receipt> getAll(String[] ids) {
-        return sendReceiptMapper.getAll(ids);
+    public void modifysendReceipt(Map<String, Object> searchMap) {
+        sendReceiptMapper.modifysendReceipt(searchMap);
+    }
 
+    @Override
+    public void modifSendReceipt(int id) {
+        sendReceiptMapper.modifSendReceipt(id);
+    }
 
+    @Override
+    public List<Send_Receipt> RecoverySendReceipt(Map<String, Object> searchMap, Integer pageNo, Integer pageSize) {
+        //mysql LIMIT语句 参数生成  LIMIT [start] [offset]
+        int start = (pageNo - 1) * pageSize;
+        int offset = pageSize;
+        searchMap.put("start", start);
+        searchMap.put("offset", offset);
+
+        return sendReceiptMapper.RecoveryoSendReceipt(searchMap);
+    }
+
+    @Override
+    public void reductionSendReceipt(String id) {
+        sendReceiptMapper.reductionSendReceipt(id);
+    }
+
+    @Override
+    public boolean deleteSendReceipt(String ids) {
+        if ( StringUtils.isEmpty(ids) ) return false;
+
+        String[] idArr = ids.split(",");
+        for (String id : idArr) {
+            //删除回收站
+            sendReceiptMapper.deleteSendReceipt(id);
+
+        }
+        return true;
     }
     //点击关联回执,然后获取收件箱的id,然后根据id,查询收件箱barCode和tifpath ,
     //根据barCode去发回执箱查找相同条形码的数据,更改状态为1已关联,并且tifPath=tifPath
@@ -123,10 +126,6 @@ public class SendReceiptServiceImpl implements SendReceiptService {
         return new BASE64Encoder().encode(buffer);
     }
 
-    @Override
-    public void modifysendReceipt(Map<String, Object> searchMap) {
-        sendReceiptMapper.modifysendReceipt(searchMap);
-    }
 
 
 }

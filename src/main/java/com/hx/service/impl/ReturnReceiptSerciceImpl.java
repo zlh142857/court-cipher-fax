@@ -2,13 +2,11 @@ package com.hx.service.impl;
 
 import com.hx.dao.ReturnReceiptMapper;
 import com.hx.modle.Return_Receipt;
-import com.hx.service.RecycleBinService;
 import com.hx.service.ReturnReceiptService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +20,6 @@ public class ReturnReceiptSerciceImpl implements ReturnReceiptService {
     @Resource
     private ReturnReceiptMapper returnReceiptMapperr;
 
-    @Autowired
-    RecycleBinService recycleBinService;
     @Override
     public int queryTotalCount(Map<String, Object> searchMap) {
         return returnReceiptMapperr.queryTotalCount(searchMap);
@@ -40,23 +36,8 @@ public class ReturnReceiptSerciceImpl implements ReturnReceiptService {
     }
 
     @Override
-    public int deinbox(Integer readerId) {
-        Return_Receipt return_receipt = returnReceiptMapperr.getById(readerId);
-        if ( null == return_receipt  ) {
-            return 1;
-        }
-        recycleBinService.insertRecycleBin("Return_Receipt",
-                new Date(),
-                return_receipt.getSendnumber(),
-                return_receipt.getSenderunit(),
-                String.valueOf(readerId),
-                return_receipt.getReceivenumber(),
-                "",
-                return_receipt.getCreate_time(),
-                return_receipt.getFilsavepath(),
-                0, "","", 0,
-                "","");
-        return returnReceiptMapperr.deinbox(readerId);
+    public List<Return_Receipt> queryALLMailList() {
+        return returnReceiptMapperr.queryALLMailList();
     }
 
     @Override
@@ -65,8 +46,35 @@ public class ReturnReceiptSerciceImpl implements ReturnReceiptService {
     }
 
     @Override
-    public int insert(Return_Receipt return_receipt) {
-        return returnReceiptMapperr.insert(return_receipt);
+    public void modifReturnReceipt(int id) {
+        returnReceiptMapperr.modifReturnReceipt(id);
+    }
+
+    @Override
+    public List<Return_Receipt> RecoveryReturnReceipt(Map<String, Object> searchMap, Integer pageNo, Integer pageSize) {
+        //mysql LIMIT语句 参数生成  LIMIT [start] [offset]
+        int start = (pageNo - 1) * pageSize;
+        int offset = pageSize;
+        searchMap.put("start", start);
+        searchMap.put("offset", offset);
+        return returnReceiptMapperr.RecoveryoReturnReceipt(searchMap);
+    }
+
+    @Override
+    public void reductionReturnReceipt(String id) {
+        returnReceiptMapperr.reductionReturnReceipt(id);
+    }
+
+    @Override
+    public boolean deleteReturnReceipt(String ids) {
+        if ( StringUtils.isEmpty(ids) ) return false;
+        String[] idArr = ids.split(",");
+        for (String id : idArr) {
+            //删除回收站
+            returnReceiptMapperr.deleteReturnReceipt(id);
+
+        }
+        return true;
     }
 
 

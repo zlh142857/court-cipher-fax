@@ -12,20 +12,23 @@ import java.util.Map;
  * @desc
  */
 public interface OutboxMapper {
+    void insertNewMessage(Outbox outbox);
+
     List<Outbox> getAll(@Param("ids") String[] ids);
 
     int queryTotalCount(@Param("params") Map<String, Object> searchMap);
 
     List<Outbox> queryALLMailList(@Param("params") Map<String, Object> searchMap);
 
-    int deloutbox(Integer id);
-
     Outbox getById(Integer id);
 
-    int insert(@Param("outbox") Outbox outbox);
+    void modifyoutBox(Map<String, Object> searchMap);
 
-    void insertNewMessage(Outbox outbox);
+    List<Outbox> RecoveryoutBox(@Param("params") Map<String, Object> searchMap);
 
+    void reductionoutBox(String id);
 
-    void modifyoutBox(Map<String,Object> searchMap);
+    void deleteoutbox(String id);
+
+    void modifoutBox(int id);
 }

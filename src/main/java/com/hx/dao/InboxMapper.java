@@ -12,19 +12,6 @@ import java.util.Map;
  * @desc
  */
 public interface InboxMapper {
-    List<Inbox> getAll(@Param("ids") String[] ids);
-
-    int queryTotalCount(@Param("params") Map<String, Object> searchMap);
-
-    List<Inbox> queryALLMail(@Param("params") Map<String, Object> searchMap);
-
-    List<Inbox> queryALLMailList();
-
-    int deinbox(Integer id);
-
-    Inbox getById(Integer id);
-
-    int insert(@Param("inbox") Inbox inbox);
 
     void insertInbox(Inbox inbox);
 
@@ -35,4 +22,22 @@ public interface InboxMapper {
     void updateIsReceiptByBarCode(String barCode);
 
     Inbox selectBarAndTifPath(Integer id);
+
+    List<Inbox> getAll(@Param("ids") String[] ids);
+
+    int queryTotalCount(@Param("params") Map<String, Object> searchMap);
+
+    List<Inbox> queryALLMail(@Param("params") Map<String, Object> searchMap);
+
+    List<Inbox> queryALLMailList();
+
+    Inbox getById(Integer id);
+
+    List<Inbox> RecoveryInbox(@Param("params") Map<String, Object> searchMap);
+
+    void reductioninbox(String id);
+
+    void modifinbox(Integer id);
+
+    void delinbox(String id);
 }

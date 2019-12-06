@@ -11,6 +11,12 @@
         <result property="sendnumber" column="sendnumber"/>
         <result property="filsavepath" column="filsavepath"/>
     </resultMap>
+    <update id="modifyoutBox" parameterType="com.hx.modle.Outbox">
+        update outbox set
+		sendline=#{sendline}
+		where
+		id=#{id}
+    </update>
     <select id="getAll" resultType="com.hx.modle.Outbox">
         SELECT*
         FROM outbox
@@ -21,85 +27,100 @@
     </select>
 
     <select id="queryTotalCount" resultType="int">
-        select  COUNT(*) from outbox where 1 = 1
-        <if  test="params.sendnumber!=null and params.sendnumber!=''">
-            and  sendnumber  LIKE CONCAT('%',#{params.sendnumber},'%')
+        select COUNT(*) from outbox where 1 = 1
+        <if test="params.sendnumber!=null and params.sendnumber!=''">
+            and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
         </if>
-        <if  test="params.receivingunit!=null and params.receivingunit!=''">
-            and  receivingunit  LIKE CONCAT('%',#{params.receivingunit},'%')
+        <if test="params.receivingunit!=null and params.receivingunit!=''">
+            and receivingunit LIKE CONCAT('%',#{params.receivingunit},'%')
         </if>
-        <if  test="params.receivenumber!=null and params.receivenumber!=''">
-            and  receivenumber  LIKE CONCAT('%',#{params.receivenumber},'%')
+        <if test="params.receivenumber!=null and params.receivenumber!=''">
+            and receivenumber LIKE CONCAT('%',#{params.receivenumber},'%')
         </if>
-        <if  test="params.sendline!=null and params.sendline!=''">
-            and  sendline  LIKE CONCAT('%',#{params.sendline},'%')
+        <if test="params.sendline!=null and params.sendline!=''">
+            and sendline LIKE CONCAT('%',#{params.sendline},'%')
         </if>
-        <if  test="params.message!=null and params.message!=''">
-            and  message  LIKE CONCAT('%',#{params.message},'%')
+        <if test="params.message!=null and params.message!=''">
+            and message LIKE CONCAT('%',#{params.message},'%')
         </if>
-        <if  test="params.beginDate!=null and params.beginDate!=''">
-            and create_time &gt;=  #{params.beginDate}
+        <if test="params.beginDate!=null and params.beginDate!=''">
+            and create_time &gt;= #{params.beginDate}
         </if>
-        <if  test="params.endDate!=null and params.endDate!=''">
-            and create_time &lt;=  #{params.endDate}
+        <if test="params.endDate!=null and params.endDate!=''">
+            and create_time &lt;= #{params.endDate}
         </if>
     </select>
 
     <select id="queryALLMailList" resultType="com.hx.modle.Outbox">
-        select * from outbox where 1 = 1
-        <if  test="params.sendnumber!=null and params.sendnumber!=''">
-            and  sendnumber  LIKE CONCAT('%',#{params.sendnumber},'%')
+        select * from outbox where state = 1
+        <if test="params.sendnumber!=null and params.sendnumber!=''">
+            and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
         </if>
-        <if  test="params.receivingunit!=null and params.receivingunit!=''">
-            and  receivingunit  LIKE CONCAT('%',#{params.receivingunit},'%')
+        <if test="params.receivingunit!=null and params.receivingunit!=''">
+            and receivingunit LIKE CONCAT('%',#{params.receivingunit},'%')
         </if>
-        <if  test="params.receivenumber!=null and params.receivenumber!=''">
-            and  receivenumber  LIKE CONCAT('%',#{params.receivenumber},'%')
+        <if test="params.receivenumber!=null and params.receivenumber!=''">
+            and receivenumber LIKE CONCAT('%',#{params.receivenumber},'%')
         </if>
-        <if  test="params.sendline!=null and params.sendline!=''">
-            and  sendline  LIKE CONCAT('%',#{params.sendline},'%')
+        <if test="params.sendline!=null and params.sendline!=''">
+            and sendline LIKE CONCAT('%',#{params.sendline},'%')
         </if>
-        <if  test="params.message!=null and params.message!=''">
-            and  message  LIKE CONCAT('%',#{params.message},'%')
+        <if test="params.message!=null and params.message!=''">
+            and message LIKE CONCAT('%',#{params.message},'%')
         </if>
-        <if  test="params.beginDate!=null and params.beginDate!=''">
-            and create_time &gt;=  #{params.beginDate}
+        <if test="params.beginDate!=null and params.beginDate!=''">
+            and create_time &gt;= #{params.beginDate}
         </if>
-        <if  test="params.endDate!=null and params.endDate!=''">
-            and create_time &lt;=  #{params.endDate}
+        <if test="params.endDate!=null and params.endDate!=''">
+            and create_time &lt;= #{params.endDate}
         </if>
         order by create_time desc
         LIMIT ${params.start}, ${params.offset}
     </select>
 
-    <delete id="deloutbox">
-        DELETE FROM outbox WHERE id = #{id}
-    </delete>
-
     <select id="getById" resultType="com.hx.modle.Outbox">
       SELECT
-      t.id,t.sendnumber,t.receivenumber,t.receivingunit,t.create_time,t.sendline,t.message,t.filsavepath
+      t.id,t.sendnumber,t.receivenumber,t.receivingunit,t.create_time,t.sendline,t.message,t.filsavepath,t.pdfPath
       FROM outbox  t where id = #{id}
   </select>
 
-    <insert id="insert" parameterType="com.hx.modle.Outbox">
-        INSERT INTO outbox(id,sendnumber,receivenumber,receivingunit,create_time,sendline,message,filsavepath) VALUES (
-          #{outbox.id},
-          #{outbox.sendnumber},
-          #{outbox.receivenumber},
-          #{outbox.receivingunit},
-          #{outbox.create_time},
-          #{outbox.sendline},
-          #{outbox.message},
-          #{outbox.filsavepath},
-        )
-    </insert>
-    <update id="modifyoutBox" parameterType="com.hx.modle.Outbox">
-        update outbox set
-		sendline=#{sendline}
-		where
-		id=#{id}
+    <update id="modifoutBox" parameterType="com.hx.modle.Outbox">
+       UPDATE outbox SET state = '0' WHERE id =#{id}
     </update>
+
+    <update id="reductionoutBox" parameterType="com.hx.modle.Outbox">
+         UPDATE outbox SET state = '1' WHERE id =#{id}
+    </update>
+
+    <select id="RecoveryoutBox" resultType="com.hx.modle.Outbox">
+        SELECT * FROM outbox where state = 0
+        <if test="params.sendnumber!=null and params.sendnumber!=''">
+            and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
+        </if>
+        <if test="params.receivingunit!=null and params.receivingunit!=''">
+            and receivingunit LIKE CONCAT('%',#{params.receivingunit},'%')
+        </if>
+        <if test="params.receivenumber!=null and params.receivenumber!=''">
+            and receivenumber LIKE CONCAT('%',#{params.receivenumber},'%')
+        </if>
+        <if test="params.sendline!=null and params.sendline!=''">
+            and sendline LIKE CONCAT('%',#{params.sendline},'%')
+        </if>
+        <if test="params.message!=null and params.message!=''">
+            and message LIKE CONCAT('%',#{params.message},'%')
+        </if>
+        <if test="params.beginDate!=null and params.beginDate!=''">
+            and create_time &gt;= #{params.beginDate}
+        </if>
+        <if test="params.endDate!=null and params.endDate!=''">
+            and create_time &lt;= #{params.endDate}
+        </if>
+    </select>
+
+    <delete id="deleteoutbox">
+        DELETE FROM outbox WHERE id = #{id}
+    </delete>
+
     <!--张立恒start-->
     <insert id="insertNewMessage" parameterType="com.hx.modle.Outbox">
         INSERT INTO outbox

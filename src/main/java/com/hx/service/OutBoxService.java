@@ -11,16 +11,19 @@ import java.util.Map;
  * @desc
  */
 public interface OutBoxService {
-     List<Outbox> getAll(String[] id);
+    List<Outbox> getAll(String[] id);
 
     int queryTotalCount(Map<String, Object> searchMap);
 
     List<Outbox> queryoutBox(Map<String, Object> searchMap, Integer pageNo, Integer pageSize);
 
-    int deloutbox(Integer id);
+    void modifyoutBox(Map<String, Object> searchMap);
 
-    int insert(Outbox outbox);
+    void modifoutbox(int id);
 
+    List<Outbox> Recoveryoutbox(Map<String, Object> searchMap, Integer pageNo, Integer pageSize);
 
-    void modifyoutBox(Map<String,Object> searchMap);
+    void reductionoutbox(String id);
+
+    boolean deleteoutbox(String ids);
 }

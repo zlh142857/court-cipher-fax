@@ -13,13 +13,21 @@ import java.util.Map;
  */
 @Service
 public interface ReturnReceiptService {
-   int insert(Return_Receipt return_receipt);
+
    int queryTotalCount(Map<String, Object> searchMap);
 
-   List<Return_Receipt> queryALLMail(Map<String,Object> searchMap, Integer pageNo, Integer pageSize);
+   List<Return_Receipt> queryALLMail(Map<String, Object> searchMap, Integer pageNo, Integer pageSize);
 
-   int deinbox(Integer readerId);
+   List<Return_Receipt> queryALLMailList();
 
    List<Return_Receipt> getAll(String[] split);
+
+   void modifReturnReceipt(int id);
+
+   List<Return_Receipt> RecoveryReturnReceipt(Map<String, Object> searchMap, Integer pageNo, Integer pageSize);
+
+   void reductionReturnReceipt(String id);
+
+   boolean deleteReturnReceipt(String id);
 
 }

@@ -3,12 +3,14 @@ package com.hx.service.impl;
 import com.hx.dao.InboxMapper;
 import com.hx.modle.Inbox;
 import com.hx.service.InBoxService;
-import com.hx.service.RecycleBinService;
+import com.hx.service.OutBoxService;
+import com.hx.service.ReturnReceiptService;
+import com.hx.service.SendReceiptService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -24,8 +26,13 @@ public class InBoxServiceImpl implements InBoxService {
     private InboxMapper inboxMapper;
 
     @Autowired
-    RecycleBinService recycleBinService;
+    ReturnReceiptService returnReceiptService;
 
+    @Autowired
+    SendReceiptService sendReceiptService;
+
+    @Autowired
+    OutBoxService outBoxService;
 
     @Override
     public List<Inbox> getAll(String[] ids) {
@@ -44,7 +51,6 @@ public class InBoxServiceImpl implements InBoxService {
         int offset = pageSize;
         searchMap.put("start", start);
         searchMap.put("offset", offset);
-
         return inboxMapper.queryALLMail(searchMap);
     }
 
@@ -54,31 +60,53 @@ public class InBoxServiceImpl implements InBoxService {
     }
 
     @Override
-    public int deinbox(Integer readerId) {
-        Inbox inbox = inboxMapper.getById(readerId);
-        recycleBinService.insertRecycleBin("inbox", new Date(),
-                inbox.getSendnumber(),
-                inbox.getSenderunit(),
-                String.valueOf(readerId),
-                inbox.getReceivenumber(),
-                inbox.getFilsavepath(),
-                (Date) inbox.getCreate_time(),
-                inbox.getReceiptpath(),
-                inbox.getIsreceipt(),
-                "","",
-                inbox.getIsLink(),
-                inbox.getBarCode(),
-                "");
-        return inboxMapper.deinbox(readerId);
+    public List<Inbox> RecoveryInbox(Map<String, Object> searchMap, Integer pageNo, Integer pageSize) {
+        //mysql LIMIT语句 参数生成  LIMIT [start] [offset]
+        int start = (pageNo - 1) * pageSize;
+        int offset = pageSize;
+        searchMap.put("start", start);
+        searchMap.put("offset", offset);
+        return inboxMapper.RecoveryInbox(searchMap);
     }
 
     @Override
-    public boolean delinbox(String ids) {
-        return false;
+    public void modifinbox(Integer id) {
+        inboxMapper.modifinbox(id);
     }
 
     @Override
-    public int insert(Inbox inbox) {
-        return inboxMapper.insert(inbox);
+    public boolean reductioninbox(String ids, String bs) {
+        if ( StringUtils.isEmpty(ids) ) return false;
+        String[] idArr = ids.split(",");
+        for (String id : idArr) {
+            if ( "1".equals(bs) ) {
+                inboxMapper.reductioninbox(id);
+            } else if ( "2".equals(bs) ) {
+                outBoxService.reductionoutbox(id);
+            } else if ( "3".equals(bs) ) {
+                returnReceiptService.reductionReturnReceipt(id);
+            } else if ( "4".equals(bs) ) {
+                sendReceiptService.reductionSendReceipt(id);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean delinbox(String ids, String bs) {
+        if ( StringUtils.isEmpty(ids) ) return false;
+        String[] idArr = ids.split(",");
+        for (String id : idArr) {
+            if ( "1".equals(bs) ) {
+                inboxMapper.delinbox(id);
+            } else if ( "2".equals(bs) ) {
+                outBoxService.deleteoutbox(ids);
+            } else if ( "3".equals(bs) ) {
+                returnReceiptService.deleteReturnReceipt(ids);
+            } else if ( "4".equals(bs) ) {
+                sendReceiptService.deleteSendReceipt(ids);
+            }
+        }
+        return true;
     }
 }

@@ -50,7 +50,6 @@
     </insert>
     <!--张立恒end-->
 
-
     <select id="queryTotalCount" resultType="java.lang.Integer">
         SELECT COUNT(*) FROM return_receipt where 1=1
         <if  test="params.senderunit!=null and params.senderunit!=''">
@@ -71,7 +70,7 @@
     </select>
 
     <select id="queryALLMail" parameterType="java.util.Map" resultType="com.hx.modle.Return_Receipt">
-        SELECT * FROM return_receipt where 1=1
+        SELECT * FROM return_receipt where state = 1
         <if  test="params.senderunit!=null and params.senderunit!=''">
             and  senderunit  LIKE CONCAT('%',#{params.senderunit},'%')
         </if>
@@ -91,14 +90,13 @@
         LIMIT ${params.start}, ${params.offset}
     </select>
 
-
-    <delete id="deinbox">
-       DELETE FROM return_receipt WHERE id = #{id}
-    </delete>
+    <select id="queryALLMailList" resultType="com.hx.modle.Return_Receipt">
+        select  * from return_receipt
+    </select>
 
     <select id="getById" resultType="com.hx.modle.Return_Receipt">
       select
-        id, senderunit, sendnumber, receivenumber, create_time, filsavepath
+        id, senderunit, sendnumber, receivenumber, create_time, filsavepath, pdfPath
         from return_receipt where id = #{id}
         </select>
     <select id="getAll" resultType="com.hx.modle.Return_Receipt">
@@ -110,14 +108,46 @@
         </foreach>
     </select>
 
+    <update id="modifReturnReceipt" parameterType="com.hx.modle.Return_Receipt">
+      UPDATE return_receipt SET state = '0' WHERE id =#{id}
+    </update>
+
+    <update id="reductionReturnReceipt" parameterType="com.hx.modle.Return_Receipt">
+         UPDATE return_receipt SET state = '1' WHERE id =#{id}
+    </update>
+
+    <select id="RecoveryoReturnReceipt" resultType="com.hx.modle.Return_Receipt">
+        SELECT * FROM return_receipt where state = 0
+        <if  test="params.senderunit!=null and params.senderunit!=''">
+            and  senderunit  LIKE CONCAT('%',#{params.senderunit},'%')
+        </if>
+        <if  test="params.receivenumber!=null and params.receivenumber!=''">
+            and  receivenumber  LIKE CONCAT('%',#{params.receivenumber},'%')
+        </if>
+        <if  test="params.sendnumber!=null and params.sendnumber!=''">
+            and  sendnumber  LIKE CONCAT('%',#{params.sendnumber},'%')
+        </if>
+        <if  test="params.beginDate!=null and params.beginDate!=''">
+            and create_time &gt;=  #{params.beginDate}
+        </if>
+        <if  test="params.endDate!=null and params.endDate!=''">
+            and create_time &lt;=  #{params.endDate}
+        </if>
+    </select>
+
+    <delete id="deleteReturnReceipt">
+        DELETE FROM return_receipt WHERE id = #{id}
+    </delete>
+
     <insert id="insert" parameterType="com.hx.modle.Return_Receipt">
-        INSERT INTO return_receipt(id, senderunit, sendnumber, receivenumber, create_time, filsavepath) VALUES (
+        INSERT INTO return_receipt(id, senderunit, sendnumber, receivenumber, create_time, filsavepath, pdfPath) VALUES (
           #{return_receipt.id},
           #{return_receipt.senderunit},
           #{return_receipt.sendnumber},
           #{return_receipt.receivenumber},
           #{return_receipt.create_time},
-          #{return_receipt.filsavepath}
+          #{return_receipt.filsavepath},
+          #{return_receipt.pdfPath}
         )
     </insert>
 </mapper>
