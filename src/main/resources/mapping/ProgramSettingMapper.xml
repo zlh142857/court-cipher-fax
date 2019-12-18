@@ -33,10 +33,13 @@
     <result property="autoCloseDate" column="autoCloseDate"/>
     <result property="isToAdmin" column="isToAdmin"/>
     <result property="adminPhone" column="adminPhone"/>
+    <result property="delFileDays" column="delFileDays"/>
+    <result property="delLogDays" column="delLogDays"/>
+    <result property="telNotify" column="telNotify"/>
   </resultMap>
   <!--查询是否立即打印-->
   <select id="selectProgramSetting" resultMap="Program_Setting">
-    SELECT isPrint,printService,startTime,endTime,isAutoClose,autoCloseDate FROM Program_Setting;
+    SELECT isPrint,printService,startTime,endTime,isAutoClose,autoCloseDate,delFileDays,delLogDays,setGetFileDate FROM Program_Setting;
   </select>
   <!--查询全部程序设置信息-->
   <select id="selectProgramSettingAll" resultMap="Program_Setting">
@@ -51,10 +54,11 @@
     ,ipAddress=#{ipAddress,jdbcType=VARCHAR},ipPort=#{ipPort,jdbcType=VARCHAR},isLoginWindows=#{isLoginWindows,jdbcType=BOOLEAN}
     ,isLogin=#{isLogin,jdbcType=BOOLEAN},isServer=#{isServer,jdbcType=BOOLEAN},choiceCh=#{choiceCh,jdbcType=INTEGER}
     ,insideNum=#{insideNum,jdbcType=VARCHAR},isAgain=#{isAgain,jdbcType=BOOLEAN},timeTen=#{timeTen,jdbcType=VARCHAR}
-    ,openHeader=#{openHeader,jdbcType=BOOLEAN},maxNum=#{maxNum,jdbcType=VARCHAR},autoAgain=#{autoAgain,jdbcType=BOOLEAN},
+    ,openHeader=#{openHeader,jdbcType=BOOLEAN},maxNum=#{maxNum,jdbcType=VARCHAR},autoAgain=#{autoAgain,jdbcType=INTEGER},
     getFileType=#{getFileType,jdbcType=VARCHAR},voiceMaxTime=#{voiceMaxTime,jdbcType=VARCHAR},setGetFileDate=#{setGetFileDate,jdbcType=BOOLEAN},
-    isAutoClose=#{isAutoClose,jdbcType=BOOLEAN},autoCloseDate=#{autoCloseDate,jdbcType=TIMESTAMP},
-    isToAdmin=#{isToAdmin,jdbcType=BOOLEAN},adminPhone=#{adminPhone,jdbcType=VARCHAR}
+    isAutoClose=#{isAutoClose,jdbcType=BOOLEAN},autoCloseDate=#{autoCloseDate,jdbcType=TIME},
+    isToAdmin=#{isToAdmin,jdbcType=BOOLEAN},adminPhone=#{adminPhone,jdbcType=VARCHAR},delFileDays=#{delFileDays,jdbcType=INTEGER}
+    ,delLogDays=#{delLogDays,jdbcType=INTEGER},telNotify=#{telNotify,jdbcType=VARCHAR}
     WHERE id=#{id,jdbcType=INTEGER}
   </update>
   <!--修改计算机名称-->
@@ -62,5 +66,9 @@
     UPDATE program_setting SET serverComName=#{address,jdbcType=VARCHAR},ipAddress=#{ip,jdbcType=VARCHAR}
     WHERE id=1
   </update>
+  <!--查询电话通知文件的路径-->
+  <select id="selectTelVoicePath" resultType="java.lang.String">
+    SELECT telNotify FROM program_setting WHERE id=1;
+  </select>
 
 </mapper>

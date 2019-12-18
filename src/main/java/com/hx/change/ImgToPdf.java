@@ -60,7 +60,7 @@ public class ImgToPdf {
             image = Image.getInstance(b);
 
             fos = new FileOutputStream(pdfPath);
-            PdfWriter.getInstance(doc, fos);
+            PdfWriter writer = PdfWriter.getInstance(doc, fos);
             doc.open();
             doc.add(image);
             doc.close();
@@ -98,6 +98,7 @@ public class ImgToPdf {
         mergePdf.setDestinationFileName(pdfPath);
         mergePdf.mergeDocuments();
     }
+
 
 
 }

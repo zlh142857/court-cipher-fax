@@ -38,9 +38,6 @@ public class Ch_1 implements Runnable {
         try{
             //业务逻辑:先查询通道的状态码
             int stateCode=Fax.INSTANCE.SsmGetChState(1);
-            System.out.println("1:"+stateCode);
-            int stateCode2=Fax.INSTANCE.SsmGetChState(9);
-            System.out.println("1:"+stateCode2);
             if(stateCode!=-1){
                 if(stateCode==2){
                     int chType=ch_1.sendFaxService.selectChType(1);

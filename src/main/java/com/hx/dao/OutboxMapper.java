@@ -31,4 +31,8 @@ public interface OutboxMapper {
     void deleteoutbox(String id);
 
     void modifoutBox(int id);
+
+    List<String> selectFilePath(int fileDays);
+
+    void updateTelNotifyResultById(@Param( "id" ) Integer id,@Param( "message" ) String message);
 }

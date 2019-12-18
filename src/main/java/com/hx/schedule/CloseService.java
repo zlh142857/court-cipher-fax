@@ -27,7 +27,7 @@ public class CloseService implements Runnable {
     public void run(){
         try{
             Program_Setting program_setting=closeService.programSettingDao.selectProgramSetting();
-            boolean flag=program_setting.isAutoClose();
+            boolean flag=program_setting.getIsAutoClose();
             if(flag){
                 long time=program_setting.getAutoCloseDate().getTime();
                 long  nowTime = System.currentTimeMillis();

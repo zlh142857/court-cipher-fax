@@ -6,17 +6,18 @@ package com.hx.controller;/*
  */
 
 import com.alibaba.fastjson.JSONObject;
+import com.hx.common.Fax;
 import com.hx.modle.Login;
 import com.hx.service.UserService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import java.util.Map;
+
 
 
 @Controller
@@ -72,7 +73,6 @@ public class UserController {
                 msg="修改成功";
             }else{
                 msg="修改失败";
-                logger.error( "修改失败" );
             }
         } catch (Exception e) {
             logger.error( e.toString() );

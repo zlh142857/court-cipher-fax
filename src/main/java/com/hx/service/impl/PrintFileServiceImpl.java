@@ -28,6 +28,7 @@ import java.util.Map;
 
 import static com.hx.change.ChangeFile.tiffMerge;
 import static com.hx.change.ImgToPdf.imgToPdf;
+import static com.hx.service.impl.ChangeFileServiceImpl.tifToPng;
 import static com.hx.util.TempDir.fileTemp;
 import static com.hx.util.TempDir.schTask;
 import static com.hx.util.TiffToJPEG.readerTiff;
@@ -65,8 +66,7 @@ public class PrintFileServiceImpl implements PrintFileService {
     }
     //扫描功能,返回文件保存路径
     @Override
-    public Map<String,Object> printScan() throws Exception{
-        Map<String,Object> map=new HashMap<>(  );
+    public String printScan() throws Exception{
         String tifPath=schTask();
         List<String> list=null;
         boolean flag=false;
@@ -88,13 +88,9 @@ public class PrintFileServiceImpl implements PrintFileService {
         }
         if(!flag){
             tifPath="";
-            map.put( "tifPath",tifPath );
-            return map;
-        }else{
-            map.put( "tifPath",tifPath );
-            map.put( "pathList",list );
-            return map;
+
         }
+        return tifPath;
     }
     //程序管理下拉列表查询
     @Override
@@ -103,7 +99,6 @@ public class PrintFileServiceImpl implements PrintFileService {
         List<String> list=new ArrayList<>(  );
         //查询数据库存入的服务名称
         Program_Setting programSetting=programSettingDao.selectProgramSettingAll();
-        System.out.println(programSetting.toString());
         //查询所有的服务名称
         PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
         DocFlavor flavor = DocFlavor.BYTE_ARRAY.AUTOSENSE;
@@ -120,20 +115,31 @@ public class PrintFileServiceImpl implements PrintFileService {
     }
 
     @Override
-    public void updatePrintService(Program_Setting programSetting) {
-        programSettingDao.updatePrintService(programSetting);
+    public boolean updatePrintService(Program_Setting programSetting) {
+        int count=programSettingDao.updatePrintService(programSetting);
+        if(count==0){
+            return false;
+        }else{
+            return true;
+        }
     }
 
 
     @Override
     public String downFileSend(String tifPath) throws Exception {
         File getFile=new File(tifPath);
-        if(!getFile.isFile()){
+        if(!getFile.exists()){
             return "文件不存在";
         }
         String pdfPath=fileTemp()+".pdf";
         List<String> filePath=readerTiff(tifPath);
         imgToPdf(filePath,pdfPath);
         return pdfPath;
+    }
+
+    @Override
+    public String downTifSign(String tifPath) {
+        String png = tifToPng(tifPath);
+        return png;
     }
 }

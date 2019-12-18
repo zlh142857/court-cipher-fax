@@ -21,6 +21,89 @@ public class Outbox implements Serializable {
     private String sendline;//文件标题
     private String message;
     private String filsavepath;
+    private boolean isSuccess;
+    private String telResult;//电话通知结果
+    private int pageNum;//文件页数
+
+    public int getPageNum() {
+        return pageNum;
+    }
+
+    public void setPageNum(int pageNum) {
+        this.pageNum = pageNum;
+    }
+
+    public String getTelResult() {
+        return telResult;
+    }
+
+    public void setTelResult(String telResult) {
+        this.telResult = telResult;
+    }
+
+    public boolean getIsSuccess() {
+        return isSuccess;
+    }
+
+    public void setIsSuccess(boolean isSuccess) {
+        this.isSuccess = isSuccess;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getSendnumber() {
+        return sendnumber;
+    }
+
+    public void setSendnumber(String sendnumber) {
+        this.sendnumber = sendnumber;
+    }
+
+    public String getReceivenumber() {
+        return receivenumber;
+    }
+
+    public void setReceivenumber(String receivenumber) {
+        this.receivenumber = receivenumber;
+    }
+
+    public String getReceivingunit() {
+        return receivingunit;
+    }
+
+    public void setReceivingunit(String receivingunit) {
+        this.receivingunit = receivingunit;
+    }
+
+    public Date getCreate_time() {
+        return create_time;
+    }
+
+    public void setCreate_time(Date create_time) {
+        this.create_time = create_time;
+    }
+
+    public String getSendline() {
+        return sendline;
+    }
+
+    public void setSendline(String sendline) {
+        this.sendline = sendline;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
     public String getFilsavepath() {
         return filsavepath;
@@ -41,69 +124,9 @@ public class Outbox implements Serializable {
                 ", sendline='" + sendline + '\'' +
                 ", message='" + message + '\'' +
                 ", filsavepath='" + filsavepath + '\'' +
+                ", isSuccess=" + isSuccess +
+                ", telResult=" + telResult +
+                ", pageNum=" + pageNum +
                 '}';
     }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setSendnumber(String sendnumber) {
-        this.sendnumber = sendnumber;
-    }
-
-    public void setReceivenumber(String receivenumber) {
-        this.receivenumber = receivenumber;
-    }
-
-    public void setReceivingunit(String receivingunit) {
-        this.receivingunit = receivingunit;
-    }
-
-    public void setCreate_time(Date create_time) {
-        this.create_time = create_time;
-    }
-
-    public void setSendline(String sendline) {
-        this.sendline = sendline;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-
-    public int getId() {
-        return id;
-    }
-
-    public String getSendnumber() {
-        return sendnumber;
-    }
-
-    public String getReceivenumber() {
-        return receivenumber;
-    }
-
-    public String getReceivingunit() {
-        return receivingunit;
-    }
-
-    public Date getCreate_time() {
-        return create_time;
-    }
-
-    public String getCreateTimeFormat() {
-        return TimeHelper.formatDateTime(create_time);
-    }
-
-    public String getSendline() {
-        return sendline;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-
 }

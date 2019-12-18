@@ -46,11 +46,14 @@ public interface Fax extends Library {
     int SsmFaxGetSendBytes(int ch);
     //接收传真时，获取当前接收页中已经完成接收的字节数
     int SsmFaxGetRcvBytes(int ch);
-
-
-
-
-
+    //设置发送或接收的速率
+    int SsmFaxSetChSpeed(int ch, int speed);
+    //检测电压
+    int SsmGetLineVoltage(int ch);
+    //放音
+    int SsmPlayFile(int ch, String pszFileName, int nFormat, int dwStartPos, int dwLen);
+    //停止放音
+    int SsmStopPlayFile(int ch);
 
 
 }

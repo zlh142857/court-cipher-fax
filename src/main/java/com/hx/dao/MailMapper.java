@@ -41,4 +41,6 @@ public interface MailMapper {
     List<Mail_List> selectMailList();
 
     List<Mail> selectMailById(int id);
+
+    String selectNotifyPhone(String receiveNumber);
 }

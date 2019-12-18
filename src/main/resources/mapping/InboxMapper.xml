@@ -12,6 +12,7 @@
         <result property="filsavepath" column="filsavepath"/>
         <result property="isLink" column="isLink"/>
         <result property="barCode" column="barCode"/>
+        <result property="pageNum" column="pageNum"/>
     </resultMap>
     <delete id="delinbox">
       DELETE FROM inbox WHERE id = #{id}
@@ -150,6 +151,9 @@
             <if test="isreceipt != null and isreceipt != ''">
                 Isreceipt,
             </if>
+            <if test="pageNum != null and pageNum != ''">
+                pageNum,
+            </if>
         </trim>
         <trim prefix=" values (" suffix=")" suffixOverrides=",">
             <if test="sendnumber != null and sendnumber != ''">
@@ -176,6 +180,9 @@
             <if test="isreceipt != null and isreceipt != ''">
                 #{isreceipt,jdbcType=VARCHAR},
             </if>
+            <if test="pageNum != null and pageNum != ''">
+                #{pageNum,jdbcType=INTEGER},
+            </if>
         </trim>
     </insert>
     <!--修改是否已回执,改成已回执:1-->
@@ -192,6 +199,10 @@
     <!--查询一次正文路径,改成已关联:1-->
     <select id="selectBarAndTifPath" resultType="com.hx.modle.Inbox" parameterType="java.lang.Integer">
       SELECT filsavepath,barCode FROM inbox WHERE id=#{id,jdbcType=INTEGER}
+    </select>
+    <!--查询过去文件路径-->
+    <select id="selectFilePath" resultType="java.lang.String" parameterType="java.lang.Integer">
+      SELECT filsavepath FROM inbox WHERE DATEDIFF(now(),create_time) >=#{day,jdbcType=INTEGER}
     </select>
     <!--张立恒end-->
 </mapper>

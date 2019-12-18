@@ -42,4 +42,5 @@ public interface SendReceiptMapper {
     void reductionSendReceipt(String id);
 
     void deleteSendReceipt(String id);
+
 }

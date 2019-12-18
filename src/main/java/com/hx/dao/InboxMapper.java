@@ -40,4 +40,6 @@ public interface InboxMapper {
     void modifinbox(Integer id);
 
     void delinbox(String id);
+
+    List<String> selectFilePath(Integer day);
 }

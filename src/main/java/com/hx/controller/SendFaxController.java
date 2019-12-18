@@ -12,19 +12,15 @@ import com.hx.modle.ChMsg;
 import com.hx.modle.Device_Setting;
 import com.hx.modle.TempModel;
 import com.hx.service.SendFaxService;
-import com.hx.util.GetTimeToFileName;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.*;
 
-import static com.hx.common.StaticFinal.TEMPDIR;
 
 @Controller
 public class SendFaxController {
@@ -204,54 +200,6 @@ public class SendFaxController {
     }
     /**
      *
-     * 功能描述: 发送前预览文件,给前端发送PDFbase64
-     *
-     * 业务逻辑:
-     *
-     * @param:
-     * @return:
-     * @auther: 张立恒
-     * @date: 2019/11/15 14:42
-     *//*
-    @RequestMapping("tifView")
-    @ResponseBody
-    public String tifView(String tifPath, HttpServletResponse response){
-        String map="";
-        String filename=GetTimeToFileName.GetTimeToFileName();
-        String pdfPath=TEMPDIR+"/"+filename+".pdf";
-        try {
-            if(null!=tifPath){
-                map=sendFaxService.tifView(pdfPath,tifPath);
-            }else{
-                logger.error( "参数为空" );
-            }
-        } catch (Exception e) {
-            logger.error( e );
-        }
-        BufferedInputStream br = null;
-        try {
-            br = new BufferedInputStream(new FileInputStream("pdfPath"));
-            byte[] buf = new byte[1024];
-            int len = 0;
-            response.reset(); // 非常重要
-            response.setContentType("application/pdf");
-            response.setHeader("Content-Disposition",
-                    "inline; filename="+filename);
-
-            OutputStream out = response.getOutputStream();
-            while ((len = br.read(buf)) != -1)
-                out.write(buf, 0, len);
-            br.close();
-            out.close();
-        } catch (FileNotFoundException e) {
-            logger.error( e.toString() );
-        } catch (IOException e) {
-            logger.error( e.toString() );
-        }
-        return JSONObject.toJSONString( map);
-    }*/
-    /**
-     *
      * 功能描述:取消发送
      *
      * 业务逻辑:
@@ -278,7 +226,7 @@ public class SendFaxController {
     }
     /**
      *
-     * 功能描述: 右键发送回执,然后拆分文件,反转颜色,返回文件路径
+     * 功能描述: 右键发送回执,然后拆分文件,返回文件路径
      *
      * 业务逻辑:
      *
@@ -301,6 +249,122 @@ public class SendFaxController {
             logger.error( e );
         }
         return JSONObject.toJSONString( path );
+    }
+    /**
+     *
+     * 功能描述: 转发,拆分其中几页,再合并成新的文件进行发送
+     *
+     * 业务逻辑:
+     *
+     * @param:
+     * @return:
+     * @auther: 张立恒
+     * @date: 2019/12/10 14:36
+     */
+    @RequestMapping("bigToSmallTiff")
+    @ResponseBody
+    public String bigToSmallTiff(String tifPath,int[] pages){
+        Map<String,Object> map=new HashMap<>(  );
+        if(null==tifPath || "".equals( tifPath )){
+            map.put( "message","路径参数为空" );
+        }else if(null==pages || (pages!=null&&pages.length==0)){
+            map.put( "message","参数为空" );
+        }else{
+            map=sendFaxService.bigToSmallTiff(tifPath,pages);
+        }
+        return JSONObject.toJSONString( map );
+    }
+    /**
+     *
+     * 功能描述: 手动拨打电话监控刚刚摘机拨打电话正处于通话中的通道编号
+     *
+     * 业务逻辑:
+     * 
+     * @param: 
+     * @return: 
+     * @auther: 张立恒
+     * @date: 2019/12/13 13:23
+     */
+    @RequestMapping("checkChByHand")
+    @ResponseBody
+    public String checkChByHand(){
+        Map<String,Object> map=new HashMap<>(  );
+        map=sendFaxService.checkChByHand();
+        return JSONObject.toJSONString( map );
+    }
+    /**
+     *
+     * 功能描述:
+     *
+     * 业务逻辑:
+     *
+     * @param:
+     * @return:
+     * @auther: 张立恒
+     * @date: 2019/12/13 13:55
+     */
+    @RequestMapping("sendFaxByHand")
+    @ResponseBody
+    public String sendFaxByHand(String tifPath,String receiptPath,String courtName,String receiveNumber,
+                                Integer isBack,Integer ch,String filename,Integer id){
+        String msg=sendFaxService.sendFaxByHand(tifPath,receiptPath,courtName,receiveNumber,isBack,ch,filename,id);
+        return JSONObject.toJSONString( msg );
+    }
+    /**
+     *
+     * 功能描述:电话通知
+     *
+     * 业务逻辑:
+     * 
+     * @param:
+     * @return: 
+     * @auther: 张立恒
+     * @date: 2019/12/17 9:47
+     */
+    @RequestMapping("telNotify")
+    @ResponseBody
+    public String telNotify(Integer id,String telNotify){
+        String msg= null;
+        if(null == telNotify || "".equals( telNotify )){
+            msg="电话通知号码为空";
+            return JSONObject.toJSONString( msg );
+        }
+        if(null == id){
+            msg="id为空";
+            return JSONObject.toJSONString( msg );
+        }
+        try {
+            msg = sendFaxService.telNotify(id,telNotify);
+        } catch (InterruptedException e) {
+            logger.error( e.toString() );
+        }
+        return JSONObject.toJSONString( msg );
+    }
+    /**
+     *
+     * 功能描述: 电话通知前查询通讯簿的电话通知号码
+     *
+     * 业务逻辑:
+     *
+     * @param:
+     * @return:
+     * @auther: 张立恒
+     * @date: 2019/12/17 9:53
+     */
+    @RequestMapping("selectNotifyPhone")
+    @ResponseBody
+    public String selectNotifyPhone(String receiveNumber){
+        String msg= null;
+        if(null == receiveNumber || "".equals( receiveNumber )){
+            msg="发送方号码为空";
+            return JSONObject.toJSONString( msg );
+        }
+        msg=sendFaxService.selectNotifyPhone(receiveNumber);
+        if(null == msg){
+            return null;
+        }else{
+            return JSONObject.toJSONString( msg );
+        }
     }
 
 }

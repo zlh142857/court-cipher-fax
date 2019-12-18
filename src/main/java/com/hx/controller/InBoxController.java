@@ -109,7 +109,6 @@ public class InBoxController {
         result.put("state", 0); //0代表失败，1代表成功
         if ( null == id || "".equals(id.trim()) ) {
             result.put("msg", "参数错误");
-            log.error("参数错误" + id);
             return result;
         }
         String[] split = id.split(",");
@@ -118,10 +117,8 @@ public class InBoxController {
                 inBoxService.modifinbox(Integer.parseInt(split[i]));
             }
             result.put("state", 1); //0代表失败，1代表成功
-            log.info("删除成功");
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("删除失败");
+            log.error(e.toString());
             result.put("msg", e.getMessage());
         }
         return result;
@@ -170,7 +167,6 @@ public class InBoxController {
         //TODO 验证标题不能为空
         if ( null == ids || "".equals(ids) ) {
             result.put("msg", "参数错误");
-            log.error("标题为空" + ids);
             return result;
         }
         //TODO 更改状态
@@ -178,7 +174,6 @@ public class InBoxController {
         if ( b ) {
             result.put("state", 1); //0代表失败，1代表成功
         }
-        log.info("删除成功");
         return result;
     }
 
@@ -190,14 +185,12 @@ public class InBoxController {
         result.put("state", 0); //0代表失败，1代表成功
         if ( StringUtils.isEmpty(ids) ) {
             result.put("msg", "参数错误");
-            log.error("参数错误");
             return result;
         }
         boolean b = inBoxService.delinbox(ids, bs);
         if ( b ) {
             result.put("state", 1); //0代表失败，1代表成功
         }
-        log.info("删除成功");
         return result;
     }
     }

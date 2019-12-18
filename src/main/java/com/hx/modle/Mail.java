@@ -15,6 +15,15 @@ public class Mail extends Mail_List implements Serializable  {
     private String linknumber;
     private String typeid;
     private String typename;
+    private String telNotify;
+
+    public String getTelNotify() {
+        return telNotify;
+    }
+
+    public void setTelNotify(String telNotify) {
+        this.telNotify = telNotify;
+    }
 
     @Override
     public int getId() {
@@ -59,6 +68,7 @@ public class Mail extends Mail_List implements Serializable  {
                 ", linknumber='" + linknumber + '\'' +
                 ", typeid='" + typeid + '\'' +
                 ", typename='" + typename + '\'' +
+                ", telNotify='" + telNotify + '\'' +
                 '}';
     }
 }

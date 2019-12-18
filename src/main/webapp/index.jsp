@@ -21,7 +21,7 @@
     <form id="uploadForm" enctype="multipart/form-data">
         文件:<input type="file" name="file" multiple="multiple" /><br>
     </form>
-    <img src="http://localhost:8080/main"/>
+    <img src="http://localhost:8080/fileView.do?photoUrl=C:\Users\zlh\Desktop\201912061556176360.jpg"/>
     <button id="upload">上传文件</button>
 </body>
 <script src="./jquery.2.14.js"></script>
@@ -33,9 +33,9 @@
     function clickBtn3() {
         $.ajax({
             type: "GET",
-            url: "http://localhost:8080/selectPrintService.do",
+            url: "http://localhost:8080/Outbox/select1.do",
             success: function (str) {
-                console.log(str);
+                console.log(str)
             },
             error: function(str){
             }

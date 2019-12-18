@@ -23,6 +23,7 @@ public class Inbox implements Serializable {
     private int isreceipt;//是否已回执
     private String barCode;//条形码的值
     private int isLink;//是否已关联
+    private int pageNum;//文件页数
 
     @Override
     public String toString() {
@@ -37,7 +38,16 @@ public class Inbox implements Serializable {
                 ", isreceipt=" + isreceipt +
                 ", barCode='" + barCode + '\'' +
                 ", isLink=" + isLink +
+                ", pageNum=" + pageNum +
                 '}';
+    }
+
+    public int getPageNum() {
+        return pageNum;
+    }
+
+    public void setPageNum(int pageNum) {
+        this.pageNum = pageNum;
     }
 
     public void setId(int id) {

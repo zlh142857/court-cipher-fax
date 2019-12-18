@@ -78,6 +78,10 @@
     <select id="selectMailById" resultType="com.hx.modle.Mail" parameterType="java.lang.Integer">
       SELECT * FROM mail WHERE typeid=#{id,jdbcType=INTEGER};
     </select>
+    <!--根据收件箱的发送方号码查询通讯薄中的电话通知号码-->
+    <select id="selectNotifyPhone" resultType="java.lang.String" parameterType="java.lang.String">
+      SELECT telNotify FROM mail WHERE linknumber=#{receiveNumber,jdbcType=VARCHAR};
+    </select>
     <!--张立恒-->
 
 </mapper>

@@ -18,8 +18,13 @@ public interface DeviceDao {
 
     List<Device_Setting> selectDevice();
 
-    void updateDevice(Device_Setting deviceSetting);
+    int updateDevice(Device_Setting deviceSetting);
 
     Device_Setting selectPrefixByCh(int ch);
 
+    Device_Setting selectDeviceById(Integer id)throws Exception;
+
+    Device_Setting selectSpeedIdByCh(int ch);
+
+    List<Integer> selectCh();
 }

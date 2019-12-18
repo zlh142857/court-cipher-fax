@@ -12,9 +12,11 @@ public interface ProgramSettingDao {
 
     Program_Setting selectProgramSetting();
 
-    void updatePrintService(Program_Setting programSetting);
+    int updatePrintService(Program_Setting programSetting);
 
     void updateServerWindowsName(@Param( "address" ) String address,@Param( "ip" ) String ip);
 
     Program_Setting selectProgramSettingAll();
+
+    String selectTelVoicePath();
 }

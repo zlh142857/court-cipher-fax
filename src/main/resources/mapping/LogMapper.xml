@@ -21,6 +21,9 @@
     <select id="selectCount" resultType="java.lang.Long">
         SELECT count(*) FROM log_tables;
     </select>
+    <select id="deleteExpire" parameterType="java.lang.Integer">
+        DELETE FROM log_tables WHERE DATEDIFF(now(),createtime) >=#{day,jdbcType=INTEGER}
+    </select>
 
     <!--张立恒end-->
 </mapper>

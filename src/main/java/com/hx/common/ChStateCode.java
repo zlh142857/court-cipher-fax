@@ -138,4 +138,34 @@ public class ChStateCode {
         }
         return msg;
     }
+    public static String checkChCode(int code){
+        String msg="";
+        switch(code){
+            case -1:
+                msg="检测失败";
+                break;
+            case 0:
+                msg="线路正常";
+                break;
+            case 7:
+                msg="挂起状态";
+                break;
+            case 8:
+                msg="线路断开状态";
+                break;
+            case 11:
+                msg="通道不可用";
+                break;
+            case 12:
+                msg="呼出锁定";
+                break;
+            case 20:
+                msg="本地闭塞";
+                break;
+            default:
+                msg="线路正常";
+                break;
+        }
+        return msg;
+    }
 }

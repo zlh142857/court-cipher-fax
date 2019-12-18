@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import uk.co.mmscomputing.device.scanner.ScannerIOException;
 
+import javax.imageio.stream.FileImageInputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,9 +34,9 @@ public class PrintFileController{
     @RequestMapping("printScan")
     @ResponseBody
     public String printScan() {
-        Map<String,Object> map=new HashMap<>(  );
+        String tifPath="";
         try {
-            map=printFileService.printScan();
+            tifPath=printFileService.printScan();
         } catch (ScannerIOException e) {
             logger.error( e.toString() );
         } catch (InterruptedException e) {
@@ -42,7 +44,7 @@ public class PrintFileController{
         } catch (Exception e){
             logger.error( e.toString() );
         }
-        return JSONObject.toJSONString( map );
+        return JSONObject.toJSONString( tifPath );
     }
     /**
      *
@@ -81,7 +83,7 @@ public class PrintFileController{
     @ResponseBody
     public String selectPrintService(){
         Map<String,Object> map=printFileService.selectPrintService();
-        return JSONObject.toJSONStringWithDateFormat( map,"yyyy-MM-dd HH:mm:ss" );
+        return JSONObject.toJSONStringWithDateFormat( map,"HH:mm:ss" );
     }
     /**
      *
@@ -96,8 +98,10 @@ public class PrintFileController{
      */
     @RequestMapping("updatePrintService")
     @ResponseBody
-    public void updatePrintService(Program_Setting programSetting){
-        printFileService.updatePrintService(programSetting);
+    public boolean updatePrintService(Program_Setting programSetting){
+        System.out.println(programSetting.toString());
+        boolean flag=printFileService.updatePrintService(programSetting);
+        return flag;
     }
     /**
      *
@@ -165,6 +169,91 @@ public class PrintFileController{
         } catch (Exception e) {
             logger.error( e );
         }
+    }
+    @RequestMapping("downTifSign")
+    @ResponseBody
+    public void downTifSign(String tifPath, HttpServletResponse response){
+        String pngPath="";
+        String fileName=GetTimeToFileName.GetTimeToFileName()+".pdf";
+        try {
+            if(null!=tifPath){
+                pngPath=printFileService.downTifSign(tifPath);
+            }else{
+                logger.error( "参数为空" );
+            }
+            //设置文件路径
+            File file = new File(pngPath);
+            if (file.exists()) {
+                response.setHeader("content-type", "application/octet-stream");
+                response.setContentType("application/octet-stream");
+                try {
+                    response.setHeader("Content-Disposition", "attachment;filename="+new String(fileName.getBytes("utf-8"),"ISO-8859-1"));
+                } catch (UnsupportedEncodingException e) {
+                    logger.error( e );
+                }
+                byte[] buffer = new byte[1024];
+                FileInputStream fis = null;
+                BufferedInputStream bis = null;
+                try {
+                    fis = new FileInputStream(file);
+                    bis = new BufferedInputStream(fis);
+                    OutputStream os = response.getOutputStream();
+                    int i = bis.read(buffer);
+                    while (i != -1) {
+                        os.write(buffer, 0, i);
+                        i = bis.read(buffer);
+                    }
+                } catch (Exception e) {
+                    logger.error( e.toString() );
+                } finally {
+                    if (bis != null) {
+                        try {
+                            bis.close();
+                        } catch (IOException e) {
+                            logger.error( e.toString() );
+                        }
+                    }
+                    if (fis != null) {
+                        try {
+                            fis.close();
+                        } catch (IOException e) {
+                            logger.error( e.toString() );
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error( e );
+        }
+        /*String filename=tifPath.substring(tifPath.lastIndexOf("/"),tifPath.length()-1);
+        //如果下载文件是中文文件，则文件名需要经过url编码
+        try {
+            response.setHeader("content-disposition", "attachment;filename="+URLEncoder.encode(filename,"UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        InputStream in=null;
+        OutputStream out=null;
+        try{
+            in = new FileInputStream(tifPath);
+            int len=0;
+            byte buffer[] = new byte[1024];
+            out = response.getOutputStream();
+            while((len = in.read(buffer))>0){
+            out.write(buffer,0,len);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally{
+            if(in != null){
+                try{
+                    in.close();
+                }catch(Exception e){
+                }
+            }
+        }*/
     }
 
 }

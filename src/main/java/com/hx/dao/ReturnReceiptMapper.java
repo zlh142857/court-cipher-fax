@@ -30,8 +30,9 @@ public interface ReturnReceiptMapper {
 
         void reductionReturnReceipt(String id);
 
-        void deleteReturnReceipt(String ids);
+        void deleteReturnReceipt(String id);
 
         void insertReceipt(Return_Receipt returnReceipt);
 
+    List<String> selectFilePath(int fileDays);
 }

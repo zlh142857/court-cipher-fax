@@ -36,9 +36,17 @@ public interface SendFaxService {
 
     Map<String,Object> selectTaskLimit(Integer pageNow, Integer pageSize);
 
-    String tifView(String pdfPath,String tifPath) throws Exception;
-
     boolean undoSend(String ch);
 
     String returnFaxGetPath(String tifPath) throws Exception;
+
+    Map<String,Object> bigToSmallTiff(String tifPath, int[] pages);
+
+    Map<String,Object> checkChByHand();
+
+    String sendFaxByHand(String tifPath, String receiptPath, String courtName, String receiveNumber, Integer isBack, Integer ch, String filename, Integer id);
+
+    String selectNotifyPhone(String receiveNumber);
+
+    String telNotify(Integer id,String telNotify) throws InterruptedException;
 }

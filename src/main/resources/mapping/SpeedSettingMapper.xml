@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hx.dao.SpeedDao" >
+  <resultMap id="Speed_Setting" type="com.hx.modle.Speed_Setting" >
+    <id property="id" column="id"/>
+    <result property="speed" column="speed"/>
+  </resultMap>
+  <!--查询所有的速率-->
+  <select id="selectSpeed" resultMap="Speed_Setting">
+    SELECT id,speed FROM speed_setting;
+  </select>
+  <!--查询所有的速率-->
+  <select id="selectSpeedById" resultType="java.lang.Integer" parameterType="java.lang.Integer">
+    SELECT speed FROM speed_setting WHERE id=#{id,jdbcType=INTEGER};
+  </select>
+
+</mapper>

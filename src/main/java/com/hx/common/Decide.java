@@ -6,10 +6,8 @@ package com.hx.common;/*
  */
 
 import com.hx.dao.*;
-import com.hx.modle.Inbox;
-import com.hx.modle.Program_Setting;
-import com.hx.modle.Return_Receipt;
-import com.hx.modle.WebModel;
+import com.hx.modle.*;
+import com.hx.service.InBoxService;
 import com.hx.util.PrintImage;
 import com.spire.barcode.BarCodeType;
 import com.spire.barcode.BarcodeScanner;
@@ -18,6 +16,7 @@ import com.sun.media.jai.codec.ImageCodec;
 import com.sun.media.jai.codec.ImageDecoder;
 import com.sun.media.jai.codec.SeekableStream;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
@@ -26,7 +25,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import static com.hx.change.ChangeFile.markImageByText;
 import static com.hx.controller.AlertController.*;
+import static com.hx.util.TempDir.fileTemp;
 import static com.hx.util.TempDir.tifDir;
 import static com.hx.util.TiffToJPEG.readerTiff;
 
@@ -39,6 +40,7 @@ public class Decide {
     private static InboxMapper inboxMapper;
     private static ReturnReceiptMapper returnReceiptMapper;
     private static MailMapper mailMapper;
+    private static SpeedDao speedDao;
     private static Decide decide;
     public  void setProgramSettingDao(ProgramSettingDao programSettingDao) {
         this.programSettingDao = programSettingDao;
@@ -55,6 +57,9 @@ public class Decide {
     public  void setMailMapper(MailMapper mailMapper) {
         this.mailMapper = mailMapper;
     }
+    public  void setSpeedDao(SpeedDao speedDao) {
+        this.speedDao = speedDao;
+    }
     @PostConstruct
     public void init() {
         decide=this;
@@ -63,6 +68,7 @@ public class Decide {
         decide.deviceDao=this.deviceDao;
         decide.returnReceiptMapper=this.returnReceiptMapper;
         decide.mailMapper=this.mailMapper;
+        decide.speedDao=this.speedDao;
     }
     public static void decideCh(int ch){
         Map<String,String> map=chState_2(ch);
@@ -77,23 +83,42 @@ public class Decide {
                 if(pages==1){
                     if("".equals( barCode )){
                         //只有正文,设置是否回执状态为2:没有回执文件
-                        insertMsg(ch,map.get( "callerId" ), tifPath,barCode);
+                        insertMsg(ch,map.get( "callerId" ), tifPath,barCode,pages);
                     }else{
                         //只有回执页
                         insertMsgReceipt(ch,map.get( "callerId" ), tifPath);
                     }
                 }else{
-                    insertMsg(ch,map.get( "callerId" ), tifPath,barCode);
+                    insertMsg(ch,map.get( "callerId" ), tifPath,barCode,pages);
                 }
                 //查询打印服务名称
                 Program_Setting programSetting=decide.programSettingDao.selectProgramSetting();
                 String printService=programSetting.getPrintService();
                 if(programSetting.getIsPrint()==0){
                     try {
+                        //查询打印时是否自动添加页码
+                        boolean autoSetPages=programSetting.getSetGetFileDate();
                         List<File> newList=new ArrayList<>(  );
-                        for(int i=0;i<pathList.size();i++){
-                            File file=new File( pathList.get( i ) );
-                            newList.add( file );
+                        if(autoSetPages){
+                            for(int i=0;i<pathList.size();i++){
+                                //添加页码后,再放进List<File>
+                                String newPath=fileTemp()+".jpg";
+                                int a=i+1;
+                                String page="第"+a+"页";
+                                boolean flagPage=markImageByText(page,pathList.get(i),newPath);
+                                if(flagPage){
+                                    File file=new File( newPath );
+                                    newList.add( file );
+                                }else{
+                                    File file=new File( pathList.get( i ) );
+                                    newList.add( file );
+                                }
+                            }
+                        }else{
+                            for(int i=0;i<pathList.size();i++){
+                                File file=new File( pathList.get( i ) );
+                                newList.add( file );
+                            }
                         }
                         PrintImage.printImageWhenReceive(newList,printService);
                     } catch (Exception e) {
@@ -131,6 +156,10 @@ public class Decide {
                 //空闲状态,建立连接
                 int linkOk = Fax.INSTANCE.SsmTalkWith( ch, i );
                 if (linkOk == 0) {
+                    Device_Setting device_setting=decide.deviceDao.selectSpeedIdByCh(ch);
+                    int speedId=device_setting.getReceiveSpeedId();
+                    int speed=decide.speedDao.selectSpeedById(speedId);
+                    Fax.INSTANCE.SsmFaxSetChSpeed(i,speed);
                     tifPath=tifDir();
                     int isOk=Fax.INSTANCE.SsmFaxStartReceive( i,tifPath);
                     if(isOk==0){
@@ -215,7 +244,7 @@ public class Decide {
             logger.error("断开连接失败:"+errMsg);
         }
     }
-    public static void insertMsg(int ch, String callerId, String tifPath,String barCode){
+    public static void insertMsg(int ch, String callerId, String tifPath,String barCode,int pages){
         String receiveNumber=decide.deviceDao.selectNumberByCh( ch );
         //根据callerId查询通讯簿有没有相同号码的法院名称
         String courtName=decide.mailMapper.selectCourtName(callerId);
@@ -226,6 +255,7 @@ public class Decide {
             inbox.setSenderunit( callerId );
         }
         inbox.setSendnumber(callerId);
+        inbox.setPageNum( pages );
         inbox.setReceivenumber(receiveNumber);
         Date date=new Date();
         inbox.setCreate_time( date );

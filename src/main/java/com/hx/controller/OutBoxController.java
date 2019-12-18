@@ -2,6 +2,7 @@ package com.hx.controller;
 
 
 
+import com.alibaba.fastjson.JSONObject;
 import com.hx.modle.Outbox;
 import com.hx.service.OutBoxService;
 import com.hx.util.ExcelHelper;
@@ -198,7 +199,6 @@ public class OutBoxController {
     //TODO 回收站删除数据
     @RequestMapping(value = "/deleteoutbox", method = RequestMethod.GET)
     @ResponseBody
-
     public Map<String, Object> deleteoutbox(String ids) {
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
@@ -215,4 +215,5 @@ public class OutBoxController {
         log.info("删除成功");
         return result;
     }
+
 }

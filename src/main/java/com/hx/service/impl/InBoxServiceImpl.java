@@ -1,6 +1,9 @@
 package com.hx.service.impl;
 
 import com.hx.dao.InboxMapper;
+import com.hx.dao.OutboxMapper;
+import com.hx.dao.ReturnReceiptMapper;
+import com.hx.dao.SendReceiptMapper;
 import com.hx.modle.Inbox;
 import com.hx.service.InBoxService;
 import com.hx.service.OutBoxService;
@@ -8,6 +11,9 @@ import com.hx.service.ReturnReceiptService;
 import com.hx.service.SendReceiptService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -26,19 +32,17 @@ public class InBoxServiceImpl implements InBoxService {
     private InboxMapper inboxMapper;
 
     @Autowired
-    ReturnReceiptService returnReceiptService;
+    ReturnReceiptMapper returnReceiptMapper;
 
     @Autowired
-    SendReceiptService sendReceiptService;
+    SendReceiptMapper sendReceiptMapper;
 
     @Autowired
-    OutBoxService outBoxService;
-
+    OutboxMapper outboxMapper;
     @Override
     public List<Inbox> getAll(String[] ids) {
         return inboxMapper.getAll(ids);
     }
-
     @Override
     public int queryTotalCount(Map<String, Object> searchMap) {
         return inboxMapper.queryTotalCount(searchMap);
@@ -53,12 +57,10 @@ public class InBoxServiceImpl implements InBoxService {
         searchMap.put("offset", offset);
         return inboxMapper.queryALLMail(searchMap);
     }
-
     @Override
     public List<Inbox> queryALLMailList() {
         return inboxMapper.queryALLMailList();
     }
-
     @Override
     public List<Inbox> RecoveryInbox(Map<String, Object> searchMap, Integer pageNo, Integer pageSize) {
         //mysql LIMIT语句 参数生成  LIMIT [start] [offset]
@@ -68,7 +70,6 @@ public class InBoxServiceImpl implements InBoxService {
         searchMap.put("offset", offset);
         return inboxMapper.RecoveryInbox(searchMap);
     }
-
     @Override
     public void modifinbox(Integer id) {
         inboxMapper.modifinbox(id);
@@ -82,16 +83,15 @@ public class InBoxServiceImpl implements InBoxService {
             if ( "1".equals(bs) ) {
                 inboxMapper.reductioninbox(id);
             } else if ( "2".equals(bs) ) {
-                outBoxService.reductionoutbox(id);
+                outboxMapper.reductionoutBox(id);
             } else if ( "3".equals(bs) ) {
-                returnReceiptService.reductionReturnReceipt(id);
+                returnReceiptMapper.reductionReturnReceipt(id);
             } else if ( "4".equals(bs) ) {
-                sendReceiptService.reductionSendReceipt(id);
+                sendReceiptMapper.reductionSendReceipt(id);
             }
         }
         return true;
     }
-
     @Override
     public boolean delinbox(String ids, String bs) {
         if ( StringUtils.isEmpty(ids) ) return false;
@@ -100,13 +100,14 @@ public class InBoxServiceImpl implements InBoxService {
             if ( "1".equals(bs) ) {
                 inboxMapper.delinbox(id);
             } else if ( "2".equals(bs) ) {
-                outBoxService.deleteoutbox(ids);
+                outboxMapper.deleteoutbox(id);
             } else if ( "3".equals(bs) ) {
-                returnReceiptService.deleteReturnReceipt(ids);
+                returnReceiptMapper.deleteReturnReceipt(id);
             } else if ( "4".equals(bs) ) {
-                sendReceiptService.deleteSendReceipt(ids);
+                sendReceiptMapper.deleteSendReceipt(id);
             }
         }
         return true;
     }
+
 }

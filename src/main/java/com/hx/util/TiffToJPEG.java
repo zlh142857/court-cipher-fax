@@ -45,7 +45,8 @@ public class TiffToJPEG {
                 op = JAI.create("filestore", pb);
                 pathList.add(filePath);
             }
-        }catch(Exception e){
+        }catch(Throwable e){
+            pathList=null;
             logger.error( e.toString() );
         }finally{
             try {
@@ -88,6 +89,7 @@ public class TiffToJPEG {
         }
         return filePath;
     }
+
     public static List<File> readerTiffToFileList(String tiffPath){
         List<File> pathList = new ArrayList<>();
         String filePre = TEMPDIR+"/"+GetTimeToFileName.GetTimeToFileName();

@@ -48,6 +48,10 @@
             </if>
         </trim>
     </insert>
+    <!--查询过去文件路径-->
+    <select id="selectFilePath" resultType="java.lang.String" parameterType="java.lang.Integer">
+      SELECT filsavepath FROM return_receipt WHERE DATEDIFF(now(),create_time) >=#{day,jdbcType=INTEGER}
+    </select>
     <!--张立恒end-->
 
     <select id="queryTotalCount" resultType="java.lang.Integer">
