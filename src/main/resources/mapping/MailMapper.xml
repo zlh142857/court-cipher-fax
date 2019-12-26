@@ -4,27 +4,33 @@
     <resultMap id="BaseResultMap" type="com.hx.modle.Mail_List" >
     </resultMap>
 
-  <select id="queryALLMailList" resultType="com.hx.modle.Mail_List">
+    <update id="modifymail" parameterType="com.hx.modle.Mail">
+         update mail set
+		typeid=#{typeid}
+		where
+		id=#{id}
+    </update>
+
+    <select id="queryALLMailList" resultType="com.hx.modle.Mail_List">
       select *
       from mail_list
-  </select>
+     </select>
 
-  <select id="queryALLMail" resultType="com.hx.modle.Mail" parameterType="java.util.Map">
-      select * from mail where 1 = 1
-      <if test="params.mailListId != null">
-          and  typeid  = #{params.mailListId}
-      </if>
-      <if test="params.typeid != null">
-          and  typeid  = #{params.typeid}
-      </if>
-      <if test="params.typename != null">
-          and  typename LIKE CONCAT('%', #{params.typename}, '%')
-      </if>
-      <if test="params.linknumber != null">
-          and  linknumber LIKE CONCAT('%', #{params.linknumber}, '%')
-      </if>
-
-  </select>
+    <select id="queryALLMail" resultType="com.hx.modle.Mail" parameterType="java.util.Map">
+        select * from mail where 1 = 1
+        <if test="params.mailListId != null">
+            and typeid = #{params.mailListId}
+        </if>
+        <if test="params.typeid != null">
+            and typeid = #{params.typeid}
+        </if>
+        <if test="params.linkname != null">
+            and linkname LIKE CONCAT('%', #{params.linkname}, '%')
+        </if>
+        <if test="params.linknumber != null">
+            and linknumber LIKE CONCAT('%', #{params.linknumber}, '%')
+        </if>
+    </select>
 
     <delete id="deleteUserById" parameterType="java.lang.Integer">
     delete
@@ -32,10 +38,10 @@
     where id = #{id}
     </delete>
 
-    <insert id="addMail" parameterType="com.hx.modle.Mail_List" useGeneratedKeys="true" keyProperty="id">
+    <insert id="addMail" parameterType="com.hx.modle.Mail" useGeneratedKeys="true" keyProperty="id">
 		insert
-		into	mail (typename,linknumber,typeid)
-		values(#{typename},#{linknumber},#{typeid})
+		into mail (typename,linknumber,typeid,phone,e_mail,wor,address,telNotify)
+		values(#{typename},#{linknumber},#{typeid},#{phone},#{e_mail},#{wor},#{address},#{telNotify})
     </insert>
 
     <select id="getMailByLinknumber" resultType="com.hx.modle.Mail_List">
@@ -57,13 +63,13 @@
 		where typename=#{typename}
 	</select>
 
-    <delete id="delmaillist" parameterType="java.lang.Integer" >
+    <delete id="delmaillist" parameterType="java.lang.Integer">
     delete
     from mail_list
     where id = #{id}
     </delete>
 
-    <delete id="deletemail" parameterType="java.lang.Integer" >
+    <delete id="deletemail" parameterType="java.lang.Integer">
     delete
     from mail
     where typeid = #{id}

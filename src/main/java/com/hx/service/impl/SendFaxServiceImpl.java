@@ -605,7 +605,7 @@ public class SendFaxServiceImpl implements SendFaxService {
     @Override
     public Map<String,Object> selectTaskLimit(Integer pageNow, Integer pageSize) {
         Map<String,Object> map=new HashMap<>(  );
-        int page=pageNow-1;
+        int page=(pageNow-1)*pageSize;
         List<Sch_Task> list=schMapper.selectTaskLimit(page,pageSize);
         Long total=schMapper.selectCount();
         map.put( "list",list);

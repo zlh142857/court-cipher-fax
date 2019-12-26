@@ -42,7 +42,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Map<String,Object> selectLog(Integer pageNow, Integer pageSize, String level) throws Exception {
         Map<String,Object> map=new HashMap<>(  );
-        int page=pageNow-1;
+        int page=(pageNow-1)*pageSize;
         String levelInfo="";
         if(level != null || level != ""){
             if(level.equals( "1" )){

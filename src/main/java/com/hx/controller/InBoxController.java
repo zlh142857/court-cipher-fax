@@ -1,5 +1,6 @@
 package com.hx.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.hx.modle.Inbox;
 import com.hx.service.InBoxService;
 import com.hx.util.ExcelHelper;
@@ -43,7 +44,7 @@ public class InBoxController {
         Iterator<Inbox> it = list.iterator();
         while (it.hasNext()) {
             Inbox m = it.next();
-            data.add(new Object[]{m.getSendnumber(), m.getReceivenumber(), m.getReceivenumber()});
+            data.add(new Object[]{m.getSendnumber(), m.getReceivenumber(), m.getReceivenumber(), m.getIsSign(), m.getPageNum()});
             // data.add(new Object[]{  m.getSendname(), m.getAccepttime(), m.getFileaddress()});
         }
         //构建Excel表头,此处需与data中数据一一对应
@@ -51,13 +52,16 @@ public class InBoxController {
         headers.add("发送方号码");
         headers.add("发送方单位");
         headers.add("接收号码");
+        headers.add("是否已签收");
+        headers.add("页数");
+
         ExcelHelper.exportExcel(headers, data, "收件箱", "xlsx", response);//downloadFile为文件名称,可以自定义,建议用英文,中文在部分浏览器会乱码
     }
 
     //收件箱查询
-    @RequestMapping(value = "/queryinbox", method = RequestMethod.GET)
+    @RequestMapping(value = "/readinbox", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> inboxs(Integer pageNo, Integer pageSize, String sendnumber, String senderunit, String receivenumber, String Isreceipt, String beginDate, String endDate) {
+    public String readinbox(Integer pageNo, Integer pageSize, String sendnumber, String senderunit, String receivenumber, String Isreceipt, String beginDate, String endDate) {
         //mailListId="m";
         Map<String, Object> result = new HashMap<>();
         if ( StringUtils.isNotEmpty(beginDate) ) {
@@ -76,7 +80,7 @@ public class InBoxController {
         int count = inBoxService.queryTotalCount(searchMap);
         List<Inbox> mails = null;
         if ( count > 0 ) {
-            mails = inBoxService.queryALLMail(searchMap, pageNo, pageSize);
+            mails = inBoxService.readinboxALLMail(searchMap, pageNo, pageSize);
             result.put("totalCount", count);
             result.put("state", 1);
             result.put("mails", mails);
@@ -84,42 +88,42 @@ public class InBoxController {
             result.put("mails", new ArrayList<Inbox>());
             result.put("state", 0);
         }
-
-        return result;
+        return JSONObject.toJSONStringWithDateFormat( result,"yyyy-MM-dd HH:mm:ss" );
     }
 
     @RequestMapping(value = "/inboxList", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> mailLists() {
+    public String mailLists() {
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
         //TODO 查询全部
         List<Inbox> mailLists = inBoxService.queryALLMailList();
         result.put("mailLists", mailLists); //
         result.put("state", 1); //0代表失败，1代表成功
-        return result;
+        return JSONObject.toJSONStringWithDateFormat( result,"yyyy-MM-dd HH:mm:ss" );
     }
 
 
-    //TODO 更改状态
-    @RequestMapping(value = "/modifyinbox", method = RequestMethod.GET)
+    //TODO 更改签收
+    @RequestMapping(value = "/Signforinbox", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> modifyinbox(String id) {
+    public Map<String, Object> Signfornbox(Integer id) {
         Map<String, Object> result = new HashMap<>();
-        result.put("state", 0); //0代表失败，1代表成功
-        if ( null == id || "".equals(id.trim()) ) {
+        if ( null == id ) {
             result.put("msg", "参数错误");
             return result;
         }
-        String[] split = id.split(",");
         try {
-            for (int i = 0; i < split.length; i++) {
-                inBoxService.modifinbox(Integer.parseInt(split[i]));
+            System.out.println(id);
+            int count=inBoxService.Signfornbox(id);
+            if(count>0){
+                result.put("state", 1);
+            }else{
+                result.put("state", 0);
             }
-            result.put("state", 1); //0代表失败，1代表成功
         } catch (Exception e) {
             log.error(e.toString());
-            result.put("msg", e.getMessage());
+            result.put("msg", "操作失败");
         }
         return result;
     }
@@ -127,7 +131,7 @@ public class InBoxController {
     //TODO 回收站显示
     @RequestMapping(value = "/recoveryinbox", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> recoveryinbox(Integer pageNo, Integer pageSize, String sendnumber, String senderunit, String receivenumber, String Isreceipt, String beginDate, String endDate) {
+    public String recoveryinbox(Integer pageNo, Integer pageSize, String sendnumber, String senderunit, String receivenumber, String Isreceipt, String beginDate, String endDate) {
         //mailListId="m";
         Map<String, Object> result = new HashMap<>();
         if ( StringUtils.isNotEmpty(beginDate) ) {
@@ -155,7 +159,7 @@ public class InBoxController {
             result.put("mails", new ArrayList<Inbox>());
             result.put("state", 0);
         }
-        return result;
+        return JSONObject.toJSONStringWithDateFormat( result,"yyyy-MM-dd HH:mm:ss" );
     }
 
     //TODO 数据还原
@@ -193,5 +197,58 @@ public class InBoxController {
         }
         return result;
     }
+    @RequestMapping(value = "/queryinbox", method = RequestMethod.GET)
+    @ResponseBody
+    public String inboxs(Integer pageNo, Integer pageSize, String sendnumber, String senderunit, String receivenumber, String Isreceipt, String beginDate, String endDate) {
+        //mailListId="m";
+        Map<String, Object> result = new HashMap<>();
+        if ( StringUtils.isNotEmpty(beginDate) ) {
+            beginDate = beginDate.trim();
+        }
+        if ( StringUtils.isNotEmpty(endDate) ) {
+            endDate = endDate.trim();
+        }
+        Map<String, Object> searchMap = new HashMap();
+        searchMap.put("sendnumber", sendnumber);
+        searchMap.put("senderunit", senderunit);
+        searchMap.put("receivenumber", receivenumber);
+        searchMap.put("Isreceipt", Isreceipt);
+        searchMap.put("beginDate", beginDate);
+        searchMap.put("endDate", endDate);
+        int count = inBoxService.queryTotalCountw(searchMap);
+        List<Inbox> mails = null;
+        if ( count > 0 ) {
+            mails = inBoxService.queryALLMail(searchMap, pageNo, pageSize);
+            result.put("totalCount", count);
+            result.put("state", 1);
+            result.put("mails", mails);
+        } else {
+            result.put("mails", new ArrayList<Inbox>());
+            result.put("state", 0);
+        }
+        return JSONObject.toJSONStringWithDateFormat( result,"yyyy-MM-dd HH:mm:ss" );
     }
+    //TODO 更改状态
+    @RequestMapping(value = "/modifyinbox", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String, Object> modifyinbox(String id) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("state", 0); //0代表失败，1代表成功
+        if ( null == id || "".equals(id.trim()) ) {
+            result.put("msg", "参数错误");
+            return result;
+        }
+        String[] split = id.split(",");
+        try {
+            for (int i = 0; i < split.length; i++) {
+                inBoxService.modifinbox(Integer.parseInt(split[i]));
+            }
+            result.put("state", 1); //0代表失败，1代表成功
+        } catch (Exception e) {
+            log.error(e.toString());
+            result.put("msg", "操作失败");
+        }
+        return result;
+    }
+}
 

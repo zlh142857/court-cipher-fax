@@ -77,7 +77,7 @@
         <if test="params.endDate!=null and params.endDate!=''">
             and create_time &lt;= #{params.endDate}
         </if>
-        order by isSuccess desc,create_time desc
+        order by create_time desc
         LIMIT ${params.start}, ${params.offset}
     </select>
 
@@ -123,6 +123,7 @@
     <delete id="deleteoutbox">
         DELETE FROM outbox WHERE id = #{id}
     </delete>
+
 
     <!--张立恒start-->
     <insert id="insertNewMessage" parameterType="com.hx.modle.Outbox">
@@ -186,13 +187,42 @@
             </if>
         </trim>
     </insert>
-    <!--查询过去文件路径-->
-    <select id="selectFilePath" resultType="java.lang.String" parameterType="java.lang.Integer">
-      SELECT filsavepath FROM outbox WHERE DATEDIFF(now(),create_time) >=#{day,jdbcType=INTEGER}
-    </select>
     <!--修改电话通知结果-->
     <update id="updateTelNotifyResultById">
       UPDATE outbox SET telResult=#{message,jdbcType=VARCHAR} WHERE id=#{id,jdbcType=INTEGER}
     </update>
+    <select id="selectCount" resultType="java.lang.Integer">
+      SELECT count(*) FROM outbox
+    </select>
+    <select id="selectIdAndPathByPage" resultMap="BaseResultMap">
+      SELECT id,filsavepath FROM outbox limit #{pageStart,jdbcType=INTEGER},#{pageEnd,jdbcType=INTEGER}
+    </select>
+    <update id="updateMuchOutbox" parameterType="com.hx.modle.Outbox">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE outbox
+            <set>
+                filsavepath=#{item.filsavepath,jdbcType=VARCHAR}
+            </set>
+            WHERE id=#{item.id,jdbcType=INTEGER}
+        </foreach>
+    </update>
+    <select id="selectListByPage" resultMap="BaseResultMap">
+      SELECT * FROM outbox limit #{pageStart,jdbcType=INTEGER},#{pageEnd,jdbcType=INTEGER}
+    </select>
+    <insert id="insertMuchOutbox" parameterType="com.hx.modle.Outbox">
+        INSERT INTO outbox (id,sendnumber,receivenumber,receivingunit,create_time,sendline,message,filsavepath,state,isSuccess,telResult,pageNum)
+        values
+        <foreach collection ="list" item="info" separator="," >
+            (#{info.id},#{info.sendnumber},#{info.receivenumber},#{info.receivingunit},#{info.create_time},
+            #{info.sendline},#{info.message},#{info.filsavepath},#{info.state},#{info.isSuccess},#{info.telResult},#{info.pageNum})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        sendnumber = VALUES(sendnumber),receivenumber = VALUES(receivenumber),receivingunit = VALUES(receivingunit),create_time = VALUES(create_time)
+        ,sendline = VALUES(sendline),message = VALUES(message),filsavepath = VALUES(filsavepath),state = VALUES(state)
+        ,isSuccess = VALUES(isSuccess),telResult = VALUES(telResult),pageNum = VALUES(pageNum)
+    </insert>
+    <delete id="deleteAll">
+        DELETE FROM outbox WHERE 1=1;
+    </delete>
     <!--张立恒end-->
 </mapper>

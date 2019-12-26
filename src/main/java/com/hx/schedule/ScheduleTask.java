@@ -19,6 +19,7 @@ public class ScheduleTask {
         executorService.scheduleAtFixedRate(new SchTask(), 0, 1, TimeUnit.MINUTES);
         executorService.scheduleAtFixedRate(new SchSend(), 0, 30, TimeUnit.SECONDS);
     }
+    //监控是否发送接收出现了问题,出现了问题就终止发送接收任务
     public static ScheduledExecutorService chBadMsgStopService= Executors.newScheduledThreadPool(5);
     public static void chBadMsgStop(){
         chBadMsgStopService.scheduleAtFixedRate(new ChStop0(), 0, 1, TimeUnit.SECONDS);

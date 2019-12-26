@@ -1,5 +1,6 @@
 package com.hx.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.hx.modle.Send_Receipt;
 import com.hx.service.SendReceiptService;
 import com.hx.util.ExcelHelper;
@@ -31,7 +32,7 @@ public class SendReceiptController {
     //收件箱查询
     @RequestMapping(value = "/queryReturnReceipt", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> inboxs(Integer pageNo, Integer pageSize, String receivingunit, String sendline,
+    public String inboxs(Integer pageNo, Integer pageSize, String receivingunit, String sendline,
                                       String message, String sendnumber, String beginDate, String endDate) {
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
@@ -59,7 +60,7 @@ public class SendReceiptController {
             result.put("mails", new ArrayList<Send_Receipt>());
             result.put("state", 0);
         }
-        return result;
+        return JSONObject.toJSONStringWithDateFormat( result,"yyyy-MM-dd HH:mm:ss" );
     }
 
     @RequestMapping(value = "/ReturnReceipts", method = RequestMethod.GET)
@@ -105,7 +106,6 @@ public class SendReceiptController {
         //TODO 验证标题不能为空
         if ( null == sendline || "".equals(sendline) ) {
             result.put("msg", "参数错误");
-            log.error("标题为空" + sendline);
             return result;
         }
         Map<String, Object> searchMap = new HashMap();
@@ -114,7 +114,6 @@ public class SendReceiptController {
         //TODO 修改标题
         sendReceiptService.modifysendReceipt(searchMap);
         result.put("state", 1); //0代表失败，1代表成功
-        log.info("修改标题成功");
         return result;
     }
 
@@ -127,10 +126,8 @@ public class SendReceiptController {
         //TODO 验证标题不能为空
         if ( null == id || "".equals(id) ) {
             result.put("msg", "参数错误");
-            log.error("标题为空" + id);
             return result;
         }
-        //TODO 更改状态
 
         String[] split = id.split(",");
         try {
@@ -138,11 +135,9 @@ public class SendReceiptController {
                 sendReceiptService.modifSendReceipt(Integer.parseInt(split[i]));
             }
             result.put("state", 1); //0代表失败，1代表成功
-            log.info("删除成功");
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("删除失败");
-            result.put("msg", e.getMessage());
+            log.error(e.toString());
+            result.put("msg", "删除失败");
         }
         return result;
     }
@@ -150,7 +145,7 @@ public class SendReceiptController {
     //TODO 回收站显示
     @RequestMapping(value = "/recoverySendReceipt", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> recoveryReturnReceipt(Integer pageNo, Integer pageSize, String senderunit,
+    public String recoveryReturnReceipt(Integer pageNo, Integer pageSize, String senderunit,
                                                      String receivenumber, String sendnumber, String beginDate, String endDate) {
         //mailListId="m";
         Map<String, Object> result = new HashMap<>();
@@ -178,7 +173,7 @@ public class SendReceiptController {
             result.put("mails", new ArrayList<Send_Receipt>());
             result.put("state", 0);
         }
-        return result;
+        return JSONObject.toJSONStringWithDateFormat( result,"yyyy-MM-dd HH:mm:ss" );
     }
 
     //TODO 数据还原
@@ -190,13 +185,11 @@ public class SendReceiptController {
         //TODO 验证标题不能为空
         if ( null == id || "".equals(id) ) {
             result.put("msg", "参数错误");
-            log.error("标题为空" + id);
             return result;
         }
         //TODO 更改状态
         sendReceiptService.reductionSendReceipt(id);
         result.put("state", 1); //0代表失败，1代表成功
-        log.info("更改状态成功");
         return result;
     }
 
@@ -208,15 +201,12 @@ public class SendReceiptController {
         result.put("state", 0); //0代表失败，1代表成功
         if ( StringUtils.isEmpty(ids) ) {
             result.put("msg", "参数错误");
-
-            log.error("参数错误");
             return result;
         }
         boolean b = sendReceiptService.deleteSendReceipt(ids);
         if ( b ) {
             result.put("state", 1); //0代表失败，1代表成功
         }
-        log.info("删除成功");
         return result;
     }
     /**

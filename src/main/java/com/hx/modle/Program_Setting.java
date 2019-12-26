@@ -24,8 +24,6 @@ public class Program_Setting implements Serializable {
     private String     serverComName; //服务器计算机名称
     private String     serverName;    //服务器名称
     private String     ipAddress;     //Ip地址
-
-
     private String     ipPort;       //端口
     private boolean    isLoginWindows;//登录Windows后自动运行传真服务器管理程序,默认为1
     private boolean    isLogin;       //传真服务器启动后自动登录
@@ -35,18 +33,16 @@ public class Program_Setting implements Serializable {
     private boolean    isAgain;  //传真发送失败时是否自动重拨
     private String     timeTen; //拨自动总计+分级号码传真时,拨分级号码前自动延时
     private boolean    openHeader;//启用传真页眉功能  默认为0
-
-
     private String     maxNum; //发送传真时,播放语音提示音最大超时次数为
     private int        autoAgain;  //发送失败时自动重新发送  默认为1
     private String     getFileType; //接收传真时保存格式
     private String     voiceMaxTime; //应答来电时,播放语音欢迎词最大超时时间
-    private boolean    setGetFileDate; //接收传真打印时,页面左上角打印接收时间  默认为0
+    private boolean    setGetFileDate; //接收传真打印时,页面添加页码
     private boolean    isAutoClose;  //是否启用自动关机 默认为0
     private Time       autoCloseDate; //每日关机时间
     private boolean    isToAdmin; //所有新收到的外部传真语音拨号通知管理员
     private String     adminPhone; //通知号码
-    private int        delFileDays; //传真文件保存期限
+    private int        delFileDays; //备份传真文件的时间间隔
     private int        delLogDays; //日志信息保存期限
     private String     telNotify;//电话通知音频文件保存路径
 

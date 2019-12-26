@@ -13,22 +13,23 @@ import java.util.Map;
 
 public interface MailService {
 
+    List<Mail_List> sendViewMail() throws Exception;
+
     List<Mail_List> queryALLMailList();
 
     int deleteByPrimaryKey(Integer readerId);
 
     Mail_List getMailByLinknumber(String linknumber);
 
-    void addMail(String linkname, String linknumber, String typeid);
+    void addMail(String typename, String linknumber, String typeid, String phone, String e_mail, String wor, String address,String telNotify);
 
     Mail_List getMailBytypename(String typename);
+
     void AddMailList(String typename);
 
     int delmaillist(Integer readerId);
 
     List<Mail_List> queryALLMail(Map<String, Object> searchMap);
 
-    List<Mail_List> sendViewMail() throws Exception;
-
-    // int queryTotalCount(Map<String, Object> searchMap);
+    void modifymail(Map<String,Object> searchMap);
 }

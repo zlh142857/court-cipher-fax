@@ -5,7 +5,6 @@ import com.hx.service.ExcelService;
 import com.hx.util.ExcelHelper;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -59,12 +58,13 @@ public class ExcelController {
             Iterator<Mail> it = list.iterator();
             while (it.hasNext()) {
                 Mail m = it.next();//data.add(new Object[]{m.getId(), m.getLinknumber(), m.getTypeid(), m.getLinkname()});
-                data.add(new Object[]{  m.getLinknumber(), m.getTypename()});
+                data.add(new Object[]{  m.getLinknumber(), m.getTypename(),m.getTelNotify()});
             }
             //构建Excel表头,此处需与data中数据一一对应
             List<String> headers = new ArrayList<String>();
             headers.add("联系人号码");
             headers.add("联系人名称");
+            headers.add("电话通知");
             ExcelHelper.exportExcel(headers, data, "通讯录","xlsx", response);//downloadFile为文件名称,可以自定义,建议用英文,中文在部分浏览器会乱码
         } catch (Exception e) {
             log.error( e.toString() );

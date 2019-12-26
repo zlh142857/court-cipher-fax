@@ -43,6 +43,7 @@ public class InBoxServiceImpl implements InBoxService {
     public List<Inbox> getAll(String[] ids) {
         return inboxMapper.getAll(ids);
     }
+
     @Override
     public int queryTotalCount(Map<String, Object> searchMap) {
         return inboxMapper.queryTotalCount(searchMap);
@@ -57,10 +58,12 @@ public class InBoxServiceImpl implements InBoxService {
         searchMap.put("offset", offset);
         return inboxMapper.queryALLMail(searchMap);
     }
+
     @Override
     public List<Inbox> queryALLMailList() {
         return inboxMapper.queryALLMailList();
     }
+
     @Override
     public List<Inbox> RecoveryInbox(Map<String, Object> searchMap, Integer pageNo, Integer pageSize) {
         //mysql LIMIT语句 参数生成  LIMIT [start] [offset]
@@ -70,6 +73,7 @@ public class InBoxServiceImpl implements InBoxService {
         searchMap.put("offset", offset);
         return inboxMapper.RecoveryInbox(searchMap);
     }
+
     @Override
     public void modifinbox(Integer id) {
         inboxMapper.modifinbox(id);
@@ -108,6 +112,26 @@ public class InBoxServiceImpl implements InBoxService {
             }
         }
         return true;
+    }
+    @Override
+    public List<Inbox> readinboxALLMail(Map<String, Object> searchMap, Integer pageNo, Integer pageSize) {
+        //mysql LIMIT语句 参数生成  LIMIT [start] [offset]
+        int start = (pageNo - 1) * pageSize;
+        int offset = pageSize;
+        searchMap.put("start", start);
+        searchMap.put("offset", offset);
+        return inboxMapper.readinboxALLMail(searchMap);
+    }
+
+    @Override
+    public int Signfornbox(int id) {
+        int count=inboxMapper.Signfornbox(id);
+        return count;
+    }
+
+    @Override
+    public int queryTotalCountw(Map<String, Object> searchMap) {
+        return inboxMapper.queryTotalCountw(searchMap);
     }
 
 }

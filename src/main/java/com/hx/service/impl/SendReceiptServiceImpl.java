@@ -30,6 +30,7 @@ public class SendReceiptServiceImpl implements SendReceiptService {
     private SendReceiptMapper sendReceiptMapper;
     @Autowired
     private InboxMapper inboxMapper;
+
     @Override
     public int queryTotalCount(Map<String, Object> searchMap) {
         return sendReceiptMapper.queryTotalCount(searchMap);
@@ -93,6 +94,7 @@ public class SendReceiptServiceImpl implements SendReceiptService {
         }
         return true;
     }
+
     //点击关联回执,然后获取收件箱的id,然后根据id,查询收件箱barCode和tifpath ,
     //根据barCode去发回执箱查找相同条形码的数据,更改状态为1已关联,并且tifPath=tifPath
     //根据收件箱的intBoxId,查询一次正文的路径,吧正文的路径赋值给发回执箱的tifPath

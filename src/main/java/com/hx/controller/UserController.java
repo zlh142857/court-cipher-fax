@@ -6,7 +6,7 @@ package com.hx.controller;/*
  */
 
 import com.alibaba.fastjson.JSONObject;
-import com.hx.common.Fax;
+import com.hx.dao.BackUpNoteDao;
 import com.hx.modle.Login;
 import com.hx.service.UserService;
 import org.apache.log4j.Logger;
@@ -19,12 +19,13 @@ import java.util.List;
 import java.util.Map;
 
 
-
 @Controller
 public class UserController {
     private static Logger logger=Logger.getLogger(UserController.class);
     @Autowired
     private UserService userService;
+    @Autowired
+    private BackUpNoteDao backUpNoteDao;
     /**
      *
      * 功能描述: 查询用户管理所有用户信息
@@ -105,5 +106,7 @@ public class UserController {
         }
         return JSONObject.toJSONStringWithDateFormat( map,"yyyy-MM-dd HH:mm:ss" );
     }
+
+
 
 }

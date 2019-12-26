@@ -5,8 +5,8 @@ package com.hx.common;/*
  *@功能:
  */
 
+import com.hx.dao.BackUpNoteDao;
 import com.hx.dao.ProgramSettingDao;
-import com.hx.schedule.Ch_0;
 import com.hx.schedule.ScheduleTask;
 import org.apache.log4j.Logger;
 
@@ -15,6 +15,7 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.io.File;
 import java.net.*;
+import java.util.Date;
 import java.util.Optional;
 
 import static com.hx.common.StaticFinal.TEMPDIR;
@@ -26,19 +27,30 @@ import static com.hx.schedule.ScheduleTask.executorService;
 public class InitCard implements ServletContextListener {
     private Logger logger=Logger.getLogger(this.getClass());
     private static ProgramSettingDao programSettingDao;
+    private static BackUpNoteDao backUpNoteDao;
     private static InitCard initCard;
     @PostConstruct
     public void init() {
         initCard=this;
         initCard.programSettingDao=this.programSettingDao;
+        initCard.backUpNoteDao=this.backUpNoteDao;
     }
     public  void setProgramSettingDao(ProgramSettingDao programSettingDao) {
         this.programSettingDao = programSettingDao;
+    }
+    public  void setBackUpNoteDao(BackUpNoteDao backUpNoteDao) {
+        this.backUpNoteDao = backUpNoteDao;
     }
     //初始化方法
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         try {
+            //查询一下备份表记录是不是空的,是空的,就说明是第一次安装,进行一次新增,记录安装时间
+            int count=backUpNoteDao.selectIsDateNull();
+            if(count==0){
+                Date date=new Date();
+                backUpNoteDao.insertDate(date);
+            }
             String address="";
             String ip="";
             InetAddress addr = InetAddress.getLocalHost();

@@ -12,6 +12,7 @@
     <result property="isLink" column="isLink"/>
     <result property="filsavepath" column="filsavepath"/>
     <result property="barCode" column="barCode"/>
+    <result property="state" column="state"/>
   </resultMap>
   <!--张立恒start-->
   <!--新增发回执箱-->
@@ -68,6 +69,39 @@
   <update id="updateIsLinkByBar">
       UPDATE send_receipt SET isLink=1,filsavepath=#{filsavepath,jdbcType=VARCHAR} WHERE barCode=#{barCode,jdbcType=VARCHAR}
   </update>
+  <select id="selectCount" resultType="java.lang.Integer">
+      SELECT count(*) FROM send_receipt;
+  </select>
+  <select id="selectIdAndPathByPage" resultMap="Send_Receipt">
+      SELECT id,filsavepath FROM send_receipt limit #{pageStart,jdbcType=INTEGER},#{pageEnd,jdbcType=INTEGER}
+  </select>
+  <update id="updateMuchSendReceipt" parameterType="com.hx.modle.Send_Receipt">
+    <foreach collection="list" item="item" separator=";">
+      UPDATE send_receipt
+      <set>
+        filsavepath=#{item.filsavepath,jdbcType=VARCHAR}
+      </set>
+      WHERE id=#{item.id,jdbcType=INTEGER}
+    </foreach>
+  </update>
+  <select id="selectListByPage" resultMap="Send_Receipt">
+      SELECT * FROM send_receipt limit #{pageStart,jdbcType=INTEGER},#{pageEnd,jdbcType=INTEGER}
+  </select>
+  <insert id="insertMuchSendReceipt" parameterType="com.hx.modle.Send_Receipt">
+    INSERT INTO send_receipt (id,receivingunit,receivenumber,create_time,sendline,message,sendnumber,isLink,filsavepath,barCode,state)
+    values
+    <foreach collection ="list" item="info" separator="," >
+      (#{info.id},#{info.receivingunit},#{info.receivenumber},#{info.create_time},#{info.sendline},
+      #{info.message},#{info.sendnumber},#{info.isLink},#{info.filsavepath},#{info.barCode},#{info.state})
+    </foreach>
+    ON DUPLICATE KEY UPDATE
+    receivingunit = VALUES(receivingunit),receivenumber = VALUES(receivenumber),create_time = VALUES(create_time),sendline = VALUES(sendline)
+    ,message = VALUES(message),sendnumber = VALUES(sendnumber),isLink = VALUES(isLink),filsavepath = VALUES(filsavepath)
+    ,barCode = VALUES(barCode),state = VALUES(state)
+  </insert>
+  <delete id="deleteAll">
+        DELETE FROM send_receipt WHERE 1=1;
+    </delete>
   <!--张立恒end-->
   <select id="queryALLMail" parameterType="java.util.Map" resultType="com.hx.modle.Send_Receipt">
     SELECT * FROM send_receipt where state = 1

@@ -33,7 +33,7 @@
     function clickBtn3() {
         $.ajax({
             type: "GET",
-            url: "http://localhost:8080/Outbox/select1.do",
+            url: "http://localhost:8080/eee.do",
             success: function (str) {
                 console.log(str)
             },

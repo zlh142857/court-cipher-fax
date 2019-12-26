@@ -41,11 +41,16 @@ public class MailServiceImpl implements MailService {
     }
 
     @Override
-    public void addMail(String linkname, String linknumber, String typeid) {
+    public void addMail(String typename, String linknumber, String typeid, String phone, String e_mail, String wor, String address,String telNotify) {
         Mail m = new Mail();
-        m.setTypename(linkname);
+        m.setTypename(typename);
         m.setLinknumber(linknumber);
         m.setTypeid(typeid);
+        m.setPhone(phone);
+        m.setE_mail(e_mail);
+        m.setWor(wor);
+        m.setAddress(address);
+        m.setTelNotify( telNotify );
         mailMapper.addMail(m);
     }
 
@@ -72,9 +77,24 @@ public class MailServiceImpl implements MailService {
 
     @Override
     public List<Mail_List> queryALLMail(Map<String, Object> searchMap) {
+
+        //mysql LIMIT语句 参数生成  LIMIT [start] [offset]
+//        int start = (pageNo - 1) * pageSize;
+//        int offset = pageSize;
+//        searchMap.put("start", start);
+//        searchMap.put("offset", offset);
         return mailMapper.queryALLMail(searchMap);
     }
 
+    @Override
+    public void modifymail(Map<String, Object> searchMap) {
+        mailMapper.modifymail(searchMap);
+    }
+
+    //    @Override
+//    public int queryTotalCount(Map<String, Object> searchMap) {
+//        return mailMapper.queryTotalCount(searchMap);
+//    }
     @Override
     public List<Mail_List> sendViewMail() throws Exception{
         List<Mail_List> mailLists=mailMapper.selectMailList();

@@ -32,7 +32,17 @@ public interface OutboxMapper {
 
     void modifoutBox(int id);
 
-    List<String> selectFilePath(int fileDays);
-
     void updateTelNotifyResultById(@Param( "id" ) Integer id,@Param( "message" ) String message);
+
+    int selectCount();
+
+    List<Outbox> selectIdAndPathByPage(@Param( "pageStart" ) int pageStart,@Param( "pageEnd" ) int pageEnd);
+
+    void updateMuchOutbox(List<Outbox> list);
+
+    List<Outbox> selectListByPage(@Param( "pageStart" ) int pageStart,@Param( "pageEnd" ) int pageEnd);
+
+    int insertMuchOutbox(List<Outbox> list);
+
+    void deleteAll();
 }

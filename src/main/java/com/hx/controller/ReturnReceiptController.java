@@ -1,4 +1,5 @@
 package com.hx.controller;
+import com.alibaba.fastjson.JSONObject;
 import com.hx.modle.Return_Receipt;
 import com.hx.service.ReturnReceiptService;
 import com.hx.util.ExcelHelper;
@@ -29,7 +30,7 @@ public class ReturnReceiptController {
     //收回执查询
     @RequestMapping(value = "/ReturnReceiptlist", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> inboxs(Integer pageNo, Integer pageSize, String senderunit,
+    public String inboxs(Integer pageNo, Integer pageSize, String senderunit,
                                       String receivenumber, String sendnumber, String beginDate, String endDate) {
         if ( StringUtils.isNotEmpty(beginDate) ) {
             beginDate = beginDate.trim();  //2019-12-01 12:00:00
@@ -56,7 +57,7 @@ public class ReturnReceiptController {
             result.put("mails", new ArrayList<Return_Receipt>());
             result.put("state", 0);
         }
-        return result;
+        return JSONObject.toJSONStringWithDateFormat( result,"yyyy-MM-dd HH:mm:ss" );
     }
 
     @RequestMapping(value = "/ReturnReceiptLists", method = RequestMethod.GET)
@@ -101,7 +102,6 @@ public class ReturnReceiptController {
         //TODO 验证标题不能为空
         if ( null == id || "".equals(id) ) {
             result.put("msg", "参数错误");
-            log.error("标题为空" + id);
             return result;
         }
         //TODO 更改状态
@@ -111,11 +111,9 @@ public class ReturnReceiptController {
                 returnReceiptService.modifReturnReceipt(Integer.parseInt(split[i]));
             }
             result.put("state", 1); //0代表失败，1代表成功
-            log.info("删除成功");
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("删除失败");
-            result.put("msg", e.getMessage());
+            log.error(e.toString());
+            result.put("msg", "删除失败");
         }
         return result;
     }
@@ -123,7 +121,7 @@ public class ReturnReceiptController {
     //TODO 回收站显示
     @RequestMapping(value = "/recoveryReturnReceipt", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> recoveryReturnReceipt(Integer pageNo, Integer pageSize, String senderunit,
+    public String recoveryReturnReceipt(Integer pageNo, Integer pageSize, String senderunit,
                                                      String receivenumber, String sendnumber, String beginDate, String endDate) {
         //mailListId="m";
         Map<String, Object> result = new HashMap<>();
@@ -151,7 +149,7 @@ public class ReturnReceiptController {
             result.put("mails", new ArrayList<Return_Receipt>());
             result.put("state", 0);
         }
-        return result;
+        return JSONObject.toJSONStringWithDateFormat( result,"yyyy-MM-dd HH:mm:ss" );
     }
 
     //TODO 数据还原
@@ -163,13 +161,11 @@ public class ReturnReceiptController {
         //TODO 验证标题不能为空
         if ( null == id || "".equals(id) ) {
             result.put("msg", "参数错误");
-            log.error("标题为空" + id);
             return result;
         }
         //TODO 更改状态
         returnReceiptService.reductionReturnReceipt(id);
         result.put("state", 1); //0代表失败，1代表成功
-        log.info("更改状态成功");
         return result;
     }
 
@@ -182,14 +178,12 @@ public class ReturnReceiptController {
         result.put("state", 0); //0代表失败，1代表成功
         if ( StringUtils.isEmpty(ids) ) {
             result.put("msg", "参数错误");
-            log.error("参数错误");
             return result;
         }
         boolean b = returnReceiptService.deleteReturnReceipt(ids);
         if ( b ) {
             result.put("state", 1); //0代表失败，1代表成功
         }
-        log.info("删除成功");
         return result;
     }
 }

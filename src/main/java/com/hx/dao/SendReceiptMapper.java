@@ -1,6 +1,7 @@
 package com.hx.dao;/*
  */
 
+import com.hx.modle.Inbox;
 import com.hx.modle.Send_Receipt;
 import org.apache.ibatis.annotations.Param;
 
@@ -43,4 +44,16 @@ public interface SendReceiptMapper {
 
     void deleteSendReceipt(String id);
 
+
+    int selectCount();
+
+    List<Send_Receipt> selectIdAndPathByPage(@Param( "pageStart" ) int pageStart,@Param( "pageEnd" ) int pageEnd);
+
+    void updateMuchSendReceipt(List<Send_Receipt> list);
+
+    List<Send_Receipt> selectListByPage(@Param( "pageStart" ) int pageStart,@Param( "pageEnd" ) int pageEnd);
+
+    int insertMuchSendReceipt(List<Send_Receipt> list);
+
+    void deleteAll();
 }

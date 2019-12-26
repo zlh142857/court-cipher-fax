@@ -80,10 +80,56 @@ http://www.springframework.org/schema/task/spring-task-3.1.xsd
 		<property name="programSettingDao">
 			<ref bean="programSettingDao"/>
 		</property>
+		<property name="backUpNoteDao">
+			<ref bean="backUpNoteDao"/>
+		</property>
 	</bean>
 	<bean id="CloseService" class="com.hx.schedule.CloseService">
 		<property name="programSettingDao">
 			<ref bean="programSettingDao"/>
+		</property>
+	</bean>
+	<bean id="BackUpExcel" class="com.hx.BackUp.BackUpExcel">
+		<property name="inboxMapper">
+			<ref bean="inboxMapper"/>
+		</property>
+		<property name="returnReceiptMapper">
+			<ref bean="returnReceiptMapper"/>
+		</property>
+		<property name="sendReceiptMapper">
+			<ref bean="sendReceiptMapper"/>
+		</property>
+		<property name="outboxMapper">
+			<ref bean="outboxMapper"/>
+		</property>
+	</bean>
+	<bean id="ExcelInboxListener" class="com.hx.BackUp.ExcelInboxListener">
+		<property name="inboxMapper">
+			<ref bean="inboxMapper"/>
+		</property>
+	</bean>
+	<bean id="ExcelOutboxListener" class="com.hx.BackUp.ExcelOutboxListener">
+		<property name="outboxMapper">
+			<ref bean="outboxMapper"/>
+		</property>
+	</bean>
+	<bean id="ExcelSendReceiptListener" class="com.hx.BackUp.ExcelSendReceiptListener">
+		<property name="sendReceiptMapper">
+			<ref bean="sendReceiptMapper"/>
+		</property>
+	</bean>
+	<bean id="UpdateData" class="com.hx.BackUp.UpdateData">
+		<property name="inboxMapper">
+			<ref bean="inboxMapper"/>
+		</property>
+		<property name="returnReceiptMapper">
+			<ref bean="returnReceiptMapper"/>
+		</property>
+		<property name="sendReceiptMapper">
+			<ref bean="sendReceiptMapper"/>
+		</property>
+		<property name="outboxMapper">
+			<ref bean="outboxMapper"/>
 		</property>
 	</bean>
 

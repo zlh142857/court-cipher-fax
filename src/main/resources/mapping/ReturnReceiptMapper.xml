@@ -8,6 +8,7 @@
         <result property="create_time" column="create_time"/>
         <result property="filsavepath" column="filsavepath"/>
         <result property="sendnumber" column="sendnumber"/>
+        <result property="state" column="state"/>
     </resultMap>
     <!--张立恒start-->
     <!--新增收回执箱-->
@@ -48,10 +49,38 @@
             </if>
         </trim>
     </insert>
-    <!--查询过去文件路径-->
-    <select id="selectFilePath" resultType="java.lang.String" parameterType="java.lang.Integer">
-      SELECT filsavepath FROM return_receipt WHERE DATEDIFF(now(),create_time) >=#{day,jdbcType=INTEGER}
+    <select id="selectCount" resultType="java.lang.Integer">
+      SELECT count(*) FROM return_receipt
     </select>
+    <select id="selectIdAndPathByPage" resultMap="Return_Receipt">
+      SELECT id,filsavepath FROM return_receipt limit #{pageStart,jdbcType=INTEGER},#{pageEnd,jdbcType=INTEGER}
+    </select>
+    <update id="updateMuchReturnReceipt" parameterType="com.hx.modle.Return_Receipt">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE return_receipt
+            <set>
+                filsavepath=#{item.filsavepath,jdbcType=VARCHAR}
+            </set>
+            WHERE id=#{item.id,jdbcType=INTEGER}
+        </foreach>
+    </update>
+    <select id="selectListByPage" resultMap="Return_Receipt">
+      SELECT * FROM return_receipt limit #{pageStart,jdbcType=INTEGER},#{pageEnd,jdbcType=INTEGER}
+    </select>
+    <insert id="insertMuchReturnReceipt" parameterType="com.hx.modle.Return_Receipt">
+        INSERT INTO return_receipt (id,senderunit,receivenumber,sendnumber,create_time,filsavepath,state)
+        values
+        <foreach collection ="list" item="info" separator="," >
+            (#{info.id},#{info.senderunit},#{info.receivenumber},#{info.sendnumber},#{info.create_time},
+            #{info.filsavepath},#{info.state})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        senderunit = VALUES(senderunit),receivenumber = VALUES(receivenumber),sendnumber = VALUES(sendnumber),create_time = VALUES(create_time)
+        ,filsavepath = VALUES(filsavepath),state = VALUES(state)
+    </insert>
+    <delete id="deleteAll">
+        DELETE FROM return_receipt WHERE 1=1;
+    </delete>
     <!--张立恒end-->
 
     <select id="queryTotalCount" resultType="java.lang.Integer">
@@ -142,6 +171,10 @@
     <delete id="deleteReturnReceipt">
         DELETE FROM return_receipt WHERE id = #{id}
     </delete>
+
+    <!--<select id="queryList" resultType="com.hx.modle.Return_Receipt">-->
+    <!--select * from table limit (start-1)*limit-->
+    <!--</select>-->
 
     <insert id="insert" parameterType="com.hx.modle.Return_Receipt">
         INSERT INTO return_receipt(id, senderunit, sendnumber, receivenumber, create_time, filsavepath, pdfPath) VALUES (

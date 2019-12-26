@@ -26,4 +26,5 @@ public interface OutBoxService {
     void reductionoutbox(String id);
 
     boolean deleteoutbox(String ids);
+
 }

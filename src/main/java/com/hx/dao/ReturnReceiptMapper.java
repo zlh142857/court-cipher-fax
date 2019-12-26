@@ -34,5 +34,16 @@ public interface ReturnReceiptMapper {
 
         void insertReceipt(Return_Receipt returnReceipt);
 
-    List<String> selectFilePath(int fileDays);
+
+    int selectCount();
+
+        List<Return_Receipt> selectIdAndPathByPage(@Param( "pageStart" ) int pageStart,@Param( "pageEnd" ) int pageEnd);
+
+        void updateMuchReturnReceipt(List<Return_Receipt> list);
+
+    List<Return_Receipt> selectListByPage(@Param( "pageStart" ) int pageStart,@Param( "pageEnd" ) int pageEnd);
+
+    int insertMuchReturnReceipt(List<Return_Receipt> list);
+
+    void deleteAll();
 }

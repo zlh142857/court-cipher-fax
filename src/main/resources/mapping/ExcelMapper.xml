@@ -8,9 +8,9 @@
 	</resultMap>
 	<insert id="InputExcel">
 		insert into mail
-		 (typename,linknumber,typeid)
+		 (typename,linknumber,typeid,telNotify)
 		 values
-		(#{params.typename},#{params.linknumber},#{params.typeid})
+		(#{params.typename},#{params.linknumber},#{params.typeid},#{params.telNotify})
 	</insert>
 	<sql id="WithDept_Column_List">
 		e.id, e.typename, e.linknumber, e.typeid

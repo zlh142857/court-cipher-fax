@@ -41,5 +41,23 @@ public interface InboxMapper {
 
     void delinbox(String id);
 
-    List<String> selectFilePath(Integer day);
+    List<Inbox> readinboxALLMail(@Param("params")Map<String,Object> searchMap);
+
+    int Signfornbox(int id);
+
+    int queryTotalCountw(Map<String, Object> searchMap);
+
+
+
+    int selectCount();
+
+    List<Inbox> selectListByPage(@Param( "pageStart" ) int pageStart,@Param( "pageEnd" ) int pageEnd);
+
+    int insertMuchInbox(List<Inbox> list);
+
+    void updateMuchInbox(List<Inbox> list);
+
+    List<Inbox> selectIdAndPathByPage(@Param( "pageStart" ) int pageStart,@Param( "pageEnd" ) int pageEnd);
+
+    void deleteAll();
 }

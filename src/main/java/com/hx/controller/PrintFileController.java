@@ -12,16 +12,12 @@ import com.hx.util.GetTimeToFileName;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import uk.co.mmscomputing.device.scanner.ScannerIOException;
 
-import javax.imageio.stream.FileImageInputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -170,11 +166,12 @@ public class PrintFileController{
             logger.error( e );
         }
     }
+    //电子签章另存为
     @RequestMapping("downTifSign")
     @ResponseBody
     public void downTifSign(String tifPath, HttpServletResponse response){
         String pngPath="";
-        String fileName=GetTimeToFileName.GetTimeToFileName()+".pdf";
+        String fileName=GetTimeToFileName.GetTimeToFileName()+".png";
         try {
             if(null!=tifPath){
                 pngPath=printFileService.downTifSign(tifPath);

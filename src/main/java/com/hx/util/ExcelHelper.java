@@ -32,9 +32,9 @@ public class ExcelHelper {
 	public static void exportExcel(List<String> headers, List<Object[]> bodyContent, String fileName, String fileType, HttpServletResponse response){
 		try {
 			Workbook workbook = null;
-			if ("xls".equals(fileType)) {
+			if ("xlsx".equals(fileType)) {
 				workbook = new XSSFWorkbook();
-			}else if ("xlsx".equals(fileType)){
+			}else{
 				workbook = new HSSFWorkbook();
 			}
 			// 产生工作表对象

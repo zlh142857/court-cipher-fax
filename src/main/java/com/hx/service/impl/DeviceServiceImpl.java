@@ -68,7 +68,7 @@ public class DeviceServiceImpl implements DeviceService {
     public String checkChState(Integer ch) throws Exception{
         String msg="";
         int voltage=Fax.INSTANCE.SsmGetLineVoltage(ch);
-        if(voltage<=10 && voltage>=0){
+        if(voltage<=6 && voltage>=0){
             msg="未插电话线";
         }else if(voltage==-1){
             msg="检测失败";

@@ -10,7 +10,7 @@ import com.hx.modle.Program_Setting;
 import org.apache.log4j.Logger;
 
 import javax.annotation.PostConstruct;
-
+//自动关机
 public class CloseService implements Runnable {
     private Logger logger=Logger.getLogger(this.getClass());
     private static ProgramSettingDao programSettingDao;

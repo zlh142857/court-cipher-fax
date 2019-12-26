@@ -45,7 +45,7 @@ public class OutBoxController {
         while (it.hasNext()) {
             Outbox m = it.next();
             data.add(new Object[]{m.getSendnumber(), m.getReceivingunit(),
-                    m.getReceivenumber(), m.getSendline()});
+                    m.getReceivenumber(), m.getSendline(), m.getPageNum()});
         }
         //构建Excel表头,此处需与data中数据一一对应
         List<String> headers = new ArrayList<String>();
@@ -53,13 +53,13 @@ public class OutBoxController {
         headers.add("接收单位");
         headers.add("接收号码");
         headers.add("文件标题");
+        headers.add("页数");
         ExcelHelper.exportExcel(headers, data, "发件箱", "xlsx", response);       //downloadFile为文件名称,可以自定义,建议用英文,中文在部分浏览器会乱码
-        log.info("导出成功");
     }
 
     @RequestMapping(value = "/queryoutbox", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> outboxLists(Integer pageNo, Integer pageSize, String sendnumber, String receivenumber, String receivingunit,
+    public String outboxLists(Integer pageNo, Integer pageSize, String sendnumber, String receivenumber, String receivingunit,
                                            String sendline, String message, String beginDate, String endDate) {
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
@@ -88,7 +88,7 @@ public class OutBoxController {
             result.put("mails", new ArrayList<Outbox>());
             result.put("state", 0);
         }
-        return result;
+        return JSONObject.toJSONStringWithDateFormat( result,"yyyy-MM-dd HH:mm:ss" );
     }
 
     //TODO 修改标题
@@ -100,7 +100,6 @@ public class OutBoxController {
         //TODO 验证标题不能为空
         if ( null == sendline || "".equals(sendline) ) {
             result.put("msg", "参数错误");
-            log.error("标题为空" + sendline);
             return result;
         }
         Map<String, Object> searchMap = new HashMap();
@@ -109,7 +108,6 @@ public class OutBoxController {
         //TODO 修改标题
         outBoxService.modifyoutBox(searchMap);
         result.put("state", 1); //0代表失败，1代表成功
-        log.info("修改标题成功");
         return result;
     }
 
@@ -122,7 +120,6 @@ public class OutBoxController {
         //TODO 验证标题不能为空
         if ( null == id || "".equals(id) ) {
             result.put("msg", "参数错误");
-            log.error("标题为空" + id);
             return result;
         }
         //TODO 更改状态
@@ -132,11 +129,9 @@ public class OutBoxController {
                 outBoxService.modifoutbox(Integer.parseInt(split[i]));
             }
             result.put("state", 1); //0代表失败，1代表成功
-            log.info("删除成功");
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error("删除失败");
-            result.put("msg", e.getMessage());
+            log.error(e.toString());
+            result.put("msg", "删除失败");
         }
         return result;
     }
@@ -144,7 +139,7 @@ public class OutBoxController {
     //TODO 回收站显示
     @RequestMapping(value = "/recoveryoutbox", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> recoveryoutbox(Integer pageNo, Integer pageSize, String sendnumber, String receivenumber, String receivingunit,
+    public String recoveryoutbox(Integer pageNo, Integer pageSize, String sendnumber, String receivenumber, String receivingunit,
                                               String sendline, String message, String beginDate, String endDate) {
         //mailListId="m";
         Map<String, Object> result = new HashMap<>();
@@ -174,7 +169,7 @@ public class OutBoxController {
             result.put("mails", new ArrayList<Outbox>());
             result.put("state", 0);
         }
-        return result;
+        return JSONObject.toJSONStringWithDateFormat( result,"yyyy-MM-dd HH:mm:ss" );
     }
 
     //TODO 数据还原
@@ -186,34 +181,31 @@ public class OutBoxController {
         //TODO 验证标题不能为空
         if ( null == id || "".equals(id) ) {
             result.put("msg", "参数错误");
-            log.error("标题为空" + id);
             return result;
         }
         //TODO 更改状态
         outBoxService.reductionoutbox(id);
         result.put("state", 1); //0代表失败，1代表成功
-        log.info("更改状态成功");
         return result;
     }
 
     //TODO 回收站删除数据
     @RequestMapping(value = "/deleteoutbox", method = RequestMethod.GET)
     @ResponseBody
+
     public Map<String, Object> deleteoutbox(String ids) {
         Map<String, Object> result = new HashMap<>();
         result.put("state", 0); //0代表失败，1代表成功
         if ( StringUtils.isEmpty(ids) ) {
             result.put("msg", "参数错误");
-
-            log.error("参数错误");
             return result;
         }
         boolean b = outBoxService.deleteoutbox(ids);
         if ( b ) {
             result.put("state", 1); //0代表失败，1代表成功
         }
-        log.info("删除成功");
         return result;
     }
+
 
 }

@@ -351,6 +351,13 @@
       <artifactId>guava</artifactId>
       <version>15.0</version>
     </dependency>
+    <!--easyExcel start-->
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>easyexcel</artifactId>
+      <version>1.1.2-beta5</version>
+    </dependency>
+    <!--easyExcel end-->
     <!--张立恒 end-->
 
   </dependencies>

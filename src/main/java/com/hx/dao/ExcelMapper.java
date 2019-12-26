@@ -9,9 +9,12 @@ import org.apache.ibatis.annotations.Param;
 
 public interface ExcelMapper {
 
-	void InputExcel(@Param("params") Map<String, Object> ginsengMap);
+    void InputExcel(@Param("params")Map<String, Object> ginsengMap);
+
+    List<Mail> getAll();
+
+    Integer deleteMany(int[] id_arr);
 
     List<Mail> getById(@Param("id") String id);
-
 
 }

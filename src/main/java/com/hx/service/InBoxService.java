@@ -27,4 +27,10 @@ public interface InBoxService {
     boolean reductioninbox(String ids, String bs);
 
     boolean delinbox(String ids, String bs);
+
+    List<Inbox> readinboxALLMail(Map<String,Object> searchMap, Integer pageNo, Integer pageSize);
+
+    int Signfornbox(int id);
+
+    int queryTotalCountw(Map<String, Object> searchMap);
 }

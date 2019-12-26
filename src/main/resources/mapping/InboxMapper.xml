@@ -35,7 +35,7 @@
     </select>
 
     <select id="queryTotalCount" resultType="int">
-        SELECT COUNT(*) FROM inbox where 1 = 1
+        SELECT COUNT(*) FROM inbox where state=1 and isSign=0
         <if test="params.senderunit!=null and params.senderunit!=''">
             and senderunit LIKE CONCAT('%',#{params.senderunit},'%')
         </if>
@@ -53,9 +53,36 @@
         </if>
     </select>
 
-    <select id="queryALLMail" parameterType="java.util.Map" resultType="com.hx.modle.Inbox">
-        SELECT * FROM inbox where state = 1
+    <select id="queryTotalCountw" resultType="int">
+        SELECT COUNT(*) FROM inbox where state=1 and isSign=1
+    </select>
 
+    <select id="queryALLMail" parameterType="java.util.Map" resultType="com.hx.modle.Inbox">
+        select * from inbox where state=1 and isSign=1
+        <if test="params.sendnumber!=null and params.sendnumber!=''">
+            and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
+        </if>
+        <if test="params.senderunit!=null and params.senderunit!=''">
+            and senderunit LIKE CONCAT('%',#{params.senderunit},'%')
+        </if>
+        <if test="params.receivenumber!=null and params.receivenumber!=''">
+            and receivenumber LIKE CONCAT('%',#{params.receivenumber},'%')
+        </if>
+        <if test="params.beginDate!=null and params.beginDate!=''">
+            and create_time &gt;= #{params.beginDate}
+        </if>
+        <if test="params.endDate!=null and params.endDate!=''">
+            and create_time &lt;= #{params.endDate}
+        </if>
+        <if test="params.Isreceipt!=null">
+            and Isreceipt = #{params.Isreceipt}
+        </if>
+        order by create_time desc
+        LIMIT ${params.start}, ${params.offset}
+    </select>
+
+    <select id="readinboxALLMail" parameterType="java.util.Map" resultType="com.hx.modle.Inbox">
+        select * from inbox where state=1 and isSign=0
         <if test="params.sendnumber!=null and params.sendnumber!=''">
             and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
         </if>
@@ -95,8 +122,13 @@
        UPDATE inbox SET state = '0' WHERE id =#{id}
     </update>
 
-    <update id="reductioninbox" parameterType="com.hx.modle.Inbox">
-         UPDATE inbox SET state = '1' WHERE id =#{id}
+
+    <update id="Signfornbox" parameterType="java.lang.Integer">
+       UPDATE inbox SET isSign = 1 WHERE id =#{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="reductioninbox" parameterType="java.lang.String">
+         UPDATE inbox SET state = 1 WHERE id =#{id,jdbcType=VARCHAR}
     </update>
 
     <select id="RecoveryInbox" parameterType="java.util.Map" resultType="com.hx.modle.Inbox">
@@ -139,9 +171,6 @@
             <if test="create_time != null and create_time != ''">
                 create_time,
             </if>
-            <if test="receiptpath != null and receiptpath != ''">
-                receiptpath,
-            </if>
             <if test="senderunit != null and senderunit != ''">
                 senderunit,
             </if>
@@ -167,9 +196,6 @@
             </if>
             <if test="create_time != null and create_time != ''">
                 #{create_time,jdbcType=TIMESTAMP},
-            </if>
-            <if test="receiptpath != null and receiptpath != ''">
-                #{receiptpath,jdbcType=VARCHAR},
             </if>
             <if test="senderunit != null and senderunit != ''">
                 #{senderunit,jdbcType=VARCHAR},
@@ -200,9 +226,38 @@
     <select id="selectBarAndTifPath" resultType="com.hx.modle.Inbox" parameterType="java.lang.Integer">
       SELECT filsavepath,barCode FROM inbox WHERE id=#{id,jdbcType=INTEGER}
     </select>
-    <!--查询过去文件路径-->
-    <select id="selectFilePath" resultType="java.lang.String" parameterType="java.lang.Integer">
-      SELECT filsavepath FROM inbox WHERE DATEDIFF(now(),create_time) >=#{day,jdbcType=INTEGER}
+    <select id="selectCount" resultType="java.lang.Integer">
+      SELECT count(*) FROM inbox
     </select>
+    <select id="selectListByPage" resultMap="BaseResultMap">
+      SELECT * FROM inbox limit #{pageStart,jdbcType=INTEGER},#{pageEnd,jdbcType=INTEGER}
+    </select>
+    <insert id="insertMuchInbox" parameterType="com.hx.modle.Inbox">
+        INSERT INTO inbox (id,sendnumber,senderunit,receivenumber,filsavepath,create_time,Isreceipt,barCode,isLink,state,isSign,pageNum)
+        values
+        <foreach collection ="list" item="info" separator="," >
+            (#{info.id},#{info.sendnumber},#{info.senderunit},#{info.receivenumber},#{info.filsavepath},
+            #{info.create_time},#{info.isreceipt},#{info.barCode},#{info.isLink},#{info.state},#{info.isSign},#{info.pageNum})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        sendnumber = VALUES(sendnumber),senderunit = VALUES(senderunit),receivenumber = VALUES(receivenumber),filsavepath = VALUES(filsavepath)
+        ,create_time = VALUES(create_time),Isreceipt = VALUES(isreceipt),barCode = VALUES(barCode),isLink = VALUES(isLink)
+        ,state = VALUES(state),isSign = VALUES(isSign),pageNum = VALUES(pageNum)
+    </insert>
+    <update id="updateMuchInbox" parameterType="com.hx.modle.Inbox">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE inbox
+            <set>
+                filsavepath=#{item.filsavepath,jdbcType=VARCHAR}
+            </set>
+            WHERE id=#{item.id,jdbcType=INTEGER}
+        </foreach>
+    </update>
+    <select id="selectIdAndPathByPage" resultMap="BaseResultMap">
+      SELECT id,filsavepath FROM inbox limit #{pageStart,jdbcType=INTEGER},#{pageEnd,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteAll">
+        DELETE FROM inbox WHERE 1=1;
+    </delete>
     <!--张立恒end-->
 </mapper>

@@ -16,6 +16,16 @@ import java.util.Map;
 @Repository
 public interface MailMapper {
 
+    int queryTotalCount(@Param("params") Map<String, Object> searchMap);
+
+    String selectCourtName(String callerId);
+
+    List<Mail_List> selectMailList();
+
+    List<Mail> selectMailById(int id);
+
+    String selectNotifyPhone(String receiveNumber);
+
     List<Mail_List> queryALLMailList();
 
     List<Mail_List> queryALLMail(@Param("params") Map<String, Object> searchMap);
@@ -34,13 +44,5 @@ public interface MailMapper {
 
     int deletemail(Integer id);
 
-    int queryTotalCount(@Param("params") Map<String, Object> searchMap);
-
-    String selectCourtName(String callerId);
-
-    List<Mail_List> selectMailList();
-
-    List<Mail> selectMailById(int id);
-
-    String selectNotifyPhone(String receiveNumber);
+    void modifymail(Map<String,Object> searchMap);
 }

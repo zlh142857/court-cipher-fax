@@ -13,6 +13,25 @@ public class TempModel implements Serializable {
     private String linknumber;
     private String tifPath;
 
+    private String filePath;
+    private String fileName;
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
     public String getTypename() {
         return typename;
     }
@@ -43,6 +62,8 @@ public class TempModel implements Serializable {
                 "typename='" + typename + '\'' +
                 ", linknumber='" + linknumber + '\'' +
                 ", tifPath='" + tifPath + '\'' +
+                ", filePath='" + filePath + '\'' +
+                ", fileName='" + fileName + '\'' +
                 '}';
     }
 }

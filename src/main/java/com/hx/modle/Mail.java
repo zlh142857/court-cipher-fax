@@ -16,6 +16,42 @@ public class Mail extends Mail_List implements Serializable  {
     private String typeid;
     private String typename;
     private String telNotify;
+    private String phone;
+    private String e_mail;
+    private String wor;
+    private String address;
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getE_mail() {
+        return e_mail;
+    }
+
+    public void setE_mail(String e_mail) {
+        this.e_mail = e_mail;
+    }
+
+    public String getWor() {
+        return wor;
+    }
+
+    public void setWor(String wor) {
+        this.wor = wor;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
     public String getTelNotify() {
         return telNotify;
@@ -69,6 +105,10 @@ public class Mail extends Mail_List implements Serializable  {
                 ", typeid='" + typeid + '\'' +
                 ", typename='" + typename + '\'' +
                 ", telNotify='" + telNotify + '\'' +
+                ", phone='" + phone + '\'' +
+                ", e_mail='" + e_mail + '\'' +
+                ", wor='" + wor + '\'' +
+                ", address='" + address + '\'' +
                 '}';
     }
 }
