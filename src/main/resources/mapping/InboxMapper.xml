@@ -154,6 +154,35 @@
         order by create_time desc
         LIMIT ${params.start}, ${params.offset}
     </select>
+    <select id="totalTotalCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM inbox where state=1
+    </select>
+
+
+    <select id="checkInbox" parameterType="java.util.Map" resultType="com.hx.modle.Inbox">
+        SELECT * FROM inbox where state = 1
+        <if test="params.sendnumber!=null and params.sendnumber!=''">
+            and sendnumber LIKE CONCAT('%',#{params.sendnumber},'%')
+        </if>
+        <if test="params.senderunit!=null and params.senderunit!=''">
+            and senderunit LIKE CONCAT('%',#{params.senderunit},'%')
+        </if>
+        <if test="params.receivenumber!=null and params.receivenumber!=''">
+            and receivenumber LIKE CONCAT('%',#{params.receivenumber},'%')
+        </if>
+        <if test="params.beginDate!=null and params.beginDate!=''">
+            and create_time &gt;= #{params.beginDate}
+        </if>
+        <if test="params.endDate!=null and params.endDate!=''">
+            and create_time &lt;= #{params.endDate}
+        </if>
+        <if test="params.Isreceipt!=null">
+            and Isreceipt = #{params.Isreceipt}
+        </if>
+        order by create_time desc
+        LIMIT ${params.start}, ${params.offset}
+    </select>
+
     <!--张立恒start-->
     <!--新增收件箱-->
     <insert id="insertInbox" parameterType="com.hx.modle.Inbox">

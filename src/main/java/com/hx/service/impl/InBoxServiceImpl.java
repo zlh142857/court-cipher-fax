@@ -134,4 +134,19 @@ public class InBoxServiceImpl implements InBoxService {
         return inboxMapper.queryTotalCountw(searchMap);
     }
 
+    @Override
+    public int totalTotalCount(Map<String, Object> searchMap) {
+        return inboxMapper.totalTotalCount(searchMap);
+    }
+
+
+    @Override
+    public List<Inbox> checkInbox(Map<String, Object> searchMap, Integer pageNo, Integer pageSize) {
+        int start = (pageNo - 1) * pageSize;
+        int offset = pageSize;
+        searchMap.put("start", start);
+        searchMap.put("offset", offset);
+        return inboxMapper.checkInbox( searchMap);
+    }
+
 }

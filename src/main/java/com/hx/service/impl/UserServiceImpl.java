@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
         Map<String,Object> map=new HashMap<>(  );
         int page=(pageNow-1)*pageSize;
         String levelInfo="";
-        if(level != null || level != ""){
+        if(!(null == level || "".equals( level ))){
             if(level.equals( "1" )){
                 levelInfo="ERROR";
             }else{
@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
             }
         }
         List<Log_Tables> logList=logMapper.selectLog(page,pageSize,levelInfo);
-        Long total=logMapper.selectCount();
+        Long total=logMapper.selectCount(levelInfo);
         map.put( "logList",logList);
         map.put( "total",total );
         return map;

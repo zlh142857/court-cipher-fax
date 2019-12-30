@@ -639,34 +639,34 @@ public class SendFaxServiceImpl implements SendFaxService {
 
     @Override
     public String returnFaxGetPath(String tifPath){
-        InputStream is=null;
+        File file=new File( tifPath );
+        List<String> list=new ArrayList<>(  );
+        String path="";
         ImageOutputStream os=null;
-        String path=schTask();
+        String path2=schTask();
+        boolean flag=false;
         try{
-            List<String> whiteJpg=new ArrayList<>(  );
-            String jpgPath=readerTiffOne(tifPath);
-            whiteJpg.add( jpgPath );
-            String pdfPath=fileTemp()+".pdf";
-            imgToPdf(whiteJpg,pdfPath);
-            File file=new File(pdfPath);
-            if(file.isFile()){
-                os= new FileImageOutputStream(new File( path ));
-                is=new FileInputStream( file );
-                PdfToTiff(is,os);
+            if(!file.exists()){
+                return null;
             }else{
-                path="";
-            }
-        }catch (Exception e){
-            logger.error( e.toString() );
-        }finally {
-            if(is!=null){
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    logger.error( e.toString() );
+                list=makeSingleTif(file);
+                if(list == null || list.isEmpty()){
+                    return null;
+                }else{
+                    int length=list.size();
+                    path=list.get( length-1 );
+                    List<String> one=new ArrayList<>(  );
+                    one.add( path );
+                    File file1=new File( path2 );
+                    os=new FileImageOutputStream( file1 );
+                    flag=tiffMerge(one,os);
                 }
             }
-            if(os!=null){
+        }catch (Exception e){
+            flag=false;
+            logger.error( e.toString() );
+        }finally {
+            if(null != os){
                 try {
                     os.close();
                 } catch (IOException e) {
@@ -674,7 +674,11 @@ public class SendFaxServiceImpl implements SendFaxService {
                 }
             }
         }
-        return path;
+        if(!flag){
+            return null;
+        }else{
+            return path2;
+        }
     }
 
     @Override

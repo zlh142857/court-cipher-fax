@@ -24,8 +24,6 @@ public class UserController {
     private static Logger logger=Logger.getLogger(UserController.class);
     @Autowired
     private UserService userService;
-    @Autowired
-    private BackUpNoteDao backUpNoteDao;
     /**
      *
      * 功能描述: 查询用户管理所有用户信息
@@ -93,11 +91,11 @@ public class UserController {
      */
     @RequestMapping("selectLog")
     @ResponseBody
-    public String selectLog(String pageNow,String pageSize,String level){
+    public String selectLog(Integer pageNow,Integer pageSize,String level){
         Map<String,Object> map=null;
         try {
-            if(pageNow != null && pageSize != null){
-                map = userService.selectLog(Integer.valueOf( pageNow ),Integer.valueOf( pageSize ),level);
+            if(null != pageNow && null != pageSize){
+                map = userService.selectLog(pageNow,pageSize,level);
             }else{
                 logger.error( "分页参数为空" );
             }

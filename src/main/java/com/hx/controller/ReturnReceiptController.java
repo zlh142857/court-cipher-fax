@@ -83,13 +83,14 @@ public class ReturnReceiptController {
         Iterator<Return_Receipt> it = list.iterator();
         while (it.hasNext()) {
             Return_Receipt m = it.next();
-            data.add(new Object[]{m.getSendnumber(), m.getReceivenumber(), m.getSenderunit()});
+            data.add(new Object[]{m.getSendnumber(), m.getReceivenumber(), m.getSenderunit(), m.getCreate_time()});
         }
         //构建Excel表头,此处需与data中数据一一对应
         List<String> headers = new ArrayList<String>();
         headers.add("接收号码");
         headers.add("发送号码");
         headers.add("发送方单位");
+        headers.add("接收时间");
         ExcelHelper.exportExcel(headers, data, "收回执", "xlsx", response);       //downloadFile为文件名称,可以自定义,建议用英文,中文在部分浏览器会乱码;
     }
 

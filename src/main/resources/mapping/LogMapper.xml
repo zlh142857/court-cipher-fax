@@ -16,10 +16,15 @@
         <if test="level != null and level != ''">
             WHERE level=#{level,jdbcType=VARCHAR}
         </if>
-        ORDER BY createtime DESC LIMIT #{page,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        ORDER BY createtime DESC
+        LIMIT #{page,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+
     </select>
     <select id="selectCount" resultType="java.lang.Long">
-        SELECT count(*) FROM log_tables;
+        SELECT count(*) FROM log_tables
+        <if test="levelInfo != null and levelInfo != ''">
+            WHERE level=#{levelInfo,jdbcType=VARCHAR}
+        </if>
     </select>
     <select id="deleteExpire" parameterType="java.lang.Integer">
         DELETE FROM log_tables WHERE DATEDIFF(now(),createtime) >=#{day,jdbcType=INTEGER}

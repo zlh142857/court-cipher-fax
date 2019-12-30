@@ -9,7 +9,7 @@ import java.util.List;
 public interface LogMapper {
     List<Log_Tables> selectLog(@Param("page")int page,@Param("pageSize")int pageSize,@Param("level")String levelInfo)throws Exception;
 
-    Long selectCount()throws Exception;
+    Long selectCount(@Param("levelInfo")String levelInfo)throws Exception;
 
     void deleteExpire(int logDays);
 }

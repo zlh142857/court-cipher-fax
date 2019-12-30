@@ -32,7 +32,7 @@ public class TxtToPdf {
             //方法一：使用Windows系统字体(TrueType)
             BaseFont baseFont = BaseFont.createFont(FONT, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
             Font font = new Font(baseFont);
-            InputStreamReader isr = new InputStreamReader(is, "UTF-8");
+            InputStreamReader isr = new InputStreamReader(is, "GBK");
             BufferedReader bufferedReader = new BufferedReader(isr);
             String str = "";
             while ((str = bufferedReader.readLine()) != null) {

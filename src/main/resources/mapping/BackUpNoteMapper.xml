@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.hx.dao.BackUpNoteDao" >
+    <resultMap id="BackUpMapper" type="com.hx.modle.Backup_note" >
+        <id property="id" column="id"/>
+        <result property="backUpDate" column="backUpDate"/>
+    </resultMap>
+
+    <!--张立恒start-->
+    <select id="selectIsDateNull" resultType="java.lang.Integer">
+      SELECT count(*) FROM backup_note;
+    </select>
+    <insert id="insertDate" parameterType="java.util.Date">
+      INSERT INTO backup_note (backUpDate) VALUES(#{date,jdbcType=DATE})
+    </insert>
+    <!--查询最大id对应的时间:最后一次备份的时间-->
+    <select id="selectDaysByTime" resultType="java.lang.Integer">
+      SELECT DATEDIFF(NOW(),backUpDate)AS DiffDate FROM backup_note WHERE id = (SELECT MAX(id) FROM backup_note);
+    </select>
+    <!--张立恒end-->
+</mapper>

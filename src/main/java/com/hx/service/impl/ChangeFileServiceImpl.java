@@ -71,11 +71,8 @@ public class ChangeFileServiceImpl implements ChangeFileService {
                 }else if(suffix.equals( ".xls" )||suffix.equals( ".xlsx" )){
                     fileType=3;
                     back=mkdirDir(file,fileType,tifPath);
-                }else if(suffix.equals( ".jpg" )||suffix.equals( ".png" )){
-                    fileType=4;
-                    back=mkdirDir(file,fileType,tifPath);
                 }else{
-                    message="不支持该文件格式";
+                    message="暂不支持该文件格式";
                 }
                 if(back){
                     flag=true;

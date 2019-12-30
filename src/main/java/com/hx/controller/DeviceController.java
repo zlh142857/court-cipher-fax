@@ -79,6 +79,7 @@ public class DeviceController {
     @RequestMapping("updateDevice")
     @ResponseBody
     public boolean updateDevice(Device_Setting deviceSetting){
+        System.out.println(deviceSetting.toString());
         boolean flag=deviceService.updateDevice(deviceSetting);
         return flag;
     }

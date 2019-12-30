@@ -33,11 +33,7 @@ public class PrintFileController{
         String tifPath="";
         try {
             tifPath=printFileService.printScan();
-        } catch (ScannerIOException e) {
-            logger.error( e.toString() );
-        } catch (InterruptedException e) {
-            logger.error( e.toString() );
-        } catch (Exception e){
+        }catch (Exception e){
             logger.error( e.toString() );
         }
         return JSONObject.toJSONString( tifPath );

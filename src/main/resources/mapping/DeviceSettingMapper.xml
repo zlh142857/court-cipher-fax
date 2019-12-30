@@ -33,7 +33,7 @@
   </resultMap>
   <!--发送页面下拉列表框,选择某个通道发送,座机号-->
   <select id="selectSeatNumber" resultMap="Device_Setting">
-    SELECT seatNumber,ch FROM device_setting WHERE seatNumber IS NOT NULL AND chType!=1;
+    SELECT seatNumber,ch FROM device_setting WHERE seatNumber IS NOT NULL AND seatNumber != '' AND chType!=1;
   </select>
   <!--初始化板卡时查询通道类型-->
   <select id="selectChType" resultType="java.lang.Integer" parameterType="java.lang.Integer">

@@ -140,6 +140,7 @@ public class ChangeFile {
     //将文件转换成BufferedImage,再将BufferedImage转换为tiff,转换为tiff时,设置metadata,像素设置,颜色设置是在生成BufferedImage的时候进行设置
     public static final float DPI = 209f;
     public static final float DPI2 = 209.1f;
+    public static final float DPI3 = 210.9f;
     public static boolean PdfToTiff(InputStream is,ImageOutputStream os) throws IOException {
         boolean bres = false;
         PDDocument doc = null;
@@ -156,6 +157,7 @@ public class ChangeFile {
         ImageWriteParam writerParams = tiffImageWriter.getDefaultWriteParam();
         writerParams.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
         writerParams.setCompressionType("CCITT T.6");
+        writerParams.setCompressionQuality( 1f );
         IIOMetadata metadata=createMetadata(tiffImageWriter,writerParams);
         try {
             //先指定一个文件用于存储输出的数据
@@ -185,6 +187,7 @@ public class ChangeFile {
         }
         return bres;
     }
+
     public static boolean txtPdfToTiff(InputStream is,ImageOutputStream os) throws IOException {
         boolean bres = false;
         PDDocument doc = null;
@@ -201,6 +204,7 @@ public class ChangeFile {
         ImageWriteParam writerParams = tiffImageWriter.getDefaultWriteParam();
         writerParams.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
         writerParams.setCompressionType("CCITT T.6");
+        writerParams.setCompressionQuality( 1f );
         IIOMetadata metadata=createMetadata(tiffImageWriter,writerParams);
         try {
             //先指定一个文件用于存储输出的数据
@@ -290,8 +294,8 @@ public class ChangeFile {
             }
             bres = true;
         } catch (IOException e) {
-            logger.error( e.toString() );
             bres = false;
+            logger.error( e.toString() );
         }
         return bres;
     }
@@ -575,6 +579,25 @@ public class ChangeFile {
             File file1=new File( docPath );
             BufferedImage bufferedImage = ImageIO.read(file1);
             BufferedImage newBufferedImage = new BufferedImage(1728, 2444,
+                    BufferedImage.TYPE_BYTE_BINARY);//TYPE_BYTE_BINARY 压缩大小为原来的 24分之一
+            newBufferedImage.createGraphics().drawImage(bufferedImage, 0, 0, null);
+            boolean rn = ImageIO.write(newBufferedImage, "tiff",f2);
+            if (!rn) {
+                pdfPath=null;
+            }
+        } catch (IOException e) {
+            pdfPath=null;
+            logger.error( e.toString());
+        }
+        return pdfPath;
+    }
+    public static String pngToTif2(String jpgPath){
+        String pdfPath=fileTemp()+".tif";
+        File f2 = new File(pdfPath);
+        try {
+            File file1=new File( jpgPath );
+            BufferedImage bufferedImage = ImageIO.read(file1);
+            BufferedImage newBufferedImage = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(),
                     BufferedImage.TYPE_BYTE_BINARY);//TYPE_BYTE_BINARY 压缩大小为原来的 24分之一
             newBufferedImage.createGraphics().drawImage(bufferedImage, 0, 0, null);
             boolean rn = ImageIO.write(newBufferedImage, "tiff",f2);

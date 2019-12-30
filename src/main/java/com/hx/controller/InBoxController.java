@@ -44,7 +44,8 @@ public class InBoxController {
         Iterator<Inbox> it = list.iterator();
         while (it.hasNext()) {
             Inbox m = it.next();
-            data.add(new Object[]{m.getSendnumber(), m.getReceivenumber(), m.getReceivenumber(), m.getIsSign(), m.getPageNum()});
+            data.add(new Object[]{m.getSendnumber(), m.getReceivenumber(), m.getReceivenumber(),
+                    m.getPageNum(), m.getCreate_time()});
             // data.add(new Object[]{  m.getSendname(), m.getAccepttime(), m.getFileaddress()});
         }
         //构建Excel表头,此处需与data中数据一一对应
@@ -52,8 +53,8 @@ public class InBoxController {
         headers.add("发送方号码");
         headers.add("发送方单位");
         headers.add("接收号码");
-        headers.add("是否已签收");
         headers.add("页数");
+        headers.add("接收时间");
 
         ExcelHelper.exportExcel(headers, data, "收件箱", "xlsx", response);//downloadFile为文件名称,可以自定义,建议用英文,中文在部分浏览器会乱码
     }
@@ -247,6 +248,45 @@ public class InBoxController {
         } catch (Exception e) {
             log.error(e.toString());
             result.put("msg", "操作失败");
+        }
+        return result;
+    }
+    //TODO 迷糊查询
+    @RequestMapping(value = "/checkinbox", method = RequestMethod.GET)
+    @ResponseBody
+    public Map<String, Object> checkinbox(Integer pageNo,
+                                          Integer pageSize,
+                                          String sendnumber,
+                                          String senderunit,
+                                          String receivenumber,
+                                          String Isreceipt,
+                                          String beginDate,
+                                          String endDate) {
+        //mailListId="m";
+        Map<String, Object> result = new HashMap<>();
+        if ( StringUtils.isNotEmpty(beginDate) ) {
+            beginDate = beginDate.trim();
+        }
+        if ( StringUtils.isNotEmpty(endDate) ) {
+            endDate = endDate.trim();
+        }
+        Map<String, Object> searchMap = new HashMap();
+        searchMap.put("senderunit", senderunit);
+        searchMap.put("receivenumber", receivenumber);
+        searchMap.put("Isreceipt", Isreceipt);
+        searchMap.put("beginDate", beginDate);
+        searchMap.put("endDate", endDate);
+        int count = inBoxService.totalTotalCount(searchMap);
+        List<Inbox> mails = null;
+        if ( count > 0 ) {
+            mails = inBoxService.checkInbox(searchMap, pageNo, pageSize);
+            result.put("totalCount", count);
+            result.put("state", 1);
+
+            result.put("mails", mails);
+        } else {
+            result.put("mails", new ArrayList<Inbox>());
+            result.put("state", 0);
         }
         return result;
     }

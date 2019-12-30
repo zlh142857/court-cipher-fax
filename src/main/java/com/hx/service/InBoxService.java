@@ -33,4 +33,8 @@ public interface InBoxService {
     int Signfornbox(int id);
 
     int queryTotalCountw(Map<String, Object> searchMap);
+
+    int totalTotalCount(Map<String, Object> searchMap);
+
+    List<Inbox> checkInbox(Map<String,Object> searchMap, Integer pageNo, Integer pageSize);
 }

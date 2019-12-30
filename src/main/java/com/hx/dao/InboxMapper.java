@@ -60,4 +60,9 @@ public interface InboxMapper {
     List<Inbox> selectIdAndPathByPage(@Param( "pageStart" ) int pageStart,@Param( "pageEnd" ) int pageEnd);
 
     void deleteAll();
+
+
+    List<Inbox> checkInbox(@Param("params") Map<String, Object> searchMap);
+
+    int totalTotalCount(@Param("params") Map<String, Object> searchMap);
 }

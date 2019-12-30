@@ -22,20 +22,28 @@ import static com.hx.util.TempDir.fileTemp;
 public class ImgToPdf {
     private static Logger logger=Logger.getLogger( ImgToPdf.class );
     //参数,文件路径的list集合,要保存的PDF路径
-    public static void imgToPdf(List<String> files,String pdfPath) throws Exception{
-        ImgUtil imageUtil = new ImgUtil();
-        List<String> newList=new ArrayList<>(  );
-        for (int i=0;i<files.size();i++) {
-            String file = files.get( i );
-            //读取图片
-            BufferedImage bi = imageUtil.rotateImage(file);
-            if (bi==null)
-                continue;
-            //将每一份图片都单独转换成一份PDF,然后将PDF路径替换图片路径
-            String pdffile = Img2PDF(file,bi);
-            newList.add( pdffile );
+    public static boolean imgToPdf(List<String> files,String pdfPath){
+        boolean flag=false;
+        try{
+            ImgUtil imageUtil = new ImgUtil();
+            List<String> newList=new ArrayList<>(  );
+            for (int i=0;i<files.size();i++) {
+                String file = files.get( i );
+                //读取图片
+                BufferedImage bi = imageUtil.rotateImage(file);
+                if (bi==null)
+                    continue;
+                //将每一份图片都单独转换成一份PDF,然后将PDF路径替换图片路径
+                String pdffile = Img2PDF(file,bi);
+                newList.add( pdffile );
+            }
+            mergePDF(newList,pdfPath);
+            flag=true;
+        }catch (Exception e){
+            flag=false;
+            logger.error( e.toString() );
         }
-        mergePDF(newList,pdfPath);
+        return flag;
     }
     public static String Img2PDF(String imagePath, BufferedImage img){
         String pdfPath = "";
@@ -61,6 +69,7 @@ public class ImgToPdf {
 
             fos = new FileOutputStream(pdfPath);
             PdfWriter writer = PdfWriter.getInstance(doc, fos);
+            writer.close();
             doc.open();
             doc.add(image);
             doc.close();

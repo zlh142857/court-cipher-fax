@@ -86,7 +86,8 @@ public class SendReceiptController {
         Iterator<Send_Receipt> it = list.iterator();
         while (it.hasNext()) {
             Send_Receipt m = it.next();
-            data.add(new Object[]{m.getSendnumber(), m.getReceivenumber(), m.getReceivenumber()});
+            data.add(new Object[]{m.getSendnumber(), m.getReceivenumber(),
+                    m.getReceivenumber(), m.getCreate_time(), m.getMessage()});
             // data.add(new Object[]{  m.getSendname(), m.getAccepttime(), m.getFileaddress()});
         }
         //构建Excel表头,此处需与data中数据一一对应
@@ -94,6 +95,8 @@ public class SendReceiptController {
         headers.add("发送号码");
         headers.add("文件标题");
         headers.add("接收方号码");
+        headers.add("发送时间");
+        headers.add("是否发送成功");
         ExcelHelper.exportExcel(headers, data, "发回执", "xlsx", response);       //downloadFile为文件名称,可以自定义,建议用英文,中文在部分浏览器会乱码
     }
 

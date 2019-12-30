@@ -45,7 +45,7 @@ public class OutBoxController {
         while (it.hasNext()) {
             Outbox m = it.next();
             data.add(new Object[]{m.getSendnumber(), m.getReceivingunit(),
-                    m.getReceivenumber(), m.getSendline(), m.getPageNum()});
+                    m.getReceivenumber(), m.getSendline(), m.getPageNum(), m.getMessage(), m.getCreate_time()});
         }
         //构建Excel表头,此处需与data中数据一一对应
         List<String> headers = new ArrayList<String>();
@@ -54,6 +54,8 @@ public class OutBoxController {
         headers.add("接收号码");
         headers.add("文件标题");
         headers.add("页数");
+        headers.add("是否发送成功");
+        headers.add("发送时间");
         ExcelHelper.exportExcel(headers, data, "发件箱", "xlsx", response);       //downloadFile为文件名称,可以自定义,建议用英文,中文在部分浏览器会乱码
     }
 

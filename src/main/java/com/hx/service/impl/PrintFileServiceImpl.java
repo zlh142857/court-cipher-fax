@@ -10,6 +10,7 @@ import com.hx.modle.Program_Setting;
 import com.hx.service.PrintFileService;
 import com.hx.util.PrintImage;
 import com.hx.util.TwainExample;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.hx.change.ChangeFile.tiffMerge;
+import static com.hx.change.ChangeFile.*;
 import static com.hx.change.ImgToPdf.imgToPdf;
+import static com.hx.change.ScanImgToPdf.imgOfPdf;
 import static com.hx.service.impl.ChangeFileServiceImpl.tifToPng;
 import static com.hx.util.TempDir.fileTemp;
 import static com.hx.util.TempDir.schTask;
@@ -35,6 +37,7 @@ import static com.hx.util.TiffToJPEG.readerTiff;
 
 @Service("printService")
 public class PrintFileServiceImpl implements PrintFileService {
+    private static Logger logger=Logger.getLogger( PrintFileServiceImpl.class );
     @Autowired
     private ProgramSettingDao programSettingDao;
     //tif文件先转换成jpg
@@ -66,24 +69,55 @@ public class PrintFileServiceImpl implements PrintFileService {
     }
     //扫描功能,返回文件保存路径
     @Override
-    public String printScan() throws Exception{
+    public String printScan(){
         String tifPath=schTask();
         List<String> list=null;
+        List<String> list2=new ArrayList<>(  );
         boolean flag=false;
-        TwainExample.app=new TwainExample();
-        for(;;){
-            Thread.sleep( 1000 );
-            int count=TwainExample.count;
-            if(count==1){
-                list=TwainExample.list;
-                if(list.size()>0){
-                    File file=new File( tifPath );
-                    ImageOutputStream os=new FileImageOutputStream( file);
-                    flag=tiffMerge( list, os );
+        ImageOutputStream os=null;
+        InputStream is=null;
+        try{
+            TwainExample.app=new TwainExample();
+            for(;;){
+                Thread.sleep( 1000 );
+                int count=TwainExample.count;
+                if(count==1){
+                    list=TwainExample.list;
+                    if(list.size()>0){
+                        File file=new File( tifPath );
+                        os=new FileImageOutputStream( file);
+                        String pdfPath=fileTemp()+".pdf";
+                        boolean flag2=imgOfPdf(list,pdfPath);
+                        if(flag2){
+                            is=new FileInputStream( new File( pdfPath ) );
+                            boolean flag3=txtPdfToTiff(is,os);
+                            if(flag3){
+                                flag=true;
+                            }
+                        }
+                    }
+                    TwainExample.list=new ArrayList<>(  );
+                    TwainExample.count=0;
+                    break;
                 }
-                TwainExample.list=new ArrayList<>(  );
-                TwainExample.count=0;
-                break;
+            }
+        }catch (Exception e){
+            flag=false;
+            logger.error( e.toString() );
+        }finally {
+            if(null != os){
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    logger.error( e.toString() );
+                }
+            }
+            if(null != is){
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    logger.error( e.toString() );
+                }
             }
         }
         if(!flag){

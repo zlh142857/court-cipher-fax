@@ -8,7 +8,7 @@ public interface PrintFileService {
 
     String printFile(String tifPath) throws Exception;
 
-    String printScan() throws Exception;
+    String printScan();
 
     Map<String,Object> selectPrintService();
 
