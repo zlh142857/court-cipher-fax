@@ -238,7 +238,7 @@
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi</artifactId>
-      <version>3.10-FINAL</version>
+      <version>4.1.1</version>
     </dependency>
     <!--Excel导入导出相关jar包 -->
 
